@@ -18,8 +18,12 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 	static function checkRights() {
 		global $DB;
 		$active_profile = $_SESSION['glpiactiveprofile']['id'];
-		$req = $DB->request('glpi_plugin_protocolsmanager_profiles',
-		['profile_id' => $active_profile]);
+		
+		// Updated DB->request syntax
+		$req = $DB->request([
+			'FROM' => 'glpi_plugin_protocolsmanager_profiles',
+			'WHERE' => ['profile_id' => $active_profile]
+		]);
 					
         if($row = $req->current()) {
             $plugin_conf = $row['plugin_conf'];
@@ -57,9 +61,11 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			$edit_id = $_POST['edit_id'];
 			$mode = $edit_id;
 			
-			$req = $DB->request(
-				'glpi_plugin_protocolsmanager_config',
-				['id' => $edit_id ]);
+			// Updated DB->request syntax
+			$req = $DB->request([
+				'FROM' => 'glpi_plugin_protocolsmanager_config',
+				'WHERE' => ['id' => $edit_id ]
+			]);
 				
 			if ($row = $req->current()) {
 				$template_uppercontent = $row["upper_content"];
@@ -82,6 +88,8 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 				// Récupérer width/height du logo si présents
 				$logo_width = isset($row["logo_width"]) ? $row["logo_width"] : '';
 				$logo_height = isset($row["logo_height"]) ? $row["logo_height"] : '';
+				$theme_color = isset($row["theme_color"]) ? $row["theme_color"] : '#8A6428';
+				$header_text_color = isset($row["header_text_color"]) ? $row["header_text_color"] : '#FFFFFF';
 			}
 			
 		} else {
@@ -103,6 +111,14 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			$author_state = 1;
 			$logo_width = '';
 			$logo_height = '';
+			$theme_color = '#8A6428';
+			$header_text_color = '#FFFFFF';
+		}
+		if (!is_string($theme_color) || !preg_match('/^#[0-9A-Fa-f]{6}$/', $theme_color)) {
+			$theme_color = '#8A6428';
+		}
+		if (!is_string($header_text_color) || !preg_match('/^#[0-9A-Fa-f]{6}$/', $header_text_color)) {
+			$header_text_color = '#FFFFFF';
 		}
 		
 		$fonts = array('Courier' => 'Courier',
@@ -145,11 +161,13 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		echo "<div class='center'>";
 		echo "<form name='form' action='config.form.php' method='post'  enctype='multipart/form-data'>";
 		echo "<input type='hidden' name='MAX_FILE_SIZE' value=1948000>";
-		echo "<input type='hidden' name='mode' value='$mode'>";
+		// Added htmlescape for XSS protection
+		echo "<input type='hidden' name='mode' value='" . htmlescape($mode) . "'>";
 		echo "<table class='tab_cadre_fixe'>";
 		echo "<tr><th colspan='3'>".__('Create')." ".__('template')."<a href='https://github.com/mateusznitka/protocolsmanager/wiki/Using-the-plugin' target='_blank'><img src='../img/help.png' width='20px' height='20px' align='right'></a></th></tr>";
-		echo "<tr><td>".__('Template name')."*</td><td colspan='2'><input type='text' name='template_name' style='width:80%;' value='".htmlspecialchars($template_name,ENT_QUOTES)."'></td></tr>";
-		echo "<tr><td>".__('Document title', 'protocolsmanager')."*</td><td colspan='2'><input type='text' name='title' style='width:80%;' value='".htmlspecialchars($title,ENT_QUOTES)."'></td></tr>";
+		// Added htmlescape for XSS protection
+		echo "<tr><td>".__('Template name')."*</td><td colspan='2'><input type='text' name='template_name' style='width:80%;' value='" . htmlescape($template_name) . "'></td></tr>";
+		echo "<tr><td>".__('Document title', 'protocolsmanager')."*</td><td colspan='2'><input type='text' name='title' style='width:80%;' value='" . htmlescape($title) . "'></td></tr>";
 		echo "<tr><td></td><td colspan='2'><small class='text-muted'>".__('You can use {owner} here.', 'protocolsmanager')."</small></td></tr>";
 
 		echo "<tr><td>Font</td><td colspan='2'><select name='font' style='width:150px'>";
@@ -179,13 +197,16 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		if ($breakword == 0)
 			echo "checked='checked'";
 		echo "> Off</label></td></tr>";
+		echo "<tr><td>".__('Color')."</td><td colspan='2'><input type='color' name='theme_color' value='" . htmlescape($theme_color) . "'></td></tr>";
+		echo "<tr><td>".__('Text color')."</td><td colspan='2'><input type='color' name='header_text_color' value='" . htmlescape($header_text_color) . "'></td></tr>";
 		
-		echo "<tr><td>".__('City')."</td><td colspan='2'><input type='text' name='city' style='width:80%;' value='".htmlspecialchars($city,ENT_QUOTES)."'></td></tr>";
-		echo "<tr><td>".__('Upper Content')."</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' cols='50' rows'8' name='template_uppercontent'>".htmlspecialchars($template_uppercontent,ENT_QUOTES)."</textarea></td></tr>";
+		// Added htmlescape for XSS protection
+		echo "<tr><td>".__('City')."</td><td colspan='2'><input type='text' name='city' style='width:80%;' value='" . htmlescape($city) . "'></td></tr>";
+		echo "<tr><td>".__('Upper Content')."</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' cols='50' rows'8' name='template_uppercontent'>" . htmlescape($template_uppercontent) . "</textarea></td></tr>";
 		echo "<tr><td></td><td colspan='2'><small class='text-muted'>".__('You can use {owner} or {admin} here.', 'protocolsmanager')."</small></td></tr>";
-		echo "<tr><td>".__('Content')."</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' cols='50' rows'8' name='template_content'>".htmlspecialchars($template_content,ENT_QUOTES)."</textarea></td></tr>";
+		echo "<tr><td>".__('Content')."</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' cols='50' rows'8' name='template_content'>" . htmlescape($template_content) . "</textarea></td></tr>";
 		echo "<tr><td></td><td colspan='2'><small class='text-muted'>".__('You can use {owner} or {admin} here.', 'protocolsmanager')."</small></td></tr>";
-		echo "<tr><td>".__('Footer')."</td><td class='middle' colspan='2'><textarea style='width:80%; height:100px;' cols='45' rows'4' name='footer_text'>".htmlspecialchars($template_footer,ENT_QUOTES)."</textarea></td></tr>";	
+		echo "<tr><td>".__('Footer')."</td><td class='middle' colspan='2'><textarea style='width:80%; height:100px;' cols='45' rows'4' name='footer_text'>" . htmlescape($template_footer) . "</textarea></td></tr>";	
 		echo "<tr><td>".__('Orientation')."</td><td colspan='2'><select name='orientation' style='width:150px'>";
 			foreach($orientations as $vals => $valname) {
 				echo "<option value='".$vals."' ";
@@ -232,16 +253,19 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 				}
 	
 				echo "&nbsp;&nbsp;".$img_tag;
-				echo "&nbsp;&nbsp;<input type='checkbox' name='img_delete' value='$img_delete'>&nbsp ".__('Delete')." ".__('File');
+				// Added htmlescape for XSS protection
+				echo "&nbsp;&nbsp;<input type='checkbox' name='img_delete' value='" . htmlescape($img_delete) . "'>&nbsp ".__('Delete')." ".__('File');
 			}
 		}
 		echo "</td></tr>";
 	
 		// Nouveau champ largeur logo
-		echo "<tr><td>".__('Logo width (px)')."</td><td colspan='2'><input type='number' min='0' name='logo_width' value='".htmlspecialchars($logo_width, ENT_QUOTES)."' style='width:80px;'></td></tr>";
+		// Added htmlescape for XSS protection
+		echo "<tr><td>".__('Logo width (px)')."</td><td colspan='2'><input type='number' min='0' name='logo_width' value='" . htmlescape($logo_width) . "' style='width:80px;'></td></tr>";
 	
 		// Nouveau champ hauteur logo
-		echo "<tr><td>".__('Logo height (px)')."</td><td colspan='2'><input type='number' min='0' name='logo_height' value='".htmlspecialchars($logo_height, ENT_QUOTES)."' style='width:80px;'></td></tr>";
+		// Added htmlescape for XSS protection
+		echo "<tr><td>".__('Logo height (px)')."</td><td colspan='2'><input type='number' min='0' name='logo_height' value='" . htmlescape($logo_height) . "' style='width:80px;'></td></tr>";
 	
 		// ... suite du formulaire ...
 		echo "<tr><td>".__('Enable email autosending')."</td><td><label><input type='radio' name='email_mode' value='1'";
@@ -253,14 +277,18 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			echo "checked='checked'";
 		echo "> OFF</label></td></tr>";
 		echo "<tr><td>".__('Email template')."</td><td colspan='2'><select name='email_template' required style='width:150px'>";
-			foreach ($DB->request('glpi_plugin_protocolsmanager_emailconfig') as $uid => $list) {
+			
+			// Updated DB->request syntax
+			foreach ($DB->request(['FROM' => 'glpi_plugin_protocolsmanager_emailconfig']) as $uid => $list) {
 				echo '<option value=';
-				echo $list["id"];
+				// Added htmlescape for XSS protection
+				echo htmlescape($list["id"]);
 				if ($uid == $email_template) {
 					echo ' selected';
 				}
 				echo '>';
-				echo $list["tname"];
+				// Added htmlescape for XSS protection
+				echo htmlescape($list["tname"]);
 				echo '</option>';
 			}
 		echo "</select></td></tr>";
@@ -272,12 +300,14 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		if($author_state == 2)
 		{
 			echo "<td><label><input type='radio' name='author_state' value='1'> ".__('The user who generates the document', 'protocolsmanager')."</label></td>";
-			echo "<td><input type='radio' name='author_state' value='2' checked='checked'> <input type='text' name='author_name' value='".htmlspecialchars($author_name,ENT_QUOTES)."'/></td>";
+			// Added htmlescape for XSS protection
+			echo "<td><input type='radio' name='author_state' value='2' checked='checked'> <input type='text' name='author_name' value='" . htmlescape($author_name) . "'/></td>";
 
 		}
 		else {
 			echo "<td><label><input type='radio' name='author_state' value='1' checked='checked'> ".__('The user who generates the document', 'protocolsmanager')."</label></td>";
-			echo "<td><input type='radio' name='author_state' value='2'> <input type='text' name='author_name' value='".htmlspecialchars($author_name,ENT_QUOTES)."'/></td>";
+			// Added htmlescape for XSS protection
+			echo "<td><input type='radio' name='author_state' value='2'> <input type='text' name='author_name' value='" . htmlescape($author_name) . "'/></td>";
 		}
 
 		echo "</tr>";
@@ -316,9 +346,11 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			
 			$email_edit_id = $_POST['email_edit_id'];
 
-			$req = $DB->request(
-				'glpi_plugin_protocolsmanager_emailconfig',
-				['id' => $email_edit_id ]);			
+			// Updated DB->request syntax
+			$req = $DB->request([
+				'FROM' => 'glpi_plugin_protocolsmanager_emailconfig',
+				'WHERE' => ['id' => $email_edit_id ]
+			]);			
 				
 			if ($row = $req->current()) {
 				$tname = $row["tname"];
@@ -342,7 +374,8 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		
 		echo "<table class='tab_cadre_fixe'>";
 		echo "<tr><th colspan='3'>".__('Create')." ".__('email template')."<a href='https://github.com/mateusznitka/protocolsmanager/wiki/Email-sending-configuration' target='_blank'><img src='../img/help.png' width='20px' height='20px' align='right'></a></th></tr>";
-		echo "<tr><td>".__('Template name')."*</td><td colspan='2' class='middle'><input type='text' class='eboxes' name='tname' style='width:80%;' value='".htmlspecialchars($tname,ENT_QUOTES)."'></td></tr>";
+		// Added htmlescape for XSS protection
+		echo "<tr><td>".__('Template name')."*</td><td colspan='2' class='middle'><input type='text' class='eboxes' name='tname' style='width:80%;' value='" . htmlescape($tname) . "'></td></tr>";
 		echo "<tr><td>".__('Send to user')."</td><td><label><input type='radio' name='send_user' value='1' class='eboxes' ";
 		if ($send_user == 1)
 			echo "checked='checked'";
@@ -351,11 +384,13 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		if ($send_user == 2)
 			echo "checked='checked'";
 		echo "> don't send to user</label></td></tr>";
-		echo "<tr><td>".__('Email content')."*</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' class='eboxes' cols='50' rows'8' name='email_content'>".htmlspecialchars($email_content,ENT_QUOTES)."</textarea></td></tr>";
-		echo "<tr><td>".__('Email subject')."*</td><td colspan='2' class='middle'><input type='text' class='eboxes' name='email_subject' style='width:80%;' value='".htmlspecialchars($email_subject,ENT_QUOTES)."'></td></tr>";
-		echo "<tr><td>".__('Add emails - use ; to separate')."*</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' class='eboxes' cols='50' rows '8' name='recipients'>".htmlspecialchars($recipients,ENT_QUOTES)."</textarea></td></tr>";
+		// Added htmlescape for XSS protection
+		echo "<tr><td>".__('Email content')."*</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' class='eboxes' cols='50' rows'8' name='email_content'>" . htmlescape($email_content) . "</textarea></td></tr>";
+		echo "<tr><td>".__('Email subject')."*</td><td colspan='2' class='middle'><input type='text' class='eboxes' name='email_subject' style='width:80%;' value='" . htmlescape($email_subject) . "'></td></tr>";
+		echo "<tr><td>".__('Add emails - use ; to separate')."*</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' class='eboxes' cols='50' rows '8' name='recipients'>" . htmlescape($recipients) . "</textarea></td></tr>";
 		echo "</table>";
-		echo "<input type='hidden' name='email_edit_id' value=$email_edit_id>";
+		// Added htmlescape for XSS protection
+		echo "<input type='hidden' name='email_edit_id' value='" . htmlescape($email_edit_id) . "'>";
 		echo "<table class='tab_cadre_fixe'><td style='text-align:right;'><input type='submit' name='save_email' class='submit' id='email_submit'></td>";
 		Html::closeForm();
 		echo "<form name='cancelform' action='config.form.php' method='post'><td style='text-align:left;'><input type='submit' class='submit' name='cancel_email' value=".__('Cancel')."></td></table>";
@@ -372,13 +407,21 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			Session::AddMessageAfterRedirect('Fill mandatory fields', 'WARNING', true);
 		} else {
 
-			// en général c'est soient des champs obligatoires soit du texte par défaut pas changeables mais avec une valeur différent de null
+			// No addslashes() needed here. GLPI 11 DB layer handles sanitization.
 			$template_name = $_POST['template_name'];
 			$title = $_POST['title'];
 			$font = $_POST["font"];
 			$fontsize = $_POST["fontsize"];
 			$serial_mode = $_POST["serial_mode"];
 			$orientation = $_POST["orientation"];
+			$posted_theme_color = $_POST['theme_color'] ?? '';
+			$theme_color = is_string($posted_theme_color) && preg_match('/^#[0-9A-Fa-f]{6}$/', $posted_theme_color)
+				? $posted_theme_color
+				: '#8A6428';
+			$posted_header_text_color = $_POST['header_text_color'] ?? '';
+			$header_text_color = is_string($posted_header_text_color) && preg_match('/^#[0-9A-Fa-f]{6}$/', $posted_header_text_color)
+				? $posted_header_text_color
+				: '#FFFFFF';
 
 			if(isset($_POST["template_uppercontent"])) {
 				$template_uppercontent = $_POST['template_uppercontent'];
@@ -443,8 +486,6 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 
 
 			// TODO : concaténé quand les champs sont vides
-
-			
 			
 			//if new template
 			if ($mode == 0) {
@@ -467,7 +508,9 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 					'email_mode' => $email_mode,
 					'email_template' => $email_template,
 					'author_name' => $author_name,
-					'author_state' => $author_state
+					'author_state' => $author_state,
+					'theme_color' => $theme_color,
+					'header_text_color' => $header_text_color
 					]
 				);
 			}
@@ -480,6 +523,7 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 				// la valeur est égale à "X\"" au lieu de "X"
 
 				// idéalement checker la value de $email_template
+				// This sanitization is fine to keep
 				$email_template = preg_replace('/[^A-Za-z0-9\-]/','',$email_template);
 
 
@@ -504,7 +548,9 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 							'email_mode' => $email_mode,
 							'email_template' => $email_template,
 							'author_name' => $author_name,
-							'author_state' => $author_state
+							'author_state' => $author_state,
+							'theme_color' => $theme_color,
+							'header_text_color' => $header_text_color
 						], [
 							'id' => $mode
 						]
@@ -544,7 +590,9 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 							'breakword' => $breakword,
 							'email_template' => $email_template,
 							'author_name' => $author_name,
-							'author_state' => $author_state
+							'author_state' => $author_state,
+							'theme_color' => $theme_color,
+							'header_text_color' => $header_text_color
 						], [
 							'id' => $mode
 						]
@@ -568,7 +616,9 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 							'email_mode' => $email_mode,
 							'email_template' => $email_template,
 							'author_name' => $author_name,
-							'author_state' => $author_state
+							'author_state' => $author_state,
+							'theme_color' => $theme_color,
+							'header_text_color' => $header_text_color
 						], [
 							'id' => $mode
 						]
@@ -589,7 +639,7 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			Session::AddMessageAfterRedirect('Fill mandatory fields', 'WARNING', true);
 		} else {
 			
-		
+			// No addslashes() needed here
 			$tname = $_POST["tname"];
 			$send_user = $_POST["send_user"];
 			$email_subject = $_POST["email_subject"];
@@ -640,18 +690,20 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		echo "<tr class='tab_bg_1'><td class='center'><b>".__('Name')."</b></td>";
 		echo "<td class='center' colspan=2'><b>".__('Action')."</b></td></tr>";
 		
-		foreach ($DB->request(
-			'glpi_plugin_protocolsmanager_config') as $config_data => $configs) {
+		// Updated DB->request syntax
+		foreach ($DB->request(['FROM' => 'glpi_plugin_protocolsmanager_config']) as $config_data => $configs) {
 				
 				echo "<tr class='tab_bg_1'><td class='center'>";
-				echo $configs['name'];
+				// Added htmlescape for XSS protection
+				echo htmlescape($configs['name']);
 				echo "</td>";
 				$conf_id = $configs['id'];
+				// Added htmlescape for XSS protection
 				echo "<td class='center' width='7%'>
-						<form method='post' action='config.form.php'><input type='hidden' value='$conf_id' name='edit_id'><input type='submit' name='edit' value=".__('Edit')." class='submit'></td>";
+						<form method='post' action='config.form.php'><input type='hidden' value='" . htmlescape($conf_id) . "' name='edit_id'><input type='submit' name='edit' value=".__('Edit')." class='submit'></td>";
 						echo "<input type='hidden' name='menu_mode' value='t'>";
 						Html::closeForm();	
-						echo "<td class='center' width='7%'><form method='post' action='config.form.php'><input type='hidden' value='$conf_id' name='conf_id'><input type='submit' name='delete' value=".__('Delete')." class='submit'></td></tr>";
+						echo "<td class='center' width='7%'><form method='post' action='config.form.php'><input type='hidden' value='" . htmlescape($conf_id) . "' name='conf_id'><input type='submit' name='delete' value=".__('Delete')." class='submit'></td></tr>";
 						Html::closeForm();				
 			}
 		echo "</table></div>";
@@ -668,21 +720,24 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		echo "<td class='center'><b>".__('Recipients')."</b></td>";
 		echo "<td class='center' colspan=2'><b>".__('Action')."</b></td></tr>";
 		
-		foreach ($DB->request(
-			'glpi_plugin_protocolsmanager_emailconfig') as $configs_data => $emailconfigs) {
+		// Updated DB->request syntax
+		foreach ($DB->request(['FROM' => 'glpi_plugin_protocolsmanager_emailconfig']) as $configs_data => $emailconfigs) {
 				
 				echo "<tr class='tab_bg_1'><td class='center'>";
-				echo $emailconfigs['tname'];
+				// Added htmlescape for XSS protection
+				echo htmlescape($emailconfigs['tname']);
 				echo "</td>";
 				echo "<td class='center'>";
-				echo $emailconfigs['recipients'];
+				// Added htmlescape for XSS protection
+				echo htmlescape($emailconfigs['recipients']);
 				echo "</td>";
 				$email_conf_id = $emailconfigs['id'];
+				// Added htmlescape for XSS protection
 				echo "<td class='center' width='7%'>
-						<form method='post' action='config.form.php'><input type='hidden' value='$email_conf_id' name='email_edit_id'><input type='submit' name='email_edit' value=".__('Edit')." class='submit'></td>";
+						<form method='post' action='config.form.php'><input type='hidden' value='" . htmlescape($email_conf_id) . "' name='email_edit_id'><input type='submit' name='email_edit' value=".__('Edit')." class='submit'></td>";
 						echo "<input type='hidden' name='menu_mode' value='e'>";
 						Html::closeForm();	
-						echo "<td class='center' width='7%'><form method='post' action='config.form.php'><input type='hidden' value='$email_conf_id' name='email_conf_id'><input type='submit' name='delete_email' value=".__('Delete')." class='submit'></td></tr>";
+						echo "<td class='center' width='7%'><form method='post' action='config.form.php'><input type='hidden' value='" . htmlescape($email_conf_id) . "' name='email_conf_id'><input type='submit' name='delete_email' value=".__('Delete')." class='submit'></td></tr>";
 						Html::closeForm();				
 			}
 		echo "</table></div>";
