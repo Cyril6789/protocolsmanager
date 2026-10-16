@@ -40,8 +40,8 @@
     $base64 = 'data:image/' . $img_type . ';base64,' . base64_encode($img_data);
 
     // Valeurs par défaut si non fournies
-    $max_width = !empty($logo_width) ? intval($logo_width) : 200;
-    $max_height = !empty($logo_height) ? intval($logo_height) : 200;
+    $max_width = !empty($logo_width) ? intval($logo_width) : 160;
+    $max_height = !empty($logo_height) ? intval($logo_height) : 160;
 
     // Style avec maintien du ratio
     $style = "max-width: {$max_width}px; max-height: {$max_height}px; height: auto; width: auto; object-fit: contain; display: block; margin: 0 auto;";
