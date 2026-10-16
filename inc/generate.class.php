@@ -682,7 +682,7 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 			// Updated DB->request syntax
 			$req = $DB->request([
 				// La correction est ici :
-				'SELECT' => [new \QueryExpression('MAX(id) AS max')],
+				'SELECT' => [new \Glpi\DBAL\QueryExpression('MAX(id) AS max')],
 				'FROM' => 'glpi_plugin_protocolsmanager_protocols'
 			]);
 
