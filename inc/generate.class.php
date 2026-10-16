@@ -9,11 +9,11 @@ use Dompdf\Options;
 
 class PluginProtocolsmanagerGenerate extends CommonDBTM {
 	
-		function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
+		function getTabNameForItem(CommonGLPI $item, $withtemplate=0): string {
 			return self::createTabEntry('Protocols manager');
 		}
 
-		static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
+		static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0): bool {
 			global $DB, $CFG_GLPI;
 			
 			$tab_access = self::checkRights();
@@ -24,6 +24,8 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 			} else {
 				echo "<div align='center'><br><img src='".$CFG_GLPI['root_doc']."/pics/warning.png'><br>".__("Access denied")."</div>";
 			}
+
+			return true;
 		}
 		
 		//check if logged user have rights to plugin
@@ -312,7 +314,9 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 				$conca .= '</div><div class="modal-body" title="'.__("Send").' email"><p>Select recipients from template or enter manually to send email</p><br><br>';
 				$conca .= '<form method="post" action="'.$CFG_GLPI["root_doc"].'/plugins/protocolsmanager/front/generate.form.php">';
 
-				$conca .= Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
+				if (method_exists(Session::class, 'getNewCSRFToken')) {
+					$conca .= Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
+				}
 
 				$conca .= '<input type="hidden" id="dialogVal" name="doc_id" value="">';
 				$conca .= '<input type="radio" name="send_type" id="manually" class="send_type" value="1"><b> Enter recipients manually </b><br><br>';
@@ -363,7 +367,9 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 				echo "<div class='spaced'>";
 				echo "<form method='post' name='docs_form' action='".$CFG_GLPI["root_doc"]."/plugins/protocolsmanager/front/generate.form.php'>";
 
-				echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
+				if (method_exists(Session::class, 'getNewCSRFToken')) {
+					echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
+				}
 
 				echo "<table class='tab_cadre_fixe'><td style='width:5%'><img src='".$CFG_GLPI["root_doc"]."/plugins/protocolsmanager/img/arrow-left-top.png'></td><td style='width:5%'>";
 				echo "<input type='submit' name='delete' class='submit' value=".__('Delete').">";
