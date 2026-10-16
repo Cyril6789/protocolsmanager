@@ -15,6 +15,8 @@ Mettre à jour le plugin Protocols Manager pour le rendre compatible avec GLPI 1
 - 2026-10-16 — Métadonnées auteur : attribution du plugin à « Cheilmann » dans `setup.php` et `plugin.xml`, à la demande de l’auteur.
 - 2026-10-16 — Rafraîchissement des métadonnées GLPI : nouvelle version `1.6.0.4` pour que GLPI recopie l’auteur dans ses informations enregistrées sur le plugin. L’interface devra appliquer la mise à jour détectée.
 - 2026-10-16 — Bug PDF : qualification de `QueryExpression` dans `Glpi\DBAL` lors de la requête qui calcule le numéro de protocole. GLPI 12 a déplacé cette classe hors de l’espace de noms global.
+- 2026-10-16 — Bug d’icône : ajout de l’icône Tabler `ti ti-file-text` à l’onglet utilisateur avec `createTabEntry()` sur GLPI 12, en conservant l’appel historique sur GLPI 11.
+- 2026-10-16 — Version du correctif portée à `1.6.0.5` pour exposer les deux corrections à GLPI et dans les métadonnées du catalogue.
 
 ## À faire
 

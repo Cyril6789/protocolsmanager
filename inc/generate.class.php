@@ -10,6 +10,10 @@ use Dompdf\Options;
 class PluginProtocolsmanagerGenerate extends CommonDBTM {
 	
 		function getTabNameForItem(CommonGLPI $item, $withtemplate=0): string {
+			if (version_compare(GLPI_VERSION, '12.0.0', '>=')) {
+				return self::createTabEntry('Protocols manager', icon: 'ti ti-file-text');
+			}
+
 			return self::createTabEntry('Protocols manager');
 		}
 
