@@ -88,6 +88,8 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 				// Récupérer width/height du logo si présents
 				$logo_width = isset($row["logo_width"]) ? $row["logo_width"] : '';
 				$logo_height = isset($row["logo_height"]) ? $row["logo_height"] : '';
+				$theme_color = isset($row["theme_color"]) ? $row["theme_color"] : '#8A6428';
+				$header_text_color = isset($row["header_text_color"]) ? $row["header_text_color"] : '#FFFFFF';
 			}
 			
 		} else {
@@ -109,6 +111,14 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			$author_state = 1;
 			$logo_width = '';
 			$logo_height = '';
+			$theme_color = '#8A6428';
+			$header_text_color = '#FFFFFF';
+		}
+		if (!is_string($theme_color) || !preg_match('/^#[0-9A-Fa-f]{6}$/', $theme_color)) {
+			$theme_color = '#8A6428';
+		}
+		if (!is_string($header_text_color) || !preg_match('/^#[0-9A-Fa-f]{6}$/', $header_text_color)) {
+			$header_text_color = '#FFFFFF';
 		}
 		
 		$fonts = array('Courier' => 'Courier',
@@ -187,6 +197,8 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		if ($breakword == 0)
 			echo "checked='checked'";
 		echo "> Off</label></td></tr>";
+		echo "<tr><td>".__('Color')."</td><td colspan='2'><input type='color' name='theme_color' value='" . htmlescape($theme_color) . "'></td></tr>";
+		echo "<tr><td>".__('Text color')."</td><td colspan='2'><input type='color' name='header_text_color' value='" . htmlescape($header_text_color) . "'></td></tr>";
 		
 		// Added htmlescape for XSS protection
 		echo "<tr><td>".__('City')."</td><td colspan='2'><input type='text' name='city' style='width:80%;' value='" . htmlescape($city) . "'></td></tr>";
@@ -402,6 +414,14 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			$fontsize = $_POST["fontsize"];
 			$serial_mode = $_POST["serial_mode"];
 			$orientation = $_POST["orientation"];
+			$posted_theme_color = $_POST['theme_color'] ?? '';
+			$theme_color = is_string($posted_theme_color) && preg_match('/^#[0-9A-Fa-f]{6}$/', $posted_theme_color)
+				? $posted_theme_color
+				: '#8A6428';
+			$posted_header_text_color = $_POST['header_text_color'] ?? '';
+			$header_text_color = is_string($posted_header_text_color) && preg_match('/^#[0-9A-Fa-f]{6}$/', $posted_header_text_color)
+				? $posted_header_text_color
+				: '#FFFFFF';
 
 			if(isset($_POST["template_uppercontent"])) {
 				$template_uppercontent = $_POST['template_uppercontent'];
@@ -488,7 +508,9 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 					'email_mode' => $email_mode,
 					'email_template' => $email_template,
 					'author_name' => $author_name,
-					'author_state' => $author_state
+					'author_state' => $author_state,
+					'theme_color' => $theme_color,
+					'header_text_color' => $header_text_color
 					]
 				);
 			}
@@ -526,7 +548,9 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 							'email_mode' => $email_mode,
 							'email_template' => $email_template,
 							'author_name' => $author_name,
-							'author_state' => $author_state
+							'author_state' => $author_state,
+							'theme_color' => $theme_color,
+							'header_text_color' => $header_text_color
 						], [
 							'id' => $mode
 						]
@@ -566,7 +590,9 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 							'breakword' => $breakword,
 							'email_template' => $email_template,
 							'author_name' => $author_name,
-							'author_state' => $author_state
+							'author_state' => $author_state,
+							'theme_color' => $theme_color,
+							'header_text_color' => $header_text_color
 						], [
 							'id' => $mode
 						]
@@ -590,7 +616,9 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 							'email_mode' => $email_mode,
 							'email_template' => $email_template,
 							'author_name' => $author_name,
-							'author_state' => $author_state
+							'author_state' => $author_state,
+							'theme_color' => $theme_color,
+							'header_text_color' => $header_text_color
 						], [
 							'id' => $mode
 						]

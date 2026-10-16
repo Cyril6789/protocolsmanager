@@ -18,6 +18,8 @@ Mettre à jour le plugin Protocols Manager pour le rendre compatible avec GLPI 1
 - 2026-10-16 — Bug d’icône : ajout de l’icône Tabler `ti ti-file-text` à l’onglet utilisateur avec `createTabEntry()` sur GLPI 12, en conservant l’appel historique sur GLPI 11.
 - 2026-10-16 — Version du correctif portée à `1.6.0.5` pour exposer les deux corrections à GLPI et dans les métadonnées du catalogue.
 - 2026-10-16 — Logo PDF : réduction de la taille maximale par défaut de 200 px à 160 px dans chaque dimension; les dimensions explicitement configurées dans les modèles restent inchangées. Version portée à `1.6.0.6` pour faire détecter la mise à jour par GLPI.
+- 2026-10-16 — Modèle PDF : ajout d’une couleur d’accent configurable par modèle, avec migration de la colonne `theme_color` et valeur brun doré par défaut. Version portée à `1.6.0.7` pour faire détecter la mise à jour par GLPI.
+- 2026-10-16 — Modèle PDF : ajout d’une couleur de texte configurable pour les en-têtes colorés, blanche par défaut. Version portée à `1.6.0.8`.
 
 ## À faire
 

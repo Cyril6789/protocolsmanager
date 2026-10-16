@@ -65,6 +65,8 @@ function plugin_protocolsmanager_install(): bool
             email_template INT(2),
             author_name VARCHAR(255),
             author_state INT(2),
+            theme_color VARCHAR(7) NOT NULL DEFAULT '#8A6428',
+            header_text_color VARCHAR(7) NOT NULL DEFAULT '#FFFFFF',
             PRIMARY KEY (id)
         ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         [
@@ -145,7 +147,9 @@ function plugin_protocolsmanager_install(): bool
         'author_state' => "ALTER TABLE glpi_plugin_protocolsmanager_config ADD author_state INT(2) AFTER author_name",
         'title'        => "ALTER TABLE glpi_plugin_protocolsmanager_config ADD title VARCHAR(255) AFTER name",
         'logo_width'   => "ALTER TABLE glpi_plugin_protocolsmanager_config ADD logo_width INT(11) UNSIGNED DEFAULT NULL AFTER logo",
-        'logo_height'  => "ALTER TABLE glpi_plugin_protocolsmanager_config ADD logo_height INT(11) UNSIGNED DEFAULT NULL AFTER logo_width"
+        'logo_height'  => "ALTER TABLE glpi_plugin_protocolsmanager_config ADD logo_height INT(11) UNSIGNED DEFAULT NULL AFTER logo_width",
+        'theme_color'  => "ALTER TABLE glpi_plugin_protocolsmanager_config ADD theme_color VARCHAR(7) NOT NULL DEFAULT '#8A6428' AFTER author_state",
+        'header_text_color' => "ALTER TABLE glpi_plugin_protocolsmanager_config ADD header_text_color VARCHAR(7) NOT NULL DEFAULT '#FFFFFF' AFTER theme_color"
     ];
 
     foreach ($fieldsToAdd as $field => $sql) {

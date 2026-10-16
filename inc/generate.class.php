@@ -504,8 +504,13 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 
 					$footer = $row["footer"];
 
-					$title = $row["title"];
-					$title = str_replace("{owner}", $owner, $title);
+					$title_source = $row["title"];
+					$title_has_owner = strpos($title_source, "{owner}") !== false;
+					$title = str_replace("{owner}", $owner, $title_source);
+					$title_prefix = $title_has_owner
+						? trim(str_replace("{owner}", "", $title_source))
+						: $title;
+					$title_owner = $title_has_owner ? $owner : '';
 					$title_template = $row["name"];
 					$full_img_name = $row["logo"];
 					$font = $row["font"];
@@ -518,6 +523,8 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 					$email_template = $row["email_template"];
 					$author_name = $row["author_name"];
 					$author_state = $row["author_state"];
+					$theme_color = $row["theme_color"] ?? '#8A6428';
+					$header_text_color = $row["header_text_color"] ?? '#FFFFFF';
 
 					$logo_width = isset($row["logo_width"]) ? $row["logo_width"] : null;
 					$logo_height = isset($row["logo_height"]) ? $row["logo_height"] : null;
@@ -540,6 +547,12 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 				
 				if (!isset($font) || empty($font)) {
 					$font = 'dejavusans';
+				}
+				if (!is_string($theme_color) || !preg_match('/^#[0-9A-Fa-f]{6}$/', $theme_color)) {
+					$theme_color = '#8A6428';
+				}
+				if (!is_string($header_text_color) || !preg_match('/^#[0-9A-Fa-f]{6}$/', $header_text_color)) {
+					$header_text_color = '#FFFFFF';
 				}
 	
 				if (!isset($fontsize) || empty($fontsize)) {
@@ -603,8 +616,9 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 				$options -> set('defaultFont', $font);
 
 				$html2pdf = new Dompdf($options);
-				$html2pdf->loadHtml($file_content);
-				$html2pdf->setPaper('A4', $orientation);
+				$html2pdf->loadHtml($file_content, 'UTF-8');
+				$pdf_orientation = (mb_strtolower((string) $orientation) === 'landscape') ? 'landscape' : 'portrait';
+				$html2pdf->setPaper('A4', $pdf_orientation);
 				$html2pdf->render();
 
 				$doc_name = str_replace(' ', '_', $title)."-".date('dmY').'.pdf';
