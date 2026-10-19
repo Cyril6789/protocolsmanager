@@ -129,3 +129,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - 2026-10-19 — Correction après constat d’un document orphelin : le formulaire transmet l’identifiant du matériel courant, le serveur le revalide et l’ajoute aux associations GLPI et aux données d’identification du PV.
 - [x] Conserver toutes les lignes du tableau d’identification dans le PDF lorsque certaines ou toutes les données matérielles sont absentes ; laisser les valeurs manquantes en blanc.
 - [x] Afficher « RAS » dans les observations du PDF lorsque le champ correspondant est laissé vide à la génération.
+- [x] Afficher l’icône maison de la carte du plugin dans la gestion des plugins GLPI et la faire pointer vers le dépôt GitHub du plugin.
+- 2026-10-19 — La carte Marketplace GLPI 12 lit le lien maison depuis les métadonnées du catalogue distant et ignore le champ `homepage` local. Ajout d’un script frontend ciblé sur la carte `protocolsmanager`, avec mise à jour de la version du plugin pour invalider les caches d’assets.

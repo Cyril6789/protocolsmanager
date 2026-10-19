@@ -5,7 +5,7 @@ function plugin_version_protocolsmanager(): array
 {
     return [
         'name'         => __('Protocols manager', 'protocolsmanager'),
-        'version'      => '1.6.0.9',
+        'version'      => '1.6.0.10',
         'author'       => 'Cheilmann',
         'license'      => 'GPLv3+',
         'homepage'     => 'https://github.com/Cyril6789/protocolsmanager',
@@ -49,6 +49,7 @@ function plugin_init_protocolsmanager(): void
 
     $PLUGIN_HOOKS['csrf_compliant']['protocolsmanager'] = true;
     $PLUGIN_HOOKS['add_css']['protocolsmanager']        = 'css/styles.css';
+    $PLUGIN_HOOKS['add_javascript']['protocolsmanager'] = 'public/js/plugin-homepage.js';
 
     // Register tabs for supported item types
     $tabTargets = [
