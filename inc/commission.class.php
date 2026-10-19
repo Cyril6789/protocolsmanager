@@ -33,7 +33,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			echo "<div class='alert alert-warning'>" . htmlescape(__('Vous n’avez pas le droit de créer des documents GLPI.')) . '</div>';
 			return true;
 		}
-		self::showForm($item);
+		self::renderCommissionForm($item);
 		return true;
 	}
 
@@ -52,7 +52,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		return $row && ($row['tab_access'] ?? '') === 'w';
 	}
 
-	private static function showForm(CommonGLPI $item): void
+	private static function renderCommissionForm(CommonGLPI $item): void
 	{
 		global $CFG_GLPI, $DB;
 		$itemtype = get_class($item);
