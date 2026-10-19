@@ -42,7 +42,7 @@ The PDF uses the logo and highlight color selected in the plugin's document temp
 
 Assets with the same asset number can be included in one certificate, subject to the user's GLPI read access to those assets. The PDF includes the total acquisition value for a multi-asset certificate when the values are available. The generated document is linked to each selected asset. When the source asset has no asset number, a certificate can still be generated for that equipment; its asset number is left blank and the document is linked to the source equipment. A certificate can also be generated with no management information: the identification table remains present with blank values.
 
-A certificate can also be started from a software license. It is linked to that license and uses the license's available name, type, serial number, and inventory number. Asset-number grouping is for hardware records; license records have no asset number in this workflow, so unavailable acquisition and location information stays blank.
+A certificate can also be started from a software license. Its asset number is read from the license's GLPI management information and appears in the PDF and its filename when present. The PDF uses the license's available name, type, serial number, and inventory number, and is linked to that license. License certificates are generated separately from the hardware groups; acquisition and location fields stay blank when GLPI has no values for them.
 
 ![Commissioning certificate workflow](docs/img/generate_com.gif)
 

@@ -73,6 +73,9 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB, $itemtype, $item_id);
 		} elseif ($seed['immo_number'] === '') {
 			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB, $itemtype, $item_id);
+		} elseif ($itemtype === self::LICENSE_ITEMTYPE) {
+			// Licenses keep their own PV even when they have an asset number; hardware grouping is unchanged.
+			self::renderGenerationForm([$seed], $seed['immo_number'], $CFG_GLPI['root_doc'], $DB);
 		} else {
 			$group = self::findAssetGroup($seed['immo_number']);
 			if ($group === null) {
@@ -105,12 +108,16 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			echo Html::hidden('source_item_id', ['value' => $source_item_id]);
 		}
 		if ($group !== []) {
-			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Matériels concernés', 'protocolsmanager')) . '</strong>';
+			$is_license_group = count(array_filter($group, static fn($asset) => $asset['itemtype'] === self::LICENSE_ITEMTYPE)) === count($group);
+			$group_title = $is_license_group ? __('Licence concernée', 'protocolsmanager') : __('Matériels concernés', 'protocolsmanager');
+			$item_title = $is_license_group ? __('Licence', 'protocolsmanager') : __('Matériel', 'protocolsmanager');
+			$include_label = $is_license_group ? __('Inclure cette licence', 'protocolsmanager') : __('Inclure ce matériel', 'protocolsmanager');
+			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($group_title) . '</strong>';
 			echo "<span class='badge bg-secondary ms-2'>" . htmlescape(__('Numéro immo', 'protocolsmanager')) . ': ' . htmlescape($immo_number) . "</span></div><div class='card-body'>";
-			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-3'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Matériel', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
+			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-3'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape($item_title) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
 			foreach ($group as $asset) {
 				$key = $asset['itemtype'] . ':' . $asset['id'];
-				echo '<tr><td><input class="form-check-input" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape(__('Inclure ce matériel', 'protocolsmanager')) . '"></td>';
+				echo '<tr><td><input class="form-check-input" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape($include_label) . '"></td>';
 				echo '<td><strong>' . htmlescape($asset['name'] !== '' ? $asset['name'] : '#' . $asset['id']) . '</strong><div class="text-muted small">' . htmlescape($asset['type']) . '</div></td>';
 				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
 			}
@@ -216,7 +223,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			'itemtype' => $itemtype,
 			'type' => $item->getTypeName(),
 			'name' => (string)($fields['name'] ?? ''),
-			'immo_number' => $itemtype === self::LICENSE_ITEMTYPE ? '' : trim((string)($info['immo_number'] ?? '')),
+			'immo_number' => trim((string)($info['immo_number'] ?? '')),
 			'inventory_number' => (string)($fields['otherserial'] ?? ''),
 			'serial' => (string)($fields['serial'] ?? ''),
 			'supplier' => $supplier,
