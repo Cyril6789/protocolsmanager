@@ -19,9 +19,9 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 	public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
 	{
 		if (version_compare(GLPI_VERSION, '12.0.0', '>=')) {
-			return self::createTabEntry(__('PV de mise en service', 'protocolsmanager'), icon: 'ti ti-file-check');
+			return self::createTabEntry(__('Procès-Verbaux', 'protocolsmanager'), icon: 'ti ti-file-check');
 		}
-		return self::createTabEntry(__('PV de mise en service', 'protocolsmanager'));
+		return self::createTabEntry(__('Procès-Verbaux', 'protocolsmanager'));
 	}
 
 	public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool

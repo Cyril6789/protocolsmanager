@@ -27,7 +27,7 @@ The generated PDFs are stored as GLPI Documents and linked to the relevant GLPI 
 
 ### Asset commissioning certificates
 
-The **PV de mise en service** tab is available on computers, monitors, printers, peripherals, phones, network equipment, and software licenses.
+The **Procès-Verbaux** tab is available on computers, monitors, printers, peripherals, phones, network equipment, and software licenses. It currently generates commissioning certificates (*PV de mise en service*).
 
 The certificate includes:
 
@@ -117,7 +117,7 @@ Users also need the ordinary GLPI rights to read the relevant users and assets. 
 
 ### Generate a commissioning certificate
 
-1. Open a computer, monitor, printer, peripheral, phone, network equipment, or software license record and select **PV de mise en service**.
+1. Open a computer, monitor, printer, peripheral, phone, network equipment, or software license record and select **Procès-Verbaux**.
 2. If the asset has an asset number, review the assets with the same number and select which ones belong in this certificate. If it has no asset number, the certificate can still be made for the current equipment.
 3. Choose the template whose logo and colors should be used.
 4. Fill in the commissioning date, planned use, observations, status checkboxes, and place of issue as needed. If the commissioning date is left blank, generation uses the acquisition date when it is available and consistent for the selected assets.
