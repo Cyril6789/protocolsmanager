@@ -64,31 +64,29 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			echo "<span class='badge bg-secondary'>" . htmlescape(__('Consultation seule', 'protocolsmanager')) . '</span>';
 		}
 		echo '</div>';
-		$pv_type = in_array($_GET['pv_type'] ?? '', ['commission', 'disposal'], true) ? $_GET['pv_type'] : '';
-		self::renderPvTypeSelector($pv_type);
-		if ($pv_type === '') {
-			self::showGeneratedDocuments($itemtype, $item_id);
-			echo '</div>';
-			return;
-		}
-		if ($pv_type === 'disposal') {
-			self::renderDisposalForItem($itemtype, $item_id, $CFG_GLPI['root_doc'], $DB);
-			self::showGeneratedDocuments($itemtype, $item_id);
-			echo '</div>';
-			return;
-		}
+		echo "<details class='card mb-3' name='protocolsmanager-pv-type'><summary class='card-header d-flex justify-content-between align-items-center' style='cursor:pointer;list-style:none'><span>" . htmlescape(__('PV de mise en service', 'protocolsmanager')) . "</span><i class='ti ti-chevron-down'></i></summary><div class=\"card-body\">";
+		self::renderCommissionForItem($itemtype, $item_id, $CFG_GLPI['root_doc'], $DB);
+		echo '</div></details>';
+		echo "<details class='card mb-3' name='protocolsmanager-pv-type'><summary class='card-header d-flex justify-content-between align-items-center' style='cursor:pointer;list-style:none'><span>" . htmlescape(__('PV de mise au rebut', 'protocolsmanager')) . "</span><i class='ti ti-chevron-down'></i></summary><div class=\"card-body\">";
+		self::renderDisposalForItem($itemtype, $item_id, $CFG_GLPI['root_doc'], $DB);
+		echo '</div></details>';
+		self::showGeneratedDocuments($itemtype, $item_id);
+		echo '</div>';
+	}
 
+	private static function renderCommissionForItem(string $itemtype, int $item_id, string $root_doc, $DB): void
+	{
 		$seed = self::loadAsset($itemtype, $item_id);
 		if (!Session::haveRight('document', CREATE)) {
 			echo "<div class='alert alert-info'>" . htmlescape(__('Vous pouvez consulter les PV associés, mais votre profil ne permet pas d’en créer.', 'protocolsmanager')) . '</div>';
 		} elseif (!$seed) {
 			echo "<div class='alert alert-info'>" . htmlescape(__('Aucune donnée de gestion exploitable n’a été trouvée. Le PV sera rattaché à cet élément, sans numéro immo.', 'protocolsmanager')) . '</div>';
-			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB, $itemtype, $item_id);
+			self::renderGenerationForm([], '', $root_doc, $DB, $itemtype, $item_id);
 		} elseif ($seed['immo_number'] === '') {
-			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB, $itemtype, $item_id);
+			self::renderGenerationForm([], '', $root_doc, $DB, $itemtype, $item_id);
 		} elseif ($itemtype === self::LICENSE_ITEMTYPE) {
 			// Licenses keep their own PV even when they have an asset number; hardware grouping is unchanged.
-			self::renderGenerationForm([$seed], $seed['immo_number'], $CFG_GLPI['root_doc'], $DB);
+			self::renderGenerationForm([$seed], $seed['immo_number'], $root_doc, $DB);
 		} else {
 			$group = self::findAssetGroup($seed['immo_number']);
 			if ($group === null) {
@@ -96,34 +94,9 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			} elseif ($group === []) {
 				echo "<div class='alert alert-warning'>" . htmlescape(__('Aucun matériel n’a été trouvé pour ce numéro immo.', 'protocolsmanager')) . '</div>';
 			} else {
-				self::renderGenerationForm($group, $seed['immo_number'], $CFG_GLPI['root_doc'], $DB);
+				self::renderGenerationForm($group, $seed['immo_number'], $root_doc, $DB);
 			}
 		}
-		self::showGeneratedDocuments($itemtype, $item_id);
-		echo '</div>';
-	}
-
-	private static function renderPvTypeSelector(string $selected): void
-	{
-		$uri = (string)($_SERVER['REQUEST_URI'] ?? '');
-		$parts = parse_url($uri);
-		$query = [];
-		parse_str((string)($parts['query'] ?? ''), $query);
-		$make_url = static function (string $type) use ($parts, $query): string {
-			$params = $query;
-			$params['pv_type'] = $type;
-			return (string)($parts['path'] ?? '') . '?' . http_build_query($params);
-		};
-		if ($selected === '') {
-			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Choisir le type de procès-verbal', 'protocolsmanager')) . '</strong></div><div class="card-body d-flex flex-wrap gap-2">';
-			echo '<a class="btn btn-primary" href="' . htmlescape($make_url('commission')) . '">' . htmlescape(__('PV de mise en service', 'protocolsmanager')) . '</a>';
-			echo '<a class="btn btn-outline-primary" href="' . htmlescape($make_url('disposal')) . '">' . htmlescape(__('PV de mise au rebut', 'protocolsmanager')) . '</a>';
-			echo '</div></section>';
-			return;
-		}
-		$label = $selected === 'disposal' ? __('PV de mise au rebut', 'protocolsmanager') : __('PV de mise en service', 'protocolsmanager');
-		echo "<div class='d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3'><h3 class='h5 mb-0'>" . htmlescape($label) . '</h3>';
-		echo '<a class="btn btn-sm btn-outline-secondary" href="' . htmlescape($make_url('')) . '">' . htmlescape(__('Choisir un autre type de PV', 'protocolsmanager')) . '</a></div>';
 	}
 
 	private static function renderDisposalForItem(string $itemtype, int $item_id, string $root_doc, $DB): void

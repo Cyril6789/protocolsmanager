@@ -149,3 +149,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Vérifier sur GLPI la sélection des deux types et confirmer que le PV de mise en service garde son rendu et son parcours.
 - [ ] Générer un PV de mise au rebut avec tous les champs, puis avec un numéro immo vide et des données de gestion absentes.
 - [ ] Vérifier les refus lorsque le motif ou le mode de mise au rebut est vide, et le rattachement du document sur une licence, un objet simple et un groupe au même numéro immo.
+- [x] Afficher les choix de type de PV directement dans la fiche GLPI, sans navigation vers une réponse AJAX isolée.
+- 2026-10-19 — Correction du sélecteur : le contenu des onglets est chargé par GLPI via AJAX ; les liens construits à partir de l’URL courante ouvraient la réponse seule hors de la fiche. Les deux formulaires se déplient maintenant dans le contexte de l’objet.
