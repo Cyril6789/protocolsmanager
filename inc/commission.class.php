@@ -356,6 +356,9 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		$city = in_array($_POST['city'] ?? '', ['Eichhoffen', 'Barr'], true) ? $_POST['city'] : 'Eichhoffen';
 		$planned_use = self::cleanText($_POST['planned_use'] ?? '', 5000);
 		$observations = self::cleanText($_POST['observations'] ?? '', 10000);
+		if ($observations === '') {
+			$observations = 'RAS';
+		}
 		$config_id = max(0, (int)($_POST['config_id'] ?? 0));
 		return self::createPdf(array_values($assets), $immo, $effective_date, $states, $city, $planned_use, $observations, $config_id);
 	}

@@ -128,3 +128,4 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Confirmer dans GLPI que le PV de l’imprimante 64 apparaît dans ses documents associés et que le numéro immo reste vide dans le PDF.
 - 2026-10-19 — Correction après constat d’un document orphelin : le formulaire transmet l’identifiant du matériel courant, le serveur le revalide et l’ajoute aux associations GLPI et aux données d’identification du PV.
 - [x] Conserver toutes les lignes du tableau d’identification dans le PDF lorsque certaines ou toutes les données matérielles sont absentes ; laisser les valeurs manquantes en blanc.
+- [x] Afficher « RAS » dans les observations du PDF lorsque le champ correspondant est laissé vide à la génération.
