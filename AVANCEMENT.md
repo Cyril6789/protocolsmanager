@@ -109,3 +109,9 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - 2026-10-19 — Liens de la page plugin GLPI et du catalogue mis à jour vers `https://github.com/Cyril6789/protocolsmanager`, à la demande de l’utilisateur.
 - 2026-10-19 — Incident après chargement du nouvel onglet : les journaux de `glpi.it.web` ont révélé une erreur fatale PHP due au conflit entre la méthode statique `showForm()` et `CommonDBTM::showForm()`. La méthode a été renommée `renderCommissionForm()` et le fichier passe `php -l` dans le conteneur. Le parcours ordinateur doit être rechargé pour confirmer le rétablissement.
 - 2026-10-19 — Ajustement visuel du PV : logo réduit et centré, numéro immo placé à gauche avec libellé noir et numéro/soulignement dans la couleur du modèle, suppression des doublons du chapitre 1, regroupement inventaire/série sur une ligne et largeurs de colonnes de validation rééquilibrées.
+- [x] Renommer l’onglet matériel « PV de mise en service » et réorganiser le formulaire en sections lisibles avec sélection des matériels, modèle PDF, date, états, utilisation prévue, lieu et observations.
+- [x] Ajouter au formulaire un tableau des PV GLPI associés au matériel, avec document, date, fichier, créateur et commentaire.
+- [x] Forcer le chapitre 4 « Validations » à commencer sur une nouvelle page PDF (page 2 lorsque le contenu précédent tient sur la première page).
+- [ ] Vérifier visuellement le formulaire dans GLPI 12 et confirmer que le tableau liste les PV associés à un matériel simple et à un PV groupé.
+- [ ] Générer un PDF représentatif sur une instance de test et confirmer que le chapitre 4 commence bien en haut de la page 2.
+- 2026-10-19 — Mise en page du formulaire et tableau des documents générés ajoutés ; chapitre 4 configuré avec un saut de page explicite. `php -l` passe localement. Vérification visuelle en GLPI et rendu PDF à confirmer sur instance de test.
