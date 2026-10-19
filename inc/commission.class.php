@@ -710,8 +710,6 @@ th { background:#f1f1f1; text-align:left; }
 .general-table .requester-label { width:16%; }
 .asset { page-break-inside:avoid; margin-bottom:3mm; }
 .asset-table { table-layout:fixed; }
-.asset-table .label { width:22%; }
-.asset-table .value { width:28%; }
 .free { white-space:pre-wrap; min-height:9mm; }
 .signature td { height:18mm; }
 </style></head><body>
@@ -722,7 +720,7 @@ th { background:#f1f1f1; text-align:left; }
 <tr><td class="field service-label"><?= $escape(__('Service concerné', 'protocolsmanager')) ?></td><td class="service-value">Informatique</td><td class="field requester-label"><?= $escape(__('Demandeur', 'protocolsmanager')) ?></td><td><?= $escape($requester_with_title) ?></td></tr>
 </tbody></table>
 <h2>2. <?= $escape(__('Détails de l’immobilisation', 'protocolsmanager')) ?></h2>
-<?php foreach ($assets as $asset): ?><div class="asset"><table class="asset-table"><colgroup><col class="label"><col class="value"><col class="label"><col class="value"></colgroup><tbody>
+<?php foreach ($assets as $asset): ?><div class="asset"><table class="asset-table"><colgroup><col class="label" style="width:25%"><col class="value" style="width:25%"><col class="label" style="width:24%"><col class="value" style="width:26%"></colgroup><tbody>
 <?php
 $make_model = implode(' — ', array_filter([$asset['manufacturer'], $asset['model']], static fn($value) => $value !== ''));
 if ($make_model !== '' && $asset['type'] !== '') {
