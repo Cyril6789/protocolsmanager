@@ -710,10 +710,8 @@ th { background:#f1f1f1; text-align:left; }
 .general-table .requester-label { width:16%; }
 .asset { page-break-inside:avoid; margin-bottom:3mm; }
 .asset-table { table-layout:fixed; }
-.asset-table .label { width:19%; }
-.asset-table .value { width:31%; }
-.asset-table col.label:first-child { width:21%; }
-.asset-table col.value:nth-child(2) { width:29%; }
+.asset-table .label { width:22%; }
+.asset-table .value { width:28%; }
 .free { white-space:pre-wrap; min-height:9mm; }
 .signature td { height:18mm; }
 </style></head><body>
