@@ -2,7 +2,7 @@
 	const repositoryUrl = 'https://github.com/Cyril6789/protocolsmanager';
 
 	const ensureRepositoryLink = () => {
-		const cards = document.querySelectorAll('.marketplace li.plugin[data-key="protocolsmanager"]');
+		const cards = document.querySelectorAll('.marketplace [data-key="protocolsmanager"]');
 		for (const card of cards) {
 			const links = card.querySelector('.footer .misc-left .links');
 			if (!links) {
@@ -25,12 +25,11 @@
 	};
 
 	const initialize = () => {
-		const marketplace = document.querySelector('.marketplace');
-		if (!marketplace) {
+		if (!document.body) {
 			return;
 		}
 		ensureRepositoryLink();
-		new MutationObserver(ensureRepositoryLink).observe(marketplace, { childList: true, subtree: true });
+		new MutationObserver(ensureRepositoryLink).observe(document.body, { childList: true, subtree: true });
 	};
 
 	if (document.readyState === 'loading') {

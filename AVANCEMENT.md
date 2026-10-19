@@ -131,3 +131,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Afficher « RAS » dans les observations du PDF lorsque le champ correspondant est laissé vide à la génération.
 - [x] Afficher l’icône maison de la carte du plugin dans la gestion des plugins GLPI et la faire pointer vers le dépôt GitHub du plugin.
 - 2026-10-19 — La carte Marketplace GLPI 12 lit le lien maison depuis les métadonnées du catalogue distant et ignore le champ `homepage` local. Ajout d’un script frontend ciblé sur la carte `protocolsmanager`, avec mise à jour de la version du plugin pour invalider les caches d’assets.
+- [x] Détecter aussi la carte si GLPI l’injecte après le chargement initial via AJAX.
+- 2026-10-19 — Après retour utilisateur indiquant que l’icône n’apparaissait toujours pas, vérification du script servi (HTTP 200), de l’URL homepage en base et du chargement asynchrone potentiel. Le script observe maintenant le DOM entier et ajoute le lien dès que la carte apparaît.
