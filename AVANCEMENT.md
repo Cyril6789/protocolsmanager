@@ -122,3 +122,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Intercepter les exceptions du rendu PDF et de l’enregistrement GLPI, journaliser leur détail et afficher un message compréhensible au lieu d’une erreur 500.
 - [ ] Reproduire les cas signalés (numéro immo vide, date effective vide, puis les deux vides) sur une instance de test.
 - 2026-10-19 — Confirmation statique : immo et date vide sont acceptés ; ajout d’une gestion d’erreur autour de Dompdf et de la création du document GLPI afin que les erreurs réelles soient consignées et remontées à l’utilisateur. Scénarios à reproduire en test.
+- [x] Afficher le formulaire autonome si les données de gestion d’un matériel ne sont pas disponibles, afin qu’une fiche dont l’onglet Gestion est vide puisse quand même générer un PV sans lien matériel.
+- 2026-10-19 — Cas signalé sur une imprimante sans données de gestion : `loadAsset()` pouvait retourner `null` et empêcher l’affichage du formulaire. Le parcours affiche maintenant le formulaire autonome dans ce cas.

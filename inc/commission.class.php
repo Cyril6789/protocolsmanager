@@ -68,7 +68,8 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		if (!Session::haveRight('document', CREATE)) {
 			echo "<div class='alert alert-info'>" . htmlescape(__('Vous pouvez consulter les PV associés, mais votre profil ne permet pas d’en créer.', 'protocolsmanager')) . '</div>';
 		} elseif (!$seed) {
-			echo "<div class='alert alert-info'>" . htmlescape(__('Aucun numéro immo n’est renseigné pour ce matériel.', 'protocolsmanager')) . '</div>';
+			echo "<div class='alert alert-info'>" . htmlescape(__('Aucune donnée de gestion exploitable n’a été trouvée. Vous pouvez générer un PV autonome, sans numéro immo ni matériel associé.', 'protocolsmanager')) . '</div>';
+			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB);
 		} elseif ($seed['immo_number'] === '') {
 			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB);
 		} else {
