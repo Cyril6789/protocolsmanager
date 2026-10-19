@@ -275,7 +275,11 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		echo '</div></section>';
 
 		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Motif de la mise au rebut', 'protocolsmanager')) . '</strong></div><div class="card-body"><textarea class="form-control" name="disposal_reason" rows="4" required></textarea></div></section>';
-		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Mode de mise au rebut', 'protocolsmanager')) . '</strong></div><div class="card-body"><textarea class="form-control" name="disposal_method" rows="4" required></textarea></div></section>';
+		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Mode de mise au rebut', 'protocolsmanager')) . '</strong></div><div class="card-body">';
+		foreach (self::disposalMethodOptions() as $value => $label) {
+			echo '<div class="form-check mb-1"><input class="form-check-input" type="radio" name="disposal_method" id="disposal-method-' . htmlescape($value) . '" value="' . htmlescape($value) . '" required><label class="form-check-label" for="disposal-method-' . htmlescape($value) . '">' . htmlescape($label) . '</label></div>';
+		}
+		echo '<label class="form-label mt-2" for="disposal-method-other">' . htmlescape(__('Préciser si autre', 'protocolsmanager')) . '</label><textarea class="form-control" id="disposal-method-other" name="disposal_method_other" rows="2"></textarea></div></section>';
 		echo "<div class='row g-3 align-items-end mb-3'><div class='col-md-8'><label class='form-label' for='disposal-config'>" . htmlescape(__('Modèle PDF (logo et couleurs)', 'protocolsmanager')) . '</label><select class="form-select" id="disposal-config" name="config_id">';
 		$configs = $DB->request(['SELECT' => ['id', 'name'], 'FROM' => 'glpi_plugin_protocolsmanager_config', 'ORDER' => ['id ASC']]);
 		foreach ($configs as $config) {
@@ -597,13 +601,27 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			$disposal_date = $submitted_date;
 		}
 		$reason = self::cleanText($_POST['disposal_reason'] ?? '', 10000);
-		$method = self::cleanText($_POST['disposal_method'] ?? '', 10000);
-		if ($reason === '' || $method === '') {
-			Session::addMessageAfterRedirect(__('Le motif et le mode de mise au rebut sont obligatoires.', 'protocolsmanager'), false, ERROR);
+		$method_key = is_string($_POST['disposal_method'] ?? null) ? $_POST['disposal_method'] : '';
+		$method_options = self::disposalMethodOptions();
+		$method_other = self::cleanText($_POST['disposal_method_other'] ?? '', 10000);
+		if ($reason === '' || !isset($method_options[$method_key]) || ($method_key === 'autre' && $method_other === '')) {
+			Session::addMessageAfterRedirect(__('Le motif et le mode de mise au rebut sont obligatoires. Précisez le mode si « Autre » est sélectionné.', 'protocolsmanager'), false, ERROR);
 			return false;
 		}
+		$method = $method_options[$method_key] . ($method_key === 'autre' ? ' : ' . $method_other : '');
 		$config_id = max(0, (int)($_POST['config_id'] ?? 0));
 		return self::createDisposalPdf(array_values($assets), $immo, $disposal_date, $reason, $method, $config_id);
+	}
+
+	private static function disposalMethodOptions(): array
+	{
+		return [
+			'destruction' => __('Destruction', 'protocolsmanager'),
+			'don' => __('Don', 'protocolsmanager'),
+			'vente_symbolique' => __('Vente symbolique', 'protocolsmanager'),
+			'recyclage_deee' => __('Recyclage DEEE après dépose du disque dur', 'protocolsmanager'),
+			'autre' => __('Autre', 'protocolsmanager'),
+		];
 	}
 
 	private static function cleanText($value, int $limit): string

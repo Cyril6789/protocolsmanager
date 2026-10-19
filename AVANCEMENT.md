@@ -152,4 +152,11 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Afficher les choix de type de PV directement dans la fiche GLPI, sans navigation vers une réponse AJAX isolée.
 - 2026-10-19 — Correction du sélecteur : le contenu des onglets est chargé par GLPI via AJAX ; les liens construits à partir de l’URL courante ouvraient la réponse seule hors de la fiche. Les deux formulaires se déplient maintenant dans le contexte de l’objet.
 - [x] Compacter le PDF de mise au rebut : numéro immo et date aux deux extrémités du logo, demandeur et fonction sur une ligne, inventaire et série sur une ligne, marque/modèle/type sur une ligne, espacements et tableau réduits.
+- [x] Remplacer la saisie libre du mode de mise au rebut par les choix radio Destruction, Don, Vente symbolique, Recyclage DEEE après dépose du disque dur et Autre ; exiger une précision pour Autre et valider aussi côté serveur.
+- [x] Afficher dans le PDF le choix de mode retenu et, le cas échéant, la précision fournie pour Autre.
+- [x] Documenter les choix de mise au rebut dans le README et incrémenter la version du plugin.
+- [x] Vérifier `php -l` sur les fichiers PHP modifiés et `git diff --check`.
+- [ ] Vérifier dans GLPI l’affichage et la sélection des cinq modes et le champ de précision pour Autre.
+- [ ] Générer un PV pour chacun des quatre choix prédéfinis, puis un PV Autre avec précision ; vérifier le mode reporté dans le PDF.
+- [ ] Vérifier que le serveur refuse une raison vide, un mode absent/invalide et Autre sans précision.
 - [ ] Vérifier dans le PDF généré qu’un PV courant tient sur une page et que les textes longs ou les groupes de plusieurs objets restent lisibles.

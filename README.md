@@ -44,7 +44,7 @@ Assets with the same asset number can be included in one certificate, subject to
 
 A certificate can also be started from a software license. Its asset number is read from the license's GLPI management information and appears in the PDF and its filename when present. The PDF uses the license's available name, type, serial number, and inventory number, and is linked to that license. License certificates are generated separately from the hardware groups; acquisition and location fields stay blank when GLPI has no values for them.
 
-The disposal certificate uses the same configured logo and PDF colors. It records the disposal date (today by default), the IT department, the current user's name and job title, asset identification details (including the acquisition date as the available commissioning date), the reason and disposal method, and a signature block with the user's name and blank date/signature cells. The reason and disposal method are required. The certificate can be generated without an asset number; the PDF then leaves it blank and remains linked to the current record.
+The disposal certificate uses the same configured logo and PDF colors. It records the disposal date (today by default), the IT department, the current user's name and job title, asset identification details (including the acquisition date as the available commissioning date), the reason and disposal method, and a signature block with the user's name and blank date/signature cells. The reason and a disposal method are required. Choose **Destruction**, **Don**, **Vente symbolique**, **Recyclage DEEE après dépose du disque dur**, or **Autre**; when choosing **Autre**, provide its details in the accompanying field. The certificate can be generated without an asset number; the PDF then leaves it blank and remains linked to the current record.
 
 ![Commissioning certificate workflow](docs/img/generate_com.gif)
 
@@ -130,7 +130,7 @@ Users also need the ordinary GLPI rights to read the relevant users and assets. 
 
 1. Open the **Procès-Verbaux** tab and choose **PV de mise au rebut**.
 2. Confirm the disposal date, which defaults to today. The department is set to Informatique and the requester and job title come from the current GLPI user.
-3. Enter the required disposal reason and disposal method. The asset details are filled from GLPI, including the manufacturer and model when available.
+3. Enter the required disposal reason, choose one of the listed disposal methods, and provide details when choosing **Autre**. The asset details are filled from GLPI, including the manufacturer and model when available.
 4. Generate the PDF. It is stored in GLPI Documents and linked to the selected asset or assets. If no asset number is available, the certificate is still generated and linked to the current record.
 
 ## Where generated documents are stored
