@@ -473,28 +473,42 @@ if ($asset['inventory_number'] !== '' || $asset['serial'] !== ''): ?>
 </body></html>
 <?php
 		$html = ob_get_clean();
-		$options = new Options();
-		$options->set('defaultFont', 'DejaVu Sans');
-		$pdf = new Dompdf($options);
-		$pdf->loadHtml($html, 'UTF-8');
-		$pdf->setPaper('A4', 'portrait');
-		$pdf->render();
+		try {
+			$options = new Options();
+			$options->set('defaultFont', 'DejaVu Sans');
+			$pdf = new Dompdf($options);
+			$pdf->loadHtml($html, 'UTF-8');
+			$pdf->setPaper('A4', 'portrait');
+			$pdf->render();
+			$pdf_content = $pdf->output();
+		} catch (\Throwable $exception) {
+			error_log('ProtocolsManager commissioning PDF rendering failed: ' . $exception->getMessage());
+			Session::addMessageAfterRedirect(__('Le PDF n’a pas pu être généré. Consultez les journaux GLPI pour le détail.', 'protocolsmanager'), false, ERROR);
+			return false;
+		}
 		$filename = 'PV_mise_en_service_' . preg_replace('/[^A-Za-z0-9_-]/', '_', $immo) . '_' . date('Ymd_His') . '.pdf';
 		$path = GLPI_UPLOAD_DIR . '/' . $filename;
-		if (file_put_contents($path, $pdf->output()) === false) {
+		if (file_put_contents($path, $pdf_content) === false) {
 			Session::addMessageAfterRedirect(__('Le PDF n’a pas pu être enregistré.', 'protocolsmanager'), false, ERROR);
 			return false;
 		}
 		$document = new Document();
-		$document_id = $document->add([
-			'name' => $filename,
-			'upload_file' => $filename,
-			'documentcategories_id' => 0,
-			'mime' => 'application/pdf',
-			'users_id' => $user_id,
-			'entities_id' => Session::getActiveEntity(),
-			'comment' => __('Procès-verbal de mise en service', 'protocolsmanager') . ' — ' . $immo,
-		]);
+		try {
+			$document_id = $document->add([
+				'name' => $filename,
+				'upload_file' => $filename,
+				'documentcategories_id' => 0,
+				'mime' => 'application/pdf',
+				'users_id' => $user_id,
+				'entities_id' => Session::getActiveEntity(),
+				'comment' => __('Procès-verbal de mise en service', 'protocolsmanager') . ' — ' . $immo,
+			]);
+		} catch (\Throwable $exception) {
+			error_log('ProtocolsManager commissioning document registration failed: ' . $exception->getMessage());
+			@unlink($path);
+			Session::addMessageAfterRedirect(__('Le PDF a été créé, mais GLPI n’a pas pu enregistrer le document. Consultez les journaux GLPI pour le détail.', 'protocolsmanager'), false, ERROR);
+			return false;
+		}
 		if (!$document_id) {
 			@unlink($path);
 			Session::addMessageAfterRedirect(__('Le document PDF n’a pas pu être enregistré dans GLPI.', 'protocolsmanager'), false, ERROR);

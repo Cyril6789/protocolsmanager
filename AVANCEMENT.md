@@ -118,3 +118,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Autoriser la génération d’un PV autonome lorsque le numéro immo est vide ; enregistrer le document sans association à un matériel et laisser le numéro immo vide dans le PDF.
 - [ ] Vérifier la génération autonome sur une instance de test et confirmer que le document reste sans lien matériel dans GLPI.
 - 2026-10-19 — La validation du formulaire accepte maintenant une sélection vide uniquement lorsque le numéro immo est vide. Le PDF est créé sans lignes matériel ni liens GLPI ; avec un numéro immo renseigné, une sélection valide reste requise.
+- [x] Garder le numéro immo et la date effective facultatifs ; afficher leurs valeurs vides dans le PDF sans bloquer la génération.
+- [x] Intercepter les exceptions du rendu PDF et de l’enregistrement GLPI, journaliser leur détail et afficher un message compréhensible au lieu d’une erreur 500.
+- [ ] Reproduire les cas signalés (numéro immo vide, date effective vide, puis les deux vides) sur une instance de test.
+- 2026-10-19 — Confirmation statique : immo et date vide sont acceptés ; ajout d’une gestion d’erreur autour de Dompdf et de la création du document GLPI afin que les erreurs réelles soient consignées et remontées à l’utilisateur. Scénarios à reproduire en test.
