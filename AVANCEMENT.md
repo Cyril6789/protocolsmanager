@@ -160,6 +160,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Générer un PV pour chacun des quatre choix prédéfinis, puis un PV Autre avec précision ; vérifier le mode reporté dans le PDF.
 - [ ] Vérifier que le serveur refuse une raison vide, un mode absent/invalide et Autre sans précision.
 - [x] Réaérer la mise en page du PV de mise au rebut en gardant les champs regroupés sur une ligne uniquement là où demandé ; réserver une zone manuscrite au numéro immo vide au-dessus du trait.
+- [x] Rétablir la taille du logo du PV de mise au rebut à sa taille précédente (120 × 120 px maximum), tout en le gardant centré.
 - [x] Incrémenter la version du plugin après l’ajustement de présentation.
 - [x] Vérifier `php -l` sur les fichiers PHP modifiés et `git diff --check`.
 - [ ] Vérifier dans le PDF imprimé que l’espacement est confortable et que le numéro immo vide dispose d’une zone manuscrite avant son trait.

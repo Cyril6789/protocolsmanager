@@ -650,8 +650,8 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		}
 		$logo_path = !empty($config['logo']) ? GLPI_PICTURE_DIR . '/' . basename($config['logo']) : '';
 		$logo_html = '';
-		$logo_width = min(95, isset($config['logo_width']) && (int)$config['logo_width'] > 0 ? (int)$config['logo_width'] : 95);
-		$logo_height = min(72, isset($config['logo_height']) && (int)$config['logo_height'] > 0 ? (int)$config['logo_height'] : 72);
+		$logo_width = min(120, isset($config['logo_width']) && (int)$config['logo_width'] > 0 ? (int)$config['logo_width'] : 120);
+		$logo_height = min(120, isset($config['logo_height']) && (int)$config['logo_height'] > 0 ? (int)$config['logo_height'] : 120);
 		if ($logo_path !== '' && is_file($logo_path) && is_readable($logo_path)) {
 			$mime = function_exists('mime_content_type') ? mime_content_type($logo_path) : 'image/png';
 			if (!is_string($mime) || !in_array($mime, ['image/png', 'image/jpeg'], true)) {
@@ -692,7 +692,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 body { font-family: DejaVu Sans, sans-serif; font-size: 9pt; color: #222; }
 h1 { color: <?= $escape($accent) ?>; text-align:center; font-size:16pt; margin: 0 0 4mm; }
 h2 { color:<?= $escape($header_text_color) ?>; background:<?= $escape($accent) ?>; padding:5px 7px; font-size:10.5pt; margin:5mm 0 2mm; }
-.logo { display:block; max-width:<?= min(95, $logo_width) ?>px; max-height:<?= min(72, $logo_height) ?>px; margin:0 auto; }
+.logo { display:block; max-width:<?= min(120, $logo_width) ?>px; max-height:<?= min(120, $logo_height) ?>px; margin:0 auto; }
 .pdf-header { table-layout:fixed; margin:0 0 4mm; }
 .pdf-header td { border:0; padding:0 3px 2mm; vertical-align:bottom; }
 .pdf-header .immo-cell { width:35%; text-align:left; }
