@@ -76,7 +76,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Sous le tableau, afficher « Document établi le : <date actuelle>, lieu <Eichhoffen ou Barr> ».
 - [x] Réutiliser le logo configuré et appliquer la couleur choisie aux titres et mots importants du nouveau PDF.
 - [ ] Vérifier les sauts de page et les groupes longs afin que tableaux, observations et zones de validation restent lisibles et ne soient pas coupés de façon gênante.
-- [x] Ne pas afficher de valeur « null » ou fictive pour les données GLPI vides ; omettre les lignes d’identification sans valeur.
+- [x] Ne pas afficher de valeur « null » ou fictive pour les données GLPI vides ; conserver le tableau d’identification complet avec des cellules vides.
 
 ### 4. Implémentation et intégration
 
@@ -124,3 +124,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - 2026-10-19 — Confirmation statique : immo et date vide sont acceptés ; ajout d’une gestion d’erreur autour de Dompdf et de la création du document GLPI afin que les erreurs réelles soient consignées et remontées à l’utilisateur. Scénarios à reproduire en test.
 - [x] Afficher le formulaire autonome si les données de gestion d’un matériel ne sont pas disponibles, afin qu’une fiche dont l’onglet Gestion est vide puisse quand même générer un PV sans lien matériel.
 - 2026-10-19 — Cas signalé sur une imprimante sans données de gestion : `loadAsset()` pouvait retourner `null` et empêcher l’affichage du formulaire. Le parcours affiche maintenant le formulaire autonome dans ce cas.
+- [x] Rattacher au matériel courant tout PV généré depuis son onglet, même lorsque le numéro immo est vide ; conserver un PDF sans numéro immo et sans regroupement d’autres matériels.
+- [ ] Confirmer dans GLPI que le PV de l’imprimante 64 apparaît dans ses documents associés et que le numéro immo reste vide dans le PDF.
+- 2026-10-19 — Correction après constat d’un document orphelin : le formulaire transmet l’identifiant du matériel courant, le serveur le revalide et l’ajoute aux associations GLPI et aux données d’identification du PV.
+- [x] Conserver toutes les lignes du tableau d’identification dans le PDF lorsque certaines ou toutes les données matérielles sont absentes ; laisser les valeurs manquantes en blanc.

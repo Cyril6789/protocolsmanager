@@ -68,10 +68,10 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		if (!Session::haveRight('document', CREATE)) {
 			echo "<div class='alert alert-info'>" . htmlescape(__('Vous pouvez consulter les PV associés, mais votre profil ne permet pas d’en créer.', 'protocolsmanager')) . '</div>';
 		} elseif (!$seed) {
-			echo "<div class='alert alert-info'>" . htmlescape(__('Aucune donnée de gestion exploitable n’a été trouvée. Vous pouvez générer un PV autonome, sans numéro immo ni matériel associé.', 'protocolsmanager')) . '</div>';
-			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB);
+			echo "<div class='alert alert-info'>" . htmlescape(__('Aucune donnée de gestion exploitable n’a été trouvée. Le PV sera rattaché à ce matériel, sans numéro immo.', 'protocolsmanager')) . '</div>';
+			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB, $itemtype, $item_id);
 		} elseif ($seed['immo_number'] === '') {
-			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB);
+			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB, $itemtype, $item_id);
 		} else {
 			$group = self::findAssetGroup($seed['immo_number']);
 			if ($group === null) {
@@ -86,7 +86,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		echo '</div>';
 	}
 
-	private static function renderGenerationForm(array $group, string $immo_number, string $root_doc, $DB): void
+	private static function renderGenerationForm(array $group, string $immo_number, string $root_doc, $DB, string $source_itemtype = '', int $source_item_id = 0): void
 	{
 		$states = [
 			'installation' => __('Installée', 'protocolsmanager'),
@@ -99,6 +99,10 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
 		}
 		echo Html::hidden('immo_number', ['value' => $immo_number]);
+		if ($immo_number === '' && $source_itemtype !== '' && $source_item_id > 0) {
+			echo Html::hidden('source_itemtype', ['value' => $source_itemtype]);
+			echo Html::hidden('source_item_id', ['value' => $source_item_id]);
+		}
 		if ($group !== []) {
 			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Matériels concernés', 'protocolsmanager')) . '</strong>';
 			echo "<span class='badge bg-secondary ms-2'>" . htmlescape(__('Numéro immo', 'protocolsmanager')) . ': ' . htmlescape($immo_number) . "</span></div><div class='card-body'>";
@@ -111,7 +115,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			}
 			echo '</tbody></table></div>';
 		} else {
-			echo "<div class='alert alert-secondary'>" . htmlescape(__('Ce PV sera créé sans numéro immo et sans lien avec un matériel.', 'protocolsmanager')) . '</div>';
+			echo "<div class='alert alert-secondary'>" . htmlescape(__('Ce PV sera rattaché au matériel courant, sans numéro immo.', 'protocolsmanager')) . '</div>';
 		}
 		echo "<div class='row g-3 align-items-end'><div class='col-md-8'><label class='form-label' for='commission-config'>" . htmlescape(__('Modèle PDF (logo et couleurs)', 'protocolsmanager')) . '</label><select class="form-select" id="commission-config" name="config_id">';
 		$configs = $DB->request(['SELECT' => ['id', 'name'], 'FROM' => 'glpi_plugin_protocolsmanager_config', 'ORDER' => ['id ASC']]);
@@ -330,6 +334,18 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			Session::addMessageAfterRedirect(__('Aucun matériel valide n’a été sélectionné.', 'protocolsmanager'), false, ERROR);
 			return false;
 		}
+		if ($immo === '') {
+			$source_itemtype = (string)($_POST['source_itemtype'] ?? '');
+			$source_item_id = (int)($_POST['source_item_id'] ?? 0);
+			$source_asset = in_array($source_itemtype, self::ITEM_TYPES, true) && $source_item_id > 0
+				? self::loadAsset($source_itemtype, $source_item_id)
+				: null;
+			if (!$source_asset || $source_asset['immo_number'] !== '') {
+				Session::addMessageAfterRedirect(__('Le matériel courant n’a pas pu être validé pour rattacher le PV.', 'protocolsmanager'), false, ERROR);
+				return false;
+			}
+			$assets[$source_itemtype . ':' . $source_item_id] = $source_asset;
+		}
 		$submitted_date = (string)($_POST['effective_date'] ?? '');
 		$effective_date = '';
 		if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $submitted_date, $date_parts)
@@ -443,20 +459,19 @@ th { background:#f1f1f1; text-align:left; }
 <div class="asset"><table class="asset-table"><colgroup><col class="label"><col class="value"><col class="label"><col class="value"></colgroup>
 <?php
 $rows = [
-	__('Désignation', 'protocolsmanager') => trim($asset['name'] . ' (' . $asset['type'] . ')'),
+	__('Désignation', 'protocolsmanager') => trim($asset['name'] . ($asset['type'] !== '' ? ' (' . $asset['type'] . ')' : '')),
 	__('Fournisseur', 'protocolsmanager') => $asset['supplier'],
 	__('Date d’acquisition', 'protocolsmanager') => self::displayDate($asset['buy_date']),
 	__('Numéro de facture', 'protocolsmanager') => $asset['bill'],
 	__('Valeur d’acquisition HT', 'protocolsmanager') => $asset['value'] === null || $asset['value'] === '' ? '' : number_format((float)$asset['value'], 2, ',', ' ') . ' €',
 	__('Site d’affectation', 'protocolsmanager') => $asset['location'],
 ];
-if ($asset['inventory_number'] !== '' || $asset['serial'] !== ''): ?>
+?>
 <tr>
-<?php if ($asset['inventory_number'] !== ''): ?><td class="field"><?= $escape(__('Numéro d’inventaire', 'protocolsmanager')) ?></td><td><?= $escape($asset['inventory_number']) ?></td><?php else: ?><td colspan="2"></td><?php endif; ?>
-<?php if ($asset['serial'] !== ''): ?><td class="field"><?= $escape(__('Numéro de série', 'protocolsmanager')) ?></td><td><?= $escape($asset['serial']) ?></td><?php else: ?><td colspan="2"></td><?php endif; ?>
+<td class="field"><?= $escape(__('Numéro d’inventaire', 'protocolsmanager')) ?></td><td><?= $escape($asset['inventory_number']) ?></td>
+<td class="field"><?= $escape(__('Numéro de série', 'protocolsmanager')) ?></td><td><?= $escape($asset['serial']) ?></td>
 </tr>
-<?php endif; ?>
-<?php foreach ($rows as $label => $value): if ((string)$value === '') { continue; } ?>
+<?php foreach ($rows as $label => $value): ?>
 <tr><td class="field"><?= $escape($label) ?></td><td colspan="3"><?= $escape($value) ?></td></tr>
 <?php endforeach; ?></table></div>
 <?php endforeach; ?>
