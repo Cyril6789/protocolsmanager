@@ -12,7 +12,10 @@ GLPI Plugin to make PDF reports with user inventory.
 * Showing serial number or inventory number in one or two columns
 * Possibility to add custom rows
 * Possibility to add notes to export
+* Commissioning certificates for assets, including groups that share the same asset number
 * Menu to access easily to protocols Manager
+## In 1.6.0.9
+* Added separate asset commissioning PDFs with GLPI financial data, selectable logo/color settings, approvals, and multi-item grouping by asset number
 ## In 1.6.0.6
 * Reduced the default PDF header logo size
 ## In 1.6.0.5
@@ -83,6 +86,11 @@ PHP 8.0 or newer (PHP 8.3 or newer for GLPI 12)
 9. You can delete all or some protocols by selecting them and click "Delete".
 
 ![Generate](https://raw.githubusercontent.com/mateusznitka/protocolsmanager/master/docs/img/generate_standard.gif)
+## Asset commissioning certificates
+1. Open a computer, monitor, printer, peripheral, phone, or network equipment record.
+2. Open the **Commissioning certificate** tab. The plugin lists readable assets with the same asset number.
+3. Keep the relevant assets selected, choose the PDF model for its logo and colors, complete the commissioning fields, and generate the PDF.
+4. The generated document is attached to each selected asset. For a group, the total acquisition value is shown when every asset has a recorded value.
 ## Notes
 1. Generated items depends on what you assign to the user in GLPI
 2. You can edit template core in HTML by editing template.php file in protocolsmanager/inc directory

@@ -5,10 +5,10 @@ function plugin_version_protocolsmanager(): array
 {
     return [
         'name'         => __('Protocols manager', 'protocolsmanager'),
-        'version'      => '1.6.0.8',
+        'version'      => '1.6.0.9',
         'author'       => 'Cheilmann',
         'license'      => 'GPLv3+',
-        'homepage'     => 'https://github.com/CanMik/protocolsmanager',
+        'homepage'     => 'https://github.com/Cyril6789/protocolsmanager',
         'requirements' => [
             'glpi' => [
                 'min' => '11.0.0',
@@ -57,6 +57,11 @@ function plugin_init_protocolsmanager(): void
     ];
     foreach ($tabTargets as $target) {
         Plugin::registerClass('PluginProtocolsmanagerGenerate', ['addtabon' => [$target]]);
+    }
+
+    // A dedicated tab keeps asset commissioning separate from user inventory PDFs.
+    foreach (['Computer', 'Monitor', 'Printer', 'Peripheral', 'Phone', 'NetworkEquipment'] as $target) {
+        Plugin::registerClass('PluginProtocolsmanagerCommission', ['addtabon' => [$target]]);
     }
 
     Plugin::registerClass('PluginProtocolsmanagerProfile', ['addtabon' => ['Profile']]);
