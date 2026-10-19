@@ -115,3 +115,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Vérifier visuellement le formulaire dans GLPI 12 et confirmer que le tableau liste les PV associés à un matériel simple et à un PV groupé.
 - [ ] Générer un PDF représentatif sur une instance de test et confirmer que le chapitre 4 commence bien en haut de la page 2.
 - 2026-10-19 — Mise en page du formulaire et tableau des documents générés ajoutés ; chapitre 4 configuré avec un saut de page explicite. `php -l` passe localement. Vérification visuelle en GLPI et rendu PDF à confirmer sur instance de test.
+- [x] Autoriser la génération d’un PV autonome lorsque le numéro immo est vide ; enregistrer le document sans association à un matériel et laisser le numéro immo vide dans le PDF.
+- [ ] Vérifier la génération autonome sur une instance de test et confirmer que le document reste sans lien matériel dans GLPI.
+- 2026-10-19 — La validation du formulaire accepte maintenant une sélection vide uniquement lorsque le numéro immo est vide. Le PDF est créé sans lignes matériel ni liens GLPI ; avec un numéro immo renseigné, une sélection valide reste requise.

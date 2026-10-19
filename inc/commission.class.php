@@ -67,8 +67,10 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		$seed = self::loadAsset($itemtype, $item_id);
 		if (!Session::haveRight('document', CREATE)) {
 			echo "<div class='alert alert-info'>" . htmlescape(__('Vous pouvez consulter les PV associés, mais votre profil ne permet pas d’en créer.', 'protocolsmanager')) . '</div>';
-		} elseif (!$seed || $seed['immo_number'] === '') {
+		} elseif (!$seed) {
 			echo "<div class='alert alert-info'>" . htmlescape(__('Aucun numéro immo n’est renseigné pour ce matériel.', 'protocolsmanager')) . '</div>';
+		} elseif ($seed['immo_number'] === '') {
+			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB);
 		} else {
 			$group = self::findAssetGroup($seed['immo_number']);
 			if ($group === null) {
@@ -96,23 +98,29 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
 		}
 		echo Html::hidden('immo_number', ['value' => $immo_number]);
-		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Matériels concernés', 'protocolsmanager')) . '</strong>';
-		echo "<span class='badge bg-secondary ms-2'>" . htmlescape(__('Numéro immo', 'protocolsmanager')) . ': ' . htmlescape($immo_number) . "</span></div><div class='card-body'>";
-		echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-3'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Matériel', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
-		foreach ($group as $asset) {
-			$key = $asset['itemtype'] . ':' . $asset['id'];
-			echo '<tr><td><input class="form-check-input" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape(__('Inclure ce matériel', 'protocolsmanager')) . '"></td>';
-			echo '<td><strong>' . htmlescape($asset['name'] !== '' ? $asset['name'] : '#' . $asset['id']) . '</strong><div class="text-muted small">' . htmlescape($asset['type']) . '</div></td>';
-			echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
+		if ($group !== []) {
+			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Matériels concernés', 'protocolsmanager')) . '</strong>';
+			echo "<span class='badge bg-secondary ms-2'>" . htmlescape(__('Numéro immo', 'protocolsmanager')) . ': ' . htmlescape($immo_number) . "</span></div><div class='card-body'>";
+			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-3'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Matériel', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
+			foreach ($group as $asset) {
+				$key = $asset['itemtype'] . ':' . $asset['id'];
+				echo '<tr><td><input class="form-check-input" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape(__('Inclure ce matériel', 'protocolsmanager')) . '"></td>';
+				echo '<td><strong>' . htmlescape($asset['name'] !== '' ? $asset['name'] : '#' . $asset['id']) . '</strong><div class="text-muted small">' . htmlescape($asset['type']) . '</div></td>';
+				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
+			}
+			echo '</tbody></table></div>';
+		} else {
+			echo "<div class='alert alert-secondary'>" . htmlescape(__('Ce PV sera créé sans numéro immo et sans lien avec un matériel.', 'protocolsmanager')) . '</div>';
 		}
-		echo '</tbody></table></div>';
 		echo "<div class='row g-3 align-items-end'><div class='col-md-8'><label class='form-label' for='commission-config'>" . htmlescape(__('Modèle PDF (logo et couleurs)', 'protocolsmanager')) . '</label><select class="form-select" id="commission-config" name="config_id">';
 		$configs = $DB->request(['SELECT' => ['id', 'name'], 'FROM' => 'glpi_plugin_protocolsmanager_config', 'ORDER' => ['id ASC']]);
 		foreach ($configs as $config) {
 			echo '<option value="' . htmlescape($config['id']) . '">' . htmlescape($config['name'] ?? '') . '</option>';
 		}
 		echo '</select></div><div class="col-md-4"><label class="form-label" for="effective-date">' . htmlescape(__('Date effective de mise en service', 'protocolsmanager')) . '</label><input class="form-control" type="date" id="effective-date" name="effective_date" value="' . htmlescape(self::commonPurchaseDate($group)) . '"></div></div>';
-		echo '</div></section>';
+		if ($group !== []) {
+			echo '</div></section>';
+		}
 
 		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Mise en service', 'protocolsmanager')) . '</strong></div><div class="card-body">';
 		echo "<p class='mb-3'>" . htmlescape(__('Je soussigné(e) certifie que l’immobilisation décrite ci-dessous a été :', 'protocolsmanager')) . '</p><div class="d-flex flex-wrap gap-3 mb-4">';
@@ -300,11 +308,11 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			return false;
 		}
 		$tokens = $_POST['items'] ?? [];
-		if (!is_array($tokens) || $tokens === []) {
-			Session::addMessageAfterRedirect(__('Sélectionnez au moins un matériel.', 'protocolsmanager'), false, ERROR);
+		$immo = trim((string)($_POST['immo_number'] ?? ''));
+		if (!is_array($tokens) || ($immo !== '' && $tokens === []) || ($immo === '' && $tokens !== [])) {
+			Session::addMessageAfterRedirect(__('Sélectionnez des matériels pour un numéro immo renseigné, ou laissez le numéro immo vide pour créer un PV autonome.', 'protocolsmanager'), false, ERROR);
 			return false;
 		}
-		$immo = trim((string)($_POST['immo_number'] ?? ''));
 		$assets = [];
 		foreach ($tokens as $token) {
 			if (!is_string($token) || !preg_match('/^([A-Za-z][A-Za-z0-9]*)\:(\d+)$/', $token, $matches)) {
@@ -317,7 +325,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			}
 			$assets[$asset['itemtype'] . ':' . $asset['id']] = $asset;
 		}
-		if ($assets === []) {
+		if ($assets === [] && $immo !== '') {
 			Session::addMessageAfterRedirect(__('Aucun matériel valide n’a été sélectionné.', 'protocolsmanager'), false, ERROR);
 			return false;
 		}
