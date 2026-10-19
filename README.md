@@ -1,110 +1,133 @@
 # Protocols Manager
-GLPI Plugin to make PDF reports with user inventory.  
-**Compatible with GLPI 11.x and 12.x. PHP 8.0 or newer is required (GLPI 12 itself requires PHP 8.3 or newer).**
-**Removed parts of the original code using additionnal fields plugin**
+
+Protocols Manager is a GLPI plugin for creating, storing, and managing PDF documents related to equipment in GLPI. It provides two document workflows:
+
+- user inventory reports, which list equipment assigned to a user;
+- asset commissioning certificates (*procès-verbaux de mise en service*), which record the commissioning of one or more assets.
+
+The generated PDFs are stored as GLPI Documents and linked to the relevant GLPI records. The plugin is maintained at [github.com/Cyril6789/protocolsmanager](https://github.com/Cyril6789/protocolsmanager). The plugin card in GLPI also includes a shortcut to this project.
+
+![Protocols Manager setup](docs/img/setup.gif)
+
 ## Features
-* Making PDFs with all or selected user inventory
-* Saving protocols in GLPI Documents
-* Possibility to create different protocol templates
-* Templates have configurable name, font, orientation, logo image, city, content and footer
-* Possibility to make comments to any selected item
-* Showing Manufacturer (only first word to be clearly) and Model of item
-* Showing serial number or inventory number in one or two columns
-* Possibility to add custom rows
-* Possibility to add notes to export
-* Commissioning certificates for assets, including groups that share the same asset number
-* Menu to access easily to protocols Manager
-## In 1.6.0.9
-* Added separate asset commissioning PDFs with GLPI financial data, selectable logo/color settings, approvals, and multi-item grouping by asset number
-## In 1.6.0.6
-* Reduced the default PDF header logo size
-## In 1.6.0.5
-* Added an icon to the Protocols Manager user tab and fixed PDF generation on GLPI 12
-## In 1.6.0.4
-* Refreshed plugin metadata after the author change
-## In 1.6.0.3
-* Added GLPI 12 compatibility and retained GLPI 11 support
-## In 1.5.6
-* Set dimensions of logo in the template settings
-* Updated some parts of codes
-## In 1.5.3
-* Menu to access Protocols manager instead of going from the plugins page
-* Updated some parts of codes
-## In 1.5.2
-* Possibility to customize title of document with the name of the user
-* Quality of life improvements
-* Fixed bugs
-* Added more verifications
-## What's new in 1.5.1?
-* Now you can select in the template settings who generates the PDF (for instance IT division or Name of the technician)
-* Fixed some bugs
-## What's new in 1.5?
-* Added compatibility for GLPI v10
-* Added more checks on the plugin
-* Updated the plugin
 
-## In 1.4.2:
-* Fixed one column mode in serial number
-* Document is now assigned to default user's entity
-## What's new in 1.4?
-* New optional feature - sending emails with PDFs - automatically after generating PDF or manually in any moment
-* New text field in template above the table
-* Now you can use fields: Owner name - {owner}, current date - {cur_date} and admin name - {admin} in template text fields and email content and subject.
-* Fixed some bugs
+### User inventory reports
 
-## Compatibility
-GLPI 11.x or 12.x
-PHP 8.0 or newer (PHP 8.3 or newer for GLPI 12)
-***NOTE:*** in GLPI 9.3.x, you have to modify /inc/generate.class.php - search and replace: **GLPI_UPLOAD_DIR** to **GLPI_TMP_DIR**.
+- Create a PDF from all or a chosen subset of equipment assigned to a user.
+- Open the inventory from a user record, or from a supported equipment record to see its assigned user's inventory.
+- Review equipment type, manufacturer, model, name, serial number, inventory number, and comments.
+- Choose how serial and inventory numbers appear: in separate columns, or as one value using the serial number when available and the inventory number otherwise.
+- Edit a comment for each selected item, add custom rows, and add a note to the report.
+- Choose a document template before generating the PDF.
+- View generated reports in the plugin's document list and in GLPI's Documents, open them, delete selected reports, or send them by email.
+
+![Inventory report configuration](docs/img/config.gif)
+
+![Generating an inventory report](docs/img/generate_standard.gif)
+
+### Asset commissioning certificates
+
+The **PV de mise en service** tab is available on computers, monitors, printers, peripherals, phones, and network equipment.
+
+The certificate includes:
+
+- an identification table with the asset designation, inventory number, serial number, supplier, purchase date, invoice number, acquisition value before tax, and the top-level location;
+- the GLPI asset number (*numéro immo*), when available;
+- a commissioning statement signed with the current user's first and last name, four preselected but editable status checkboxes (installed, tested, accepted as compliant, and put into operation), the effective commissioning date, and a planned-use description;
+- an observations section, which defaults to “RAS” when left empty;
+- a validation table for the user manager, technical manager (if applicable), accounting, and management/line manager, with space for name, signature, and date;
+- the document date and a choice between Eichhoffen and Barr as the place of issue.
+
+The PDF uses the logo and highlight color selected in the plugin's document template settings. Chapter 4 starts on the second page. Empty GLPI management fields remain blank in the certificate; they do not prevent generation.
+
+Assets with the same asset number can be included in one certificate, subject to the user's GLPI read access to those assets. The PDF includes the total acquisition value for a multi-asset certificate when the values are available. The generated document is linked to each selected asset. When the source asset has no asset number, a certificate can still be generated for that equipment; its asset number is left blank and the document is linked to the source equipment. A certificate can also be generated with no management information: the identification table remains present with blank values.
+
+![Commissioning certificate workflow](docs/img/generate_com.gif)
+
+## Requirements and compatibility
+
+- GLPI 11.x or GLPI 12.x (the plugin declares compatibility with GLPI versions from 11.0 up to, but not including, 13.0).
+- PHP 8.0 or newer for the plugin. GLPI 12 requires PHP 8.3 or newer.
+- The GLPI Documents feature and the user's GLPI rights must allow document creation to generate PDFs.
+
 ## Installation
-1. Download and extract package
-2. Copy protocolsmanager folder to GLPI plugins directory
-3. Go to GLPI Plugin Menu and click 'install' and then 'activate'
 
-![Setup](https://raw.githubusercontent.com/mateusznitka/protocolsmanager/master/docs/img/setup.gif)
+1. Download or clone this repository.
+2. Copy the `protocolsmanager` directory into the GLPI `plugins` directory.
+3. In GLPI, open **Setup → Plugins**, install Protocols Manager, then activate it.
+4. Grant the required plugin and document rights to the appropriate profiles (see [Permissions](#permissions)).
+
 ## Updating
-1. Extract package and copy to plguins directory (replace old protocolsmanager folder)
-2. Go to GLPI Plugin Menu, you should see 'to update' status.
-3. Click on 'install' and then 'activate'
-## Preparing
-1. Go to Profiles and click on profile you want to add permissions to plugin
-2. Select permissions and save
-3. Go to Plugins -> Protocols manager
-4. Edit default or create new template: Fill all or some textboxes, choose your font and logo if you want
-5. Save template / templates
 
-![Preparing](https://raw.githubusercontent.com/mateusznitka/protocolsmanager/master/docs/img/config.gif)
+1. Back up the GLPI database and plugin directory according to your normal GLPI maintenance procedure.
+2. Replace the existing `protocolsmanager` directory with the new release files, preserving any local changes you intentionally maintain.
+3. In **Setup → Plugins**, run the available plugin update and confirm that the plugin is active.
+
+## Configuration and templates
+
+Open **Plugins → Protocols Manager** to manage document templates. Create or edit a template and save it before selecting it during PDF generation.
+
+Templates can configure:
+
+- template name and document title;
+- font and font size, portrait or landscape orientation, and word breaking;
+- primary PDF color and heading/text color;
+- logo image (PNG or JPEG) and its width and height;
+- city, upper content, main content, and footer;
+- inventory report serial/inventory number display mode;
+- PDF author, either the current PDF generator or a fixed author name;
+- optional automatic email sending and the email template to use.
+
+Text fields for titles, content, and email templates support these substitutions:
+
+| Token | Replaced with |
+| --- | --- |
+| `{owner}` | The inventory owner’s name |
+| `{admin}` | The current PDF generator’s name |
+| `{cur_date}` | The current date, formatted as `d.m.Y` |
+
+Email templates define a name, recipients, subject, and message. They can be configured to include the inventory owner. Reports can also be sent manually from the generated-document list. Email delivery depends on the GLPI mail configuration.
+
+The template's logo and colors are also used by commissioning certificates. The commissioning form supplies its certificate-specific fields; inventory report content settings do not replace those fields.
+
+![Template configuration](docs/img/config.gif)
+
+## Permissions
+
+Configure access under **Administration → Profiles → [profile] → Protocols Manager**:
+
+- **Plugin configuration** grants access to the plugin's configuration and template management. GLPI configuration-update rights are also required to save configuration.
+- **Tab access** grants access to the plugin tabs on supported GLPI records.
+- **Document creation** is a GLPI Documents right required to generate PDFs. Without it, users may view existing commissioning certificates when they have access to the tab, but cannot generate new ones.
+
+Users also need the ordinary GLPI rights to read the relevant users and assets. For grouped commissioning certificates, the matching assets must be readable for them to be included.
+
 ## Using the plugin
-1. Go to Administration -> Users and click on user login
-2. Go to Protocols Manager tab
-3. Select some or all items
-4. Write a comment to an item (optional)
-5. Add and fill custom rows (optional)
-6. Write a note to export (optional)
-7. Select your template from list and click "Create"
-8. Your protocol is on list above now, you can open it in new tab. It is available in Managament -> Documents too.
-9. You can delete all or some protocols by selecting them and click "Delete".
 
-![Generate](https://raw.githubusercontent.com/mateusznitka/protocolsmanager/master/docs/img/generate_standard.gif)
-## Asset commissioning certificates
-1. Open a computer, monitor, printer, peripheral, phone, or network equipment record.
-2. Open the **Commissioning certificate** tab. The plugin lists readable assets with the same asset number.
-3. Keep the relevant assets selected, choose the PDF model for its logo and colors, complete the commissioning fields, and generate the PDF.
-4. The generated document is attached to each selected asset. For a group, the total acquisition value is shown when every asset has a recorded value.
-## Notes
-1. Generated items depends on what you assign to the user in GLPI
-2. You can edit template core in HTML by editing template.php file in protocolsmanager/inc directory
-## To do
-1. More customization
-2. Give an idea...
-## Contact 
-mateusznitka01@gmail.com
-## Buy me a coffee :)
-If you like my work, you can support me by a donate here:
+### Generate a user inventory report
 
-<a href="https://www.buymeacoffee.com/mateusznitka" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-yellow.png" alt="Buy Me A Coffee" height="51px" width="210px"></a>
+1. Open a user record (or a supported equipment record assigned to that user) and select the **Protocols Manager** tab.
+2. Select all or some listed items. Edit item comments if needed.
+3. Add custom rows or an export note if needed.
+4. Choose a template and generate the PDF.
+5. Open the generated document from the list. It is also available under **Management → Documents** and is linked to the user and the included equipment.
+6. Select documents in the list to delete them or send them by email when those actions are available to your profile.
 
-## Supporters
-Thanks to Nomino for supporting this project - [nomino.pl](https://nomino.pl/)
+### Generate a commissioning certificate
 
-![Nomino](https://raw.githubusercontent.com/mateusznitka/protocolsmanager/master/docs/img/logo-nomino.png)
+1. Open a computer, monitor, printer, peripheral, phone, or network equipment record and select **PV de mise en service**.
+2. If the asset has an asset number, review the assets with the same number and select which ones belong in this certificate. If it has no asset number, the certificate can still be made for the current equipment.
+3. Choose the template whose logo and colors should be used.
+4. Fill in the commissioning date, planned use, observations, status checkboxes, and place of issue as needed. The date defaults to the acquisition date when it is available and consistent for the selected assets.
+5. Generate the PDF. It appears in the tab's generated-document list and in GLPI Documents, linked to the selected asset or assets.
+
+## Where generated documents are stored
+
+Protocols Manager creates standard GLPI Documents. They can be opened from the plugin's document list and from **Management → Documents**. Inventory reports are associated with their user and included equipment. Commissioning certificates are associated with each selected asset; certificates made without an asset number are associated with the source equipment.
+
+## Project and support
+
+- Source code, releases, and issue tracking: [github.com/Cyril6789/protocolsmanager](https://github.com/Cyril6789/protocolsmanager)
+- The project is based on the original Protocols Manager plugin by Mateusz Nitka. Thanks to [Nomino](https://nomino.pl/) for supporting the original project.
+
+![Nomino](docs/img/logo-nomino.png)
