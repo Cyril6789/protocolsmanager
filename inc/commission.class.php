@@ -705,7 +705,7 @@ th,td { border:1px solid #999; padding:4px 5px; vertical-align:top; }
 th { background:#f1f1f1; text-align:left; }
 .field { font-weight:bold; white-space:nowrap; }
 .general-table { table-layout:fixed; }
-.general-table .service-label { width:18%; }
+.general-table .service-label { width:20%; }
 .general-table .service-value { width:17%; }
 .general-table .requester-label { width:16%; }
 .asset { page-break-inside:avoid; margin-bottom:3mm; }
