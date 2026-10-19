@@ -27,7 +27,7 @@ The generated PDFs are stored as GLPI Documents and linked to the relevant GLPI 
 
 ### Asset commissioning certificates
 
-The **Procès-Verbaux** tab is available on computers, monitors, printers, peripherals, phones, network equipment, and software licenses. It currently generates commissioning certificates (*PV de mise en service*).
+The **Procès-Verbaux** tab is available on computers, monitors, printers, peripherals, phones, network equipment, and software licenses. It offers a choice between a commissioning certificate (*PV de mise en service*) and an asset disposal certificate (*PV de mise au rebut*).
 
 The certificate includes:
 
@@ -43,6 +43,8 @@ The PDF uses the logo and highlight color selected in the plugin's document temp
 Assets with the same asset number can be included in one certificate, subject to the user's GLPI read access to those assets. The PDF includes the total acquisition value for a multi-asset certificate when the values are available. The generated document is linked to each selected asset. When the source asset has no asset number, a certificate can still be generated for that equipment; its asset number is left blank and the document is linked to the source equipment. A certificate can also be generated with no management information: the identification table remains present with blank values.
 
 A certificate can also be started from a software license. Its asset number is read from the license's GLPI management information and appears in the PDF and its filename when present. The PDF uses the license's available name, type, serial number, and inventory number, and is linked to that license. License certificates are generated separately from the hardware groups; acquisition and location fields stay blank when GLPI has no values for them.
+
+The disposal certificate uses the same configured logo and PDF colors. It records the disposal date (today by default), the IT department, the current user's name and job title, asset identification details (including the acquisition date as the available commissioning date), the reason and disposal method, and a signature block with the user's name and blank date/signature cells. The reason and disposal method are required. The certificate can be generated without an asset number; the PDF then leaves it blank and remains linked to the current record.
 
 ![Commissioning certificate workflow](docs/img/generate_com.gif)
 
@@ -118,10 +120,18 @@ Users also need the ordinary GLPI rights to read the relevant users and assets. 
 ### Generate a commissioning certificate
 
 1. Open a computer, monitor, printer, peripheral, phone, network equipment, or software license record and select **Procès-Verbaux**.
-2. If the asset has an asset number, review the assets with the same number and select which ones belong in this certificate. If it has no asset number, the certificate can still be made for the current equipment.
-3. Choose the template whose logo and colors should be used.
-4. Fill in the commissioning date, planned use, observations, status checkboxes, and place of issue as needed. If the commissioning date is left blank, generation uses the acquisition date when it is available and consistent for the selected assets.
-5. Generate the PDF. It appears in the tab's generated-document list and in GLPI Documents, linked to the selected asset or assets (or to the current license).
+2. Choose **PV de mise en service**.
+3. If the asset has an asset number, review the assets with the same number and select which ones belong in this certificate. If it has no asset number, the certificate can still be made for the current equipment.
+4. Choose the template whose logo and colors should be used.
+5. Fill in the commissioning date, planned use, observations, status checkboxes, and place of issue as needed. If the commissioning date is left blank, generation uses the acquisition date when it is available and consistent for the selected assets.
+6. Generate the PDF. It appears in the tab's generated-document list and in GLPI Documents, linked to the selected asset or assets (or to the current license).
+
+### Generate an asset disposal certificate
+
+1. Open the **Procès-Verbaux** tab and choose **PV de mise au rebut**.
+2. Confirm the disposal date, which defaults to today. The department is set to Informatique and the requester and job title come from the current GLPI user.
+3. Enter the required disposal reason and disposal method. The asset details are filled from GLPI, including the manufacturer and model when available.
+4. Generate the PDF. It is stored in GLPI Documents and linked to the selected asset or assets. If no asset number is available, the certificate is still generated and linked to the current record.
 
 ## Where generated documents are stored
 

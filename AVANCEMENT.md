@@ -133,3 +133,19 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - 2026-10-19 — La carte Marketplace GLPI 12 lit le lien maison depuis les métadonnées du catalogue distant et ignore le champ `homepage` local. Ajout d’un script frontend ciblé sur la carte `protocolsmanager`, avec mise à jour de la version du plugin pour invalider les caches d’assets.
 - [x] Détecter aussi la carte si GLPI l’injecte après le chargement initial via AJAX.
 - 2026-10-19 — Après retour utilisateur indiquant que l’icône n’apparaissait toujours pas, vérification du script servi (HTTP 200), de l’URL homepage en base et du chargement asynchrone potentiel. Le script observe maintenant le DOM entier et ajoute le lien dès que la carte apparaît.
+
+## Extension de l’onglet Procès-Verbaux : mise au rebut
+
+- [x] Ajouter un choix entre le PV de mise en service existant et le nouveau PV de mise au rebut.
+- [x] Conserver le formulaire et le PDF de mise en service existants après sélection de ce type.
+- [x] Ajouter le formulaire de mise au rebut avec date du jour par défaut, service Informatique, nom et fonction de l’utilisateur connecté.
+- [x] Rendre obligatoires le motif et le mode de mise au rebut, côté formulaire et côté serveur.
+- [x] Générer le chapitre 1 d’informations générales et le chapitre 2 avec désignation, inventaire, série, date disponible, montant, marque, modèle et type.
+- [x] Ajouter les chapitres motif, mode de mise au rebut et signature, avec nom prérempli et date/signature laissées vides.
+- [x] Réutiliser logo et couleurs du modèle PDF, afficher le numéro immo en tête et conserver un PDF générable lorsque ce numéro est vide.
+- [x] Rattacher le document GLPI à la licence ou au matériel courant, ou à chaque matériel sélectionné pour un immo partagé ; afficher les deux types de PV dans la liste.
+- [x] Mettre à jour le README et incrémenter la version du plugin.
+- [x] Vérifier `php -l` pour les fichiers PHP modifiés et `git diff --check`.
+- [ ] Vérifier sur GLPI la sélection des deux types et confirmer que le PV de mise en service garde son rendu et son parcours.
+- [ ] Générer un PV de mise au rebut avec tous les champs, puis avec un numéro immo vide et des données de gestion absentes.
+- [ ] Vérifier les refus lorsque le motif ou le mode de mise au rebut est vide, et le rattachement du document sur une licence, un objet simple et un groupe au même numéro immo.
