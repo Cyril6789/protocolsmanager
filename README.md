@@ -27,7 +27,7 @@ The generated PDFs are stored as GLPI Documents and linked to the relevant GLPI 
 
 ### Asset commissioning certificates
 
-The **PV de mise en service** tab is available on computers, monitors, printers, peripherals, phones, and network equipment.
+The **PV de mise en service** tab is available on computers, monitors, printers, peripherals, phones, network equipment, and software licenses.
 
 The certificate includes:
 
@@ -41,6 +41,8 @@ The certificate includes:
 The PDF uses the logo and highlight color selected in the plugin's document template settings. Chapter 4 starts on the second page. Empty GLPI management fields remain blank in the certificate; they do not prevent generation.
 
 Assets with the same asset number can be included in one certificate, subject to the user's GLPI read access to those assets. The PDF includes the total acquisition value for a multi-asset certificate when the values are available. The generated document is linked to each selected asset. When the source asset has no asset number, a certificate can still be generated for that equipment; its asset number is left blank and the document is linked to the source equipment. A certificate can also be generated with no management information: the identification table remains present with blank values.
+
+A certificate can also be started from a software license. It is linked to that license and uses the license's available name, type, serial number, and inventory number. Asset-number grouping is for hardware records; license records have no asset number in this workflow, so unavailable acquisition and location information stays blank.
 
 ![Commissioning certificate workflow](docs/img/generate_com.gif)
 
@@ -115,11 +117,11 @@ Users also need the ordinary GLPI rights to read the relevant users and assets. 
 
 ### Generate a commissioning certificate
 
-1. Open a computer, monitor, printer, peripheral, phone, or network equipment record and select **PV de mise en service**.
+1. Open a computer, monitor, printer, peripheral, phone, network equipment, or software license record and select **PV de mise en service**.
 2. If the asset has an asset number, review the assets with the same number and select which ones belong in this certificate. If it has no asset number, the certificate can still be made for the current equipment.
 3. Choose the template whose logo and colors should be used.
 4. Fill in the commissioning date, planned use, observations, status checkboxes, and place of issue as needed. The date defaults to the acquisition date when it is available and consistent for the selected assets.
-5. Generate the PDF. It appears in the tab's generated-document list and in GLPI Documents, linked to the selected asset or assets.
+5. Generate the PDF. It appears in the tab's generated-document list and in GLPI Documents, linked to the selected asset or assets (or to the current license).
 
 ## Where generated documents are stored
 

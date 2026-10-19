@@ -5,7 +5,7 @@ function plugin_version_protocolsmanager(): array
 {
     return [
         'name'         => __('Protocols manager', 'protocolsmanager'),
-        'version'      => '1.6.0.11',
+        'version'      => '1.6.0.12',
         'author'       => 'Cheilmann',
         'license'      => 'GPLv3+',
         'homepage'     => 'https://github.com/Cyril6789/protocolsmanager',
@@ -61,7 +61,7 @@ function plugin_init_protocolsmanager(): void
     }
 
     // A dedicated tab keeps asset commissioning separate from user inventory PDFs.
-    foreach (['Computer', 'Monitor', 'Printer', 'Peripheral', 'Phone', 'NetworkEquipment'] as $target) {
+    foreach (['Computer', 'Monitor', 'Printer', 'Peripheral', 'Phone', 'NetworkEquipment', 'SoftwareLicense'] as $target) {
         Plugin::registerClass('PluginProtocolsmanagerCommission', ['addtabon' => [$target]]);
     }
 

@@ -11,6 +11,7 @@ use Dompdf\Options;
 /** Procès-verbaux de mise en service, distincts des inventaires utilisateurs. */
 class PluginProtocolsmanagerCommission extends CommonDBTM
 {
+	private const LICENSE_ITEMTYPE = 'SoftwareLicense';
 	private const ITEM_TYPES = [
 		'Computer', 'Monitor', 'Printer', 'Peripheral', 'Phone', 'NetworkEquipment'
 	];
@@ -53,7 +54,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		global $CFG_GLPI, $DB;
 		$itemtype = get_class($item);
 		$item_id = (int)$item->getID();
-		if (!in_array($itemtype, self::ITEM_TYPES, true) || $item_id <= 0 || !$item->can($item_id, READ)) {
+		if (!self::isSupportedSourceItemType($itemtype) || $item_id <= 0 || !$item->can($item_id, READ)) {
 			echo "<div class='alert alert-warning'>" . htmlescape(__('Accès refusé')) . '</div>';
 			return;
 		}
@@ -68,7 +69,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		if (!Session::haveRight('document', CREATE)) {
 			echo "<div class='alert alert-info'>" . htmlescape(__('Vous pouvez consulter les PV associés, mais votre profil ne permet pas d’en créer.', 'protocolsmanager')) . '</div>';
 		} elseif (!$seed) {
-			echo "<div class='alert alert-info'>" . htmlescape(__('Aucune donnée de gestion exploitable n’a été trouvée. Le PV sera rattaché à ce matériel, sans numéro immo.', 'protocolsmanager')) . '</div>';
+			echo "<div class='alert alert-info'>" . htmlescape(__('Aucune donnée de gestion exploitable n’a été trouvée. Le PV sera rattaché à cet élément, sans numéro immo.', 'protocolsmanager')) . '</div>';
 			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB, $itemtype, $item_id);
 		} elseif ($seed['immo_number'] === '') {
 			self::renderGenerationForm([], '', $CFG_GLPI['root_doc'], $DB, $itemtype, $item_id);
@@ -115,7 +116,10 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			}
 			echo '</tbody></table></div>';
 		} else {
-			echo "<div class='alert alert-secondary'>" . htmlescape(__('Ce PV sera rattaché au matériel courant, sans numéro immo.', 'protocolsmanager')) . '</div>';
+			$notice = $source_itemtype === self::LICENSE_ITEMTYPE
+				? __('Ce PV sera rattaché à la licence courante, sans numéro immo.', 'protocolsmanager')
+				: __('Ce PV sera rattaché au matériel courant, sans numéro immo.', 'protocolsmanager');
+			echo "<div class='alert alert-secondary'>" . htmlescape($notice) . '</div>';
 		}
 		echo "<div class='row g-3 align-items-end'><div class='col-md-8'><label class='form-label' for='commission-config'>" . htmlescape(__('Modèle PDF (logo et couleurs)', 'protocolsmanager')) . '</label><select class="form-select" id="commission-config" name="config_id">';
 		$configs = $DB->request(['SELECT' => ['id', 'name'], 'FROM' => 'glpi_plugin_protocolsmanager_config', 'ORDER' => ['id ASC']]);
@@ -169,7 +173,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Documents générés', 'protocolsmanager')) . '</strong></div><div class="card-body p-0">';
 		echo "<div class='table-responsive'><table class='table table-hover align-middle mb-0'><thead><tr><th>" . htmlescape(__('Document', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Date', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Fichier', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Créé par', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Commentaire', 'protocolsmanager')) . '</th></tr></thead><tbody>';
 		if ($documents === []) {
-			echo "<tr><td colspan='5' class='text-center text-muted py-3'>" . htmlescape(__('Aucun PV généré pour ce matériel.', 'protocolsmanager')) . '</td></tr>';
+			echo "<tr><td colspan='5' class='text-center text-muted py-3'>" . htmlescape(__('Aucun PV généré pour cet élément.', 'protocolsmanager')) . '</td></tr>';
 		} else {
 			foreach ($documents as $document) {
 				$creator = new User();
@@ -190,7 +194,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 	private static function loadAsset(string $itemtype, int $id): ?array
 	{
 		global $DB;
-		if (!in_array($itemtype, self::ITEM_TYPES, true)) {
+		if (!self::isSupportedSourceItemType($itemtype)) {
 			return null;
 		}
 		$item = getItemForItemtype($itemtype);
@@ -212,7 +216,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			'itemtype' => $itemtype,
 			'type' => $item->getTypeName(),
 			'name' => (string)($fields['name'] ?? ''),
-			'immo_number' => trim((string)($info['immo_number'] ?? '')),
+			'immo_number' => $itemtype === self::LICENSE_ITEMTYPE ? '' : trim((string)($info['immo_number'] ?? '')),
 			'inventory_number' => (string)($fields['otherserial'] ?? ''),
 			'serial' => (string)($fields['serial'] ?? ''),
 			'supplier' => $supplier,
@@ -221,6 +225,11 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			'value' => $info['value'] ?? null,
 			'location' => $location,
 		];
+	}
+
+	private static function isSupportedSourceItemType(string $itemtype): bool
+	{
+		return in_array($itemtype, self::ITEM_TYPES, true) || $itemtype === self::LICENSE_ITEMTYPE;
 	}
 
 	private static function findAssetGroup(string $immo_number): ?array
@@ -337,11 +346,11 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		if ($immo === '') {
 			$source_itemtype = (string)($_POST['source_itemtype'] ?? '');
 			$source_item_id = (int)($_POST['source_item_id'] ?? 0);
-			$source_asset = in_array($source_itemtype, self::ITEM_TYPES, true) && $source_item_id > 0
+			$source_asset = self::isSupportedSourceItemType($source_itemtype) && $source_item_id > 0
 				? self::loadAsset($source_itemtype, $source_item_id)
 				: null;
 			if (!$source_asset || $source_asset['immo_number'] !== '') {
-				Session::addMessageAfterRedirect(__('Le matériel courant n’a pas pu être validé pour rattacher le PV.', 'protocolsmanager'), false, ERROR);
+				Session::addMessageAfterRedirect(__('L’élément courant n’a pas pu être validé pour rattacher le PV.', 'protocolsmanager'), false, ERROR);
 				return false;
 			}
 			$assets[$source_itemtype . ':' . $source_item_id] = $source_asset;
