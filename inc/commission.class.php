@@ -307,8 +307,8 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		}
 		$logo_path = !empty($config['logo']) ? GLPI_PICTURE_DIR . '/' . basename($config['logo']) : '';
 		$logo_html = '';
-		$logo_width = isset($config['logo_width']) && (int)$config['logo_width'] > 0 ? (int)$config['logo_width'] : 160;
-		$logo_height = isset($config['logo_height']) && (int)$config['logo_height'] > 0 ? (int)$config['logo_height'] : 160;
+		$logo_width = min(120, isset($config['logo_width']) && (int)$config['logo_width'] > 0 ? (int)$config['logo_width'] : 120);
+		$logo_height = min(120, isset($config['logo_height']) && (int)$config['logo_height'] > 0 ? (int)$config['logo_height'] : 120);
 		if ($logo_path !== '' && is_file($logo_path) && is_readable($logo_path)) {
 			$mime = function_exists('mime_content_type') ? mime_content_type($logo_path) : 'image/png';
 			if (!is_string($mime) || !in_array($mime, ['image/png', 'image/jpeg'], true)) {
@@ -345,36 +345,55 @@ body { font-family: DejaVu Sans, sans-serif; font-size: 9pt; color: #222; }
 h1 { color: <?= $escape($accent) ?>; text-align:center; font-size:17pt; margin: 0 0 5mm; }
 h2 { color:<?= $escape($header_text_color) ?>; background:<?= $escape($accent) ?>; padding:6px 8px; font-size:11pt; margin:7mm 0 3mm; }
 .logo { display:block; margin:0 auto 5mm; }
-.immo { text-align:center; font-size:12pt; font-weight:bold; color:<?= $escape($accent) ?>; margin-bottom:5mm; }
+.pdf-header { table-layout:fixed; margin:0 0 5mm; }
+.pdf-header td { border:0; padding:0 3px 2mm; vertical-align:bottom; }
+.pdf-header .immo-cell { width:34%; text-align:left; }
+.pdf-header .logo-cell { width:32%; text-align:center; }
+.pdf-header .spacer-cell { width:34%; }
+.logo { max-width:120px; max-height:120px; margin:0 auto; }
+.immo-label { color:#111; font-size:9pt; font-weight:normal; }
+.immo-value { display:inline-block; color:<?= $escape($accent) ?>; font-size:13pt; font-weight:bold; border-bottom:2px solid <?= $escape($accent) ?>; padding:0 5mm 1mm; }
 table { width:100%; border-collapse:collapse; margin:2mm 0 4mm; }
 th,td { border:1px solid #999; padding:5px; vertical-align:top; }
 th { background:#f1f1f1; text-align:left; }
 .asset { page-break-inside:avoid; margin-bottom:4mm; }
 .field { width:28%; font-weight:bold; }
+.asset-table { table-layout:fixed; }
+.asset-table col.label { width:22%; }
+.asset-table col.value { width:28%; }
+.signature { table-layout:fixed; }
+.signature .role-col { width:20%; }
+.signature .name-col { width:27%; }
+.signature .sign-col { width:33%; }
+.signature .date-col { width:20%; }
 .signature td { height:18mm; }
 .free { white-space:pre-wrap; min-height:9mm; }
 </style></head><body>
-<?= $logo_html ?>
+<table class="pdf-header"><tr>
+<td class="immo-cell"><span class="immo-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="immo-value"><?= $escape($immo) ?></span></td>
+<td class="logo-cell"><?= $logo_html ?></td><td class="spacer-cell"></td>
+</tr></table>
 <h1><?= $escape(__('Procès-verbal de mise en service d’une immobilisation', 'protocolsmanager')) ?></h1>
-<div class="immo"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> : <?= $escape($immo) ?></div>
 <h2>1. <?= $escape(__('Identification de l’immobilisation', 'protocolsmanager')) ?></h2>
 <?php foreach ($assets as $asset): ?>
-<div class="asset"><table>
-<tr><th colspan="2"><?= $escape($asset['name']) ?> (<?= $escape($asset['type']) ?>)</th></tr>
+<div class="asset"><table class="asset-table"><colgroup><col class="label"><col class="value"><col class="label"><col class="value"></colgroup>
 <?php
 $rows = [
-	__('Numéro immo', 'protocolsmanager') => $asset['immo_number'],
 	__('Désignation', 'protocolsmanager') => trim($asset['name'] . ' (' . $asset['type'] . ')'),
-	__('Numéro d’inventaire', 'protocolsmanager') => $asset['inventory_number'],
-	__('Numéro de série', 'protocolsmanager') => $asset['serial'],
 	__('Fournisseur', 'protocolsmanager') => $asset['supplier'],
 	__('Date d’acquisition', 'protocolsmanager') => self::displayDate($asset['buy_date']),
 	__('Numéro de facture', 'protocolsmanager') => $asset['bill'],
 	__('Valeur d’acquisition HT', 'protocolsmanager') => $asset['value'] === null || $asset['value'] === '' ? '' : number_format((float)$asset['value'], 2, ',', ' ') . ' €',
 	__('Site d’affectation', 'protocolsmanager') => $asset['location'],
 ];
-foreach ($rows as $label => $value): if ((string)$value === '') { continue; } ?>
-<tr><td class="field"><?= $escape($label) ?></td><td><?= $escape($value) ?></td></tr>
+if ($asset['inventory_number'] !== '' || $asset['serial'] !== ''): ?>
+<tr>
+<?php if ($asset['inventory_number'] !== ''): ?><td class="field"><?= $escape(__('Numéro d’inventaire', 'protocolsmanager')) ?></td><td><?= $escape($asset['inventory_number']) ?></td><?php else: ?><td colspan="2"></td><?php endif; ?>
+<?php if ($asset['serial'] !== ''): ?><td class="field"><?= $escape(__('Numéro de série', 'protocolsmanager')) ?></td><td><?= $escape($asset['serial']) ?></td><?php else: ?><td colspan="2"></td><?php endif; ?>
+</tr>
+<?php endif; ?>
+<?php foreach ($rows as $label => $value): if ((string)$value === '') { continue; } ?>
+<tr><td class="field"><?= $escape($label) ?></td><td colspan="3"><?= $escape($value) ?></td></tr>
 <?php endforeach; ?></table></div>
 <?php endforeach; ?>
 <?php if (count($assets) > 1 && $all_amounts_present): ?><p><strong><?= $escape(__('Montant total d’acquisition HT', 'protocolsmanager')) ?> : <?= $escape(number_format($purchase_total, 2, ',', ' ')) ?> €</strong></p><?php endif; ?>
@@ -385,7 +404,7 @@ foreach ($rows as $label => $value): if ((string)$value === '') { continue; } ?>
 <p><strong><?= $escape(__('Description de l’utilisation prévue', 'protocolsmanager')) ?> :</strong></p><div class="free"><?= $escape($planned_use) ?></div>
 <h2>3. <?= $escape(__('Observations éventuelles', 'protocolsmanager')) ?></h2><div class="free"><?= $escape($observations) ?></div>
 <h2>4. <?= $escape(__('Validations', 'protocolsmanager')) ?></h2>
-<table class="signature"><tr><th><?= $escape(__('Fonction', 'protocolsmanager')) ?></th><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th></tr>
+<table class="signature"><colgroup><col class="role-col"><col class="name-col"><col class="sign-col"><col class="date-col"></colgroup><tr><th><?= $escape(__('Fonction', 'protocolsmanager')) ?></th><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th></tr>
 <?php foreach ([__('Responsable utilisateur', 'protocolsmanager'), __('Responsable technique (si applicable)', 'protocolsmanager'), __('Comptabilité', 'protocolsmanager'), __('Direction / Responsable hiérarchique', 'protocolsmanager')] as $role): ?><tr><td><?= $escape($role) ?></td><td></td><td></td><td></td></tr><?php endforeach; ?></table>
 <p><?= $escape(__('Document établi le', 'protocolsmanager')) ?> : <?= $escape(date('d/m/Y')) ?>, <?= $escape(__('lieu', 'protocolsmanager')) ?> <?= $escape($city) ?></p>
 </body></html>
