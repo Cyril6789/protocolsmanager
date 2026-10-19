@@ -632,8 +632,8 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		}
 		$logo_path = !empty($config['logo']) ? GLPI_PICTURE_DIR . '/' . basename($config['logo']) : '';
 		$logo_html = '';
-		$logo_width = min(120, isset($config['logo_width']) && (int)$config['logo_width'] > 0 ? (int)$config['logo_width'] : 120);
-		$logo_height = min(120, isset($config['logo_height']) && (int)$config['logo_height'] > 0 ? (int)$config['logo_height'] : 120);
+		$logo_width = min(95, isset($config['logo_width']) && (int)$config['logo_width'] > 0 ? (int)$config['logo_width'] : 95);
+		$logo_height = min(72, isset($config['logo_height']) && (int)$config['logo_height'] > 0 ? (int)$config['logo_height'] : 72);
 		if ($logo_path !== '' && is_file($logo_path) && is_readable($logo_path)) {
 			$mime = function_exists('mime_content_type') ? mime_content_type($logo_path) : 'image/png';
 			if (!is_string($mime) || !in_array($mime, ['image/png', 'image/jpeg'], true)) {
@@ -662,54 +662,62 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 				$total += (float)$asset['value'];
 			}
 		}
+		$requester_with_title = $requester;
+		if ($title !== '') {
+			$requester_with_title .= ' - ' . $title;
+		}
 		$escape = static fn($value) => htmlescape((string)$value);
 		ob_start();
 ?>
 <!doctype html><html><head><meta charset="utf-8"><style>
-@page { margin: 20mm 16mm 18mm; }
-body { font-family: DejaVu Sans, sans-serif; font-size: 9pt; color: #222; }
-h1 { color: <?= $escape($accent) ?>; text-align:center; font-size:17pt; margin: 0 0 5mm; }
-h2 { color:<?= $escape($header_text_color) ?>; background:<?= $escape($accent) ?>; padding:6px 8px; font-size:11pt; margin:7mm 0 3mm; }
-.logo { display:block; max-width:120px; max-height:120px; margin:0 auto; }
-.pdf-header { table-layout:fixed; margin:0 0 5mm; }
-.pdf-header td { border:0; padding:0 3px 2mm; vertical-align:bottom; }
-.pdf-header .immo-cell { width:34%; text-align:left; }
-.pdf-header .logo-cell { width:32%; text-align:center; }
-.pdf-header .spacer-cell { width:34%; }
-.immo-label { color:#111; font-size:9pt; font-weight:normal; }
-.immo-value { display:inline-block; color:<?= $escape($accent) ?>; font-size:13pt; font-weight:bold; border-bottom:2px solid <?= $escape($accent) ?>; padding:0 5mm 1mm; }
-table { width:100%; border-collapse:collapse; margin:2mm 0 4mm; }
-th,td { border:1px solid #999; padding:5px; vertical-align:top; }
+@page { margin: 12mm 14mm 12mm; }
+body { font-family: DejaVu Sans, sans-serif; font-size: 8pt; color: #222; }
+h1 { color: <?= $escape($accent) ?>; text-align:center; font-size:14pt; margin: 0 0 2mm; }
+h2 { color:<?= $escape($header_text_color) ?>; background:<?= $escape($accent) ?>; padding:3px 6px; font-size:9.5pt; margin:3mm 0 1mm; }
+.logo { display:block; max-width:<?= min(95, $logo_width) ?>px; max-height:<?= min(72, $logo_height) ?>px; margin:0 auto; }
+.pdf-header { table-layout:fixed; margin:0 0 2mm; }
+.pdf-header td { border:0; padding:0 2px 1mm; vertical-align:bottom; }
+.pdf-header .immo-cell { width:35%; text-align:left; }
+.pdf-header .logo-cell { width:30%; text-align:center; }
+.pdf-header .date-cell { width:35%; text-align:right; }
+.header-label { color:#111; font-size:8pt; font-weight:normal; }
+.header-value { display:inline-block; min-width:45mm; color:<?= $escape($accent) ?>; font-size:11pt; font-weight:bold; border-bottom:2px solid <?= $escape($accent) ?>; padding:0 3mm 1mm; }
+table { width:100%; border-collapse:collapse; margin:1mm 0 2mm; }
+th,td { border:1px solid #999; padding:3px 4px; vertical-align:top; }
 th { background:#f1f1f1; text-align:left; }
-.field { width:28%; font-weight:bold; }
-.asset { page-break-inside:avoid; }
-.free { white-space:pre-wrap; min-height:9mm; }
-.signature td { height:18mm; }
+.field { font-weight:bold; white-space:nowrap; }
+.general-table { table-layout:fixed; }
+.general-table .service-label { width:18%; }
+.general-table .service-value { width:17%; }
+.general-table .requester-label { width:16%; }
+.asset { page-break-inside:avoid; margin-bottom:1.5mm; }
+.asset-table { table-layout:fixed; }
+.asset-table .label { width:19%; }
+.asset-table .value { width:31%; }
+.free { white-space:pre-wrap; min-height:5mm; }
+.signature td { height:14mm; }
 </style></head><body>
-<table class="pdf-header"><tr><td class="immo-cell"><span class="immo-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="immo-value"><?= $escape($immo) ?></span></td><td class="logo-cell"><?= $logo_html ?></td><td class="spacer-cell"></td></tr></table>
+<table class="pdf-header"><tr><td class="immo-cell"><span class="header-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape($immo) ?></span></td><td class="logo-cell"><?= $logo_html ?></td><td class="date-cell"><span class="header-label"><?= $escape(__('Date de mise au rebut', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape(self::displayDate($disposal_date)) ?></span></td></tr></table>
 <h1><?= $escape(__('Procès-verbal de mise au rebut', 'protocolsmanager')) ?></h1>
 <h2>1. <?= $escape(__('Informations générales', 'protocolsmanager')) ?></h2>
-<table><tbody>
-<tr><td class="field"><?= $escape(__('Date de mise au rebut', 'protocolsmanager')) ?></td><td><?= $escape(self::displayDate($disposal_date)) ?></td></tr>
-<tr><td class="field"><?= $escape(__('Service concerné', 'protocolsmanager')) ?></td><td>Informatique</td></tr>
-<tr><td class="field"><?= $escape(__('Nom du demandeur', 'protocolsmanager')) ?></td><td><?= $escape($requester) ?></td></tr>
-<tr><td class="field"><?= $escape(__('Fonction', 'protocolsmanager')) ?></td><td><?= $escape($title) ?></td></tr>
+<table class="general-table"><tbody>
+<tr><td class="field service-label"><?= $escape(__('Service concerné', 'protocolsmanager')) ?></td><td class="service-value">Informatique</td><td class="field requester-label"><?= $escape(__('Demandeur', 'protocolsmanager')) ?></td><td><?= $escape($requester_with_title) ?></td></tr>
 </tbody></table>
 <h2>2. <?= $escape(__('Détails de l’immobilisation', 'protocolsmanager')) ?></h2>
-<?php foreach ($assets as $asset): ?><div class="asset"><table><tbody>
+<?php foreach ($assets as $asset): ?><div class="asset"><table class="asset-table"><colgroup><col class="label"><col class="value"><col class="label"><col class="value"></colgroup><tbody>
 <?php
-$details = [
-	__('Désignation', 'protocolsmanager') => $asset['name'],
-	__('Numéro d’inventaire', 'protocolsmanager') => $asset['inventory_number'],
-	__('Numéro de série', 'protocolsmanager') => $asset['serial'],
-	__('Date de mise en service', 'protocolsmanager') => self::displayDate($asset['service_date']),
-	__('Montant', 'protocolsmanager') => $asset['value'] === null || $asset['value'] === '' ? '' : number_format((float)$asset['value'], 2, ',', ' ') . ' €',
-	__('Marque', 'protocolsmanager') => $asset['manufacturer'],
-	__('Modèle', 'protocolsmanager') => $asset['model'],
-	__('Type de matériel', 'protocolsmanager') => $asset['type'],
-];
+$make_model = implode(' — ', array_filter([$asset['manufacturer'], $asset['model']], static fn($value) => $value !== ''));
+if ($make_model !== '' && $asset['type'] !== '') {
+	$make_model .= ' (' . $asset['type'] . ')';
+} elseif ($make_model === '') {
+	$make_model = $asset['type'];
+}
+$amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_format((float)$asset['value'], 2, ',', ' ') . ' €';
 ?>
-<?php foreach ($details as $label => $value): ?><tr><td class="field"><?= $escape($label) ?></td><td><?= $escape($value) ?></td></tr><?php endforeach; ?>
+<tr><td class="field"><?= $escape(__('Désignation', 'protocolsmanager')) ?></td><td colspan="3"><?= $escape($asset['name']) ?></td></tr>
+<tr><td class="field"><?= $escape(__('Numéro d’inventaire', 'protocolsmanager')) ?></td><td><?= $escape($asset['inventory_number']) ?></td><td class="field"><?= $escape(__('Numéro de série', 'protocolsmanager')) ?></td><td><?= $escape($asset['serial']) ?></td></tr>
+<tr><td class="field"><?= $escape(__('Date de mise en service', 'protocolsmanager')) ?></td><td><?= $escape(self::displayDate($asset['service_date'])) ?></td><td class="field"><?= $escape(__('Montant', 'protocolsmanager')) ?></td><td><?= $escape($amount) ?></td></tr>
+<tr><td class="field"><?= $escape(__('Marque / Modèle', 'protocolsmanager')) ?></td><td colspan="3"><?= $escape($make_model) ?></td></tr>
 </tbody></table></div><?php endforeach; ?>
 <?php if (count($assets) > 1 && $all_amounts_present): ?><p><strong><?= $escape(__('Montant total', 'protocolsmanager')) ?> : <?= $escape(number_format($total, 2, ',', ' ')) ?> €</strong></p><?php endif; ?>
 <h2>3. <?= $escape(__('Motif de la mise au rebut', 'protocolsmanager')) ?></h2><div class="free"><?= $escape($reason) ?></div>

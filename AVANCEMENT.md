@@ -151,3 +151,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Vérifier les refus lorsque le motif ou le mode de mise au rebut est vide, et le rattachement du document sur une licence, un objet simple et un groupe au même numéro immo.
 - [x] Afficher les choix de type de PV directement dans la fiche GLPI, sans navigation vers une réponse AJAX isolée.
 - 2026-10-19 — Correction du sélecteur : le contenu des onglets est chargé par GLPI via AJAX ; les liens construits à partir de l’URL courante ouvraient la réponse seule hors de la fiche. Les deux formulaires se déplient maintenant dans le contexte de l’objet.
+- [x] Compacter le PDF de mise au rebut : numéro immo et date aux deux extrémités du logo, demandeur et fonction sur une ligne, inventaire et série sur une ligne, marque/modèle/type sur une ligne, espacements et tableau réduits.
+- [ ] Vérifier dans le PDF généré qu’un PV courant tient sur une page et que les textes longs ou les groupes de plusieurs objets restent lisibles.
