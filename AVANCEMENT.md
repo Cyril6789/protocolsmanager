@@ -162,7 +162,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Réaérer la mise en page du PV de mise au rebut en gardant les champs regroupés sur une ligne uniquement là où demandé ; réserver une zone manuscrite au numéro immo vide au-dessus du trait.
 - [x] Rétablir la taille du logo du PV de mise au rebut à sa taille précédente (120 × 120 px maximum), tout en le gardant centré.
 - [x] Élargir légèrement la colonne « Service concerné » du tableau d’informations générales.
-- [x] Fixer directement dans le tableau les largeurs des colonnes du chapitre 2 : 25 % pour le premier libellé et 24 % pour le second (dont « Date de mise en service »), avec réduction correspondante des colonnes de valeur.
+- [x] Fixer la première colonne de libellés du chapitre 2 à 30 % directement sur ses cellules (Désignation, inventaire, date de mise en service, marque/modèle), en réduisant la première colonne de valeur afin que les libellés ne soient pas tronqués ou tassés.
 - [x] Incrémenter la version du plugin après l’ajustement de présentation.
 - [x] Vérifier `php -l` sur les fichiers PHP modifiés et `git diff --check`.
 - [ ] Vérifier dans le PDF imprimé que l’espacement est confortable et que le numéro immo vide dispose d’une zone manuscrite avant son trait.

@@ -720,7 +720,7 @@ th { background:#f1f1f1; text-align:left; }
 <tr><td class="field service-label"><?= $escape(__('Service concerné', 'protocolsmanager')) ?></td><td class="service-value">Informatique</td><td class="field requester-label"><?= $escape(__('Demandeur', 'protocolsmanager')) ?></td><td><?= $escape($requester_with_title) ?></td></tr>
 </tbody></table>
 <h2>2. <?= $escape(__('Détails de l’immobilisation', 'protocolsmanager')) ?></h2>
-<?php foreach ($assets as $asset): ?><div class="asset"><table class="asset-table"><colgroup><col class="label" style="width:25%"><col class="value" style="width:25%"><col class="label" style="width:24%"><col class="value" style="width:26%"></colgroup><tbody>
+<?php foreach ($assets as $asset): ?><div class="asset"><table class="asset-table"><colgroup><col class="label" style="width:30%"><col class="value" style="width:20%"><col class="label" style="width:24%"><col class="value" style="width:26%"></colgroup><tbody>
 <?php
 $make_model = implode(' — ', array_filter([$asset['manufacturer'], $asset['model']], static fn($value) => $value !== ''));
 if ($make_model !== '' && $asset['type'] !== '') {
@@ -730,10 +730,10 @@ if ($make_model !== '' && $asset['type'] !== '') {
 }
 $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_format((float)$asset['value'], 2, ',', ' ') . ' €';
 ?>
-<tr><td class="field"><?= $escape(__('Désignation', 'protocolsmanager')) ?></td><td colspan="3"><?= $escape($asset['name']) ?></td></tr>
-<tr><td class="field"><?= $escape(__('Numéro d’inventaire', 'protocolsmanager')) ?></td><td><?= $escape($asset['inventory_number']) ?></td><td class="field"><?= $escape(__('Numéro de série', 'protocolsmanager')) ?></td><td><?= $escape($asset['serial']) ?></td></tr>
-<tr><td class="field"><?= $escape(__('Date de mise en service', 'protocolsmanager')) ?></td><td><?= $escape(self::displayDate($asset['service_date'])) ?></td><td class="field"><?= $escape(__('Montant', 'protocolsmanager')) ?></td><td><?= $escape($amount) ?></td></tr>
-<tr><td class="field"><?= $escape(__('Marque / Modèle', 'protocolsmanager')) ?></td><td colspan="3"><?= $escape($make_model) ?></td></tr>
+<tr><td class="field" style="width:30%"><?= $escape(__('Désignation', 'protocolsmanager')) ?></td><td colspan="3"><?= $escape($asset['name']) ?></td></tr>
+<tr><td class="field" style="width:30%"><?= $escape(__('Numéro d’inventaire', 'protocolsmanager')) ?></td><td><?= $escape($asset['inventory_number']) ?></td><td class="field"><?= $escape(__('Numéro de série', 'protocolsmanager')) ?></td><td><?= $escape($asset['serial']) ?></td></tr>
+<tr><td class="field" style="width:30%"><?= $escape(__('Date de mise en service', 'protocolsmanager')) ?></td><td><?= $escape(self::displayDate($asset['service_date'])) ?></td><td class="field"><?= $escape(__('Montant', 'protocolsmanager')) ?></td><td><?= $escape($amount) ?></td></tr>
+<tr><td class="field" style="width:30%"><?= $escape(__('Marque / Modèle', 'protocolsmanager')) ?></td><td colspan="3"><?= $escape($make_model) ?></td></tr>
 </tbody></table></div><?php endforeach; ?>
 <?php if (count($assets) > 1 && $all_amounts_present): ?><p><strong><?= $escape(__('Montant total', 'protocolsmanager')) ?> : <?= $escape(number_format($total, 2, ',', ' ')) ?> €</strong></p><?php endif; ?>
 <h2>3. <?= $escape(__('Motif de la mise au rebut', 'protocolsmanager')) ?></h2><div class="free"><?= $escape($reason) ?></div>
