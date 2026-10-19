@@ -120,7 +120,7 @@ Users also need the ordinary GLPI rights to read the relevant users and assets. 
 1. Open a computer, monitor, printer, peripheral, phone, network equipment, or software license record and select **PV de mise en service**.
 2. If the asset has an asset number, review the assets with the same number and select which ones belong in this certificate. If it has no asset number, the certificate can still be made for the current equipment.
 3. Choose the template whose logo and colors should be used.
-4. Fill in the commissioning date, planned use, observations, status checkboxes, and place of issue as needed. The date defaults to the acquisition date when it is available and consistent for the selected assets.
+4. Fill in the commissioning date, planned use, observations, status checkboxes, and place of issue as needed. If the commissioning date is left blank, generation uses the acquisition date when it is available and consistent for the selected assets.
 5. Generate the PDF. It appears in the tab's generated-document list and in GLPI Documents, linked to the selected asset or assets (or to the current license).
 
 ## Where generated documents are stored

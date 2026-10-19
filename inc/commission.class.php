@@ -363,7 +363,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			$assets[$source_itemtype . ':' . $source_item_id] = $source_asset;
 		}
 		$submitted_date = (string)($_POST['effective_date'] ?? '');
-		$effective_date = '';
+		$effective_date = self::commonPurchaseDate(array_values($assets));
 		if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $submitted_date, $date_parts)
 			&& checkdate((int)$date_parts[2], (int)$date_parts[3], (int)$date_parts[1])) {
 			$effective_date = $submitted_date;
