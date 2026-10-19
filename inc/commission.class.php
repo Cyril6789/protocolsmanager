@@ -712,6 +712,8 @@ th { background:#f1f1f1; text-align:left; }
 .asset-table { table-layout:fixed; }
 .asset-table .label { width:19%; }
 .asset-table .value { width:31%; }
+.asset-table col.label:first-child { width:21%; }
+.asset-table col.value:nth-child(2) { width:29%; }
 .free { white-space:pre-wrap; min-height:9mm; }
 .signature td { height:18mm; }
 </style></head><body>
