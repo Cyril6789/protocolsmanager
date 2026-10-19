@@ -24,3 +24,84 @@ Mettre à jour le plugin Protocols Manager pour le rendre compatible avec GLPI 1
 ## À faire
 
 - Valider l’installation/mise à jour et les parcours de génération PDF, gestion des droits et envoi d’e-mails sur une instance de test GLPI 12 avant déploiement en production.
+
+## Nouvelle fonctionnalité — procès-verbal de mise en service d’une immobilisation
+
+### Objectif et règles de conservation
+
+Ajouter au plugin un parcours distinct de génération d’un procès-verbal de mise en service pour du matériel GLPI. Le PDF reprend les données de gestion des matériels et permet d’ajouter les informations propres à la mise en service et aux validations.
+
+- [ ] Garder le parcours, le contenu et le comportement des documents d’inventaire utilisateur indépendants de cette nouvelle fonctionnalité.
+- [ ] Réutiliser le logo et les couleurs configurées pour les PDF existants, sans modifier leur rendu ni leurs réglages.
+- [ ] Tolérer les champs GLPI absents ou vides : omettre leur valeur dans le PDF sans avertissement PHP ni erreur de génération.
+- [ ] N’enregistrer aucune information spécifique au PV dans les champs des objets matériels de GLPI ; les saisies du formulaire servent à produire le document.
+- [ ] Maintenir la compatibilité avec les versions GLPI prises en charge par le plugin et vérifier les droits de lecture des matériels sélectionnés.
+
+### 1. Repérage des données GLPI et conception
+
+- [ ] Identifier les types de matériels accessibles dans le parcours proposé et leurs tables/champs communs dans GLPI 11 et GLPI 12.
+- [ ] Repérer les champs de l’onglet Gestion correspondant au numéro d’immobilisation, au fournisseur, à la date d’acquisition, au numéro de facture et à la valeur d’acquisition HT.
+- [ ] Repérer les champs communs d’un matériel : nom, type, numéro d’inventaire, numéro de série et lieu d’affectation.
+- [ ] Déterminer comment obtenir le premier niveau du lieu sélectionné (site d’affectation) et traiter un lieu non renseigné.
+- [ ] Vérifier le format et les cas possibles du numéro d’immobilisation, notamment les valeurs absentes et les objets de types différents.
+- [ ] Définir le regroupement : un PV peut couvrir un ou plusieurs objets ayant exactement le même numéro d’immobilisation ; les objets d’autres numéros ne doivent pas être ajoutés au document.
+- [ ] Définir le calcul du montant total d’acquisition HT pour les objets du groupe, en ignorant les montants vides et en affichant le total quand le PV couvre plusieurs objets.
+- [ ] Déterminer l’entrée utilisateur la plus cohérente avec GLPI : depuis une fiche matériel, une liste de matériels ou un écran dédié ; documenter le choix avant implémentation.
+- [ ] Identifier la source du prénom et du nom de l’utilisateur connecté qui signe la déclaration, ainsi que le format de la date courante.
+
+### 2. Parcours de génération et sélection des objets
+
+- [ ] Ajouter un point d’entrée distinct pour le PV matériel, sans détourner la génération des documents d’inventaire utilisateur.
+- [ ] Permettre de produire un PV pour un seul objet.
+- [ ] Permettre de produire un PV regroupant plusieurs objets partageant le même numéro immo, avec un choix clair des objets concernés.
+- [ ] Filtrer ou valider côté serveur les objets sélectionnés afin qu’ils aient tous le même numéro immo ; refuser proprement une sélection incohérente.
+- [ ] Vérifier côté serveur les droits de lecture sur chaque objet, sans faire confiance aux seuls identifiants soumis par le formulaire.
+- [ ] Préserver les contrôles d’accès du plugin et échapper les valeurs affichées ou intégrées au HTML/PDF.
+- [ ] Préremplir la date effective de mise en service avec la date d’acquisition du matériel ; pour un groupe, définir et appliquer une règle explicite si les dates diffèrent.
+- [ ] Précocher les quatre états « Installée », « Testée », « Réceptionnée conforme » et « Mise en exploitation », tout en permettant leur modification avant génération.
+- [ ] Proposer la saisie de la description d’utilisation prévue et des observations éventuelles.
+- [ ] Proposer le choix du lieu d’établissement parmi deux boutons radio : Eichhoffen et Barr.
+- [ ] Préremplir la date « Document établi le » avec la date du jour.
+- [ ] Afficher une erreur compréhensible si aucun matériel exploitable n’est sélectionné, sans produire de PDF incomplet par accident.
+
+### 3. Contenu du PDF
+
+- [ ] Reprendre le numéro immo en tête du document.
+- [ ] Ajouter le chapitre 1 « Identification de l’immobilisation » avec, pour chaque objet, le numéro immo, la désignation (nom de l’objet et type), le numéro d’inventaire, le numéro de série, le fournisseur, la date d’acquisition, le numéro de facture, la valeur d’acquisition HT et le site d’affectation (premier niveau du lieu).
+- [ ] Pour un PV groupé, lister clairement les données de chaque objet et ajouter le montant total d’acquisition HT du groupe.
+- [ ] Ajouter le chapitre 2 « Mise en service » avec la déclaration « Je soussigné(e) <prénom nom de l’utilisateur en cours>, certifie que l’immobilisation décrite ci-dessous a été : » et les quatre états cochés/modifiables.
+- [ ] Ajouter la date effective de mise en service et la description libre de l’utilisation prévue.
+- [ ] Ajouter le chapitre 3 « Observations éventuelles » avec le texte libre multi-ligne.
+- [ ] Ajouter le chapitre 4 « Validations » et le tableau « Fonction | Nom | Signature | Date » avec les lignes « Responsable utilisateur », « Responsable technique (si applicable) », « Comptabilité » et « Direction / Responsable hiérarchique ».
+- [ ] Sous le tableau, afficher « Document établi le : <date actuelle>, lieu <Eichhoffen ou Barr> ».
+- [ ] Réutiliser le logo configuré et appliquer la couleur choisie aux titres et mots importants du nouveau PDF.
+- [ ] Gérer les sauts de page et les groupes longs afin que tableaux, observations et zones de validation restent lisibles et ne soient pas coupés de façon gênante.
+- [ ] N’afficher ni libellé avec valeur « null », ni valeur fictive pour les données GLPI vides ; laisser la valeur vide ou omettre la ligne selon la mise en page retenue.
+
+### 4. Implémentation et intégration
+
+- [ ] Isoler le nouveau formulaire, la préparation des données et le rendu du PV dans des méthodes/classes dédiées autant que possible.
+- [ ] Réutiliser les utilitaires de PDF existants (Dompdf, chargement du logo, réglages de couleur) sans changer le modèle ni le traitement de l’inventaire utilisateur.
+- [ ] Vérifier l’encodage des dates, des montants, des caractères accentués et des textes multi-lignes.
+- [ ] Protéger le rendu contre le HTML injecté par les noms de matériels, fournisseurs et champs libres.
+- [ ] Vérifier qu’un champ facultatif vide ne déclenche ni notice, warning, erreur SQL ni échec Dompdf.
+- [ ] Mettre à jour les traductions ou libellés nécessaires et la documentation utilisateur du plugin.
+- [ ] Incrémenter la version du plugin et les métadonnées catalogue conformément à la convention du dépôt si une mise à jour installable est nécessaire.
+
+### 5. Vérifications et livraison
+
+- [ ] Relire le diff pour confirmer que les changements ne touchent pas aux fichiers modifiés localement avant cette fonctionnalité, en particulier `dompdf/`, les captures et les traductions générées.
+- [ ] Vérifier statiquement les chemins de génération, les droits, l’échappement et le comportement des champs absents ou vides.
+- [ ] Vérifier un PV d’un matériel avec tous les champs remplis.
+- [ ] Vérifier un PV d’un matériel avec numéro de série, fournisseur, date, facture, valeur ou lieu manquant.
+- [ ] Vérifier un PV groupé avec plusieurs objets au même numéro immo, le détail de chaque objet et le montant total.
+- [ ] Vérifier qu’une sélection avec des numéros immo différents est refusée proprement.
+- [ ] Vérifier le nom du signataire connecté, les états précochés, les champs libres, les radios Eichhoffen/Barr et la date du document.
+- [ ] Vérifier logo et couleur configurés, ainsi que les sauts de page pour un document long.
+- [ ] Vérifier une génération de document d’inventaire utilisateur avant et après les changements, afin de confirmer l’absence de régression.
+- [ ] Valider les scénarios sur une instance de test compatible avec la version GLPI cible avant toute mise en production.
+- [ ] Committer chaque étape cohérente de la fonctionnalité en ne sélectionnant que les fichiers concernés ; ne jamais inclure les modifications locales préexistantes sans rapport.
+
+### Journal de progression
+
+- 2026-10-19 — Demande enregistrée : création de cette checklist avant l’implémentation. Aucun code de génération du PV n’a encore été modifié.
