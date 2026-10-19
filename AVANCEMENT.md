@@ -159,4 +159,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Vérifier dans GLPI l’affichage et la sélection des cinq modes et le champ de précision pour Autre.
 - [ ] Générer un PV pour chacun des quatre choix prédéfinis, puis un PV Autre avec précision ; vérifier le mode reporté dans le PDF.
 - [ ] Vérifier que le serveur refuse une raison vide, un mode absent/invalide et Autre sans précision.
+- [x] Réaérer la mise en page du PV de mise au rebut en gardant les champs regroupés sur une ligne uniquement là où demandé ; réserver une zone manuscrite au numéro immo vide au-dessus du trait.
+- [x] Incrémenter la version du plugin après l’ajustement de présentation.
+- [x] Vérifier `php -l` sur les fichiers PHP modifiés et `git diff --check`.
+- [ ] Vérifier dans le PDF imprimé que l’espacement est confortable et que le numéro immo vide dispose d’une zone manuscrite avant son trait.
 - [ ] Vérifier dans le PDF généré qu’un PV courant tient sur une page et que les textes longs ou les groupes de plusieurs objets restent lisibles.

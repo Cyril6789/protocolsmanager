@@ -688,32 +688,32 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		ob_start();
 ?>
 <!doctype html><html><head><meta charset="utf-8"><style>
-@page { margin: 12mm 14mm 12mm; }
-body { font-family: DejaVu Sans, sans-serif; font-size: 8pt; color: #222; }
-h1 { color: <?= $escape($accent) ?>; text-align:center; font-size:14pt; margin: 0 0 2mm; }
-h2 { color:<?= $escape($header_text_color) ?>; background:<?= $escape($accent) ?>; padding:3px 6px; font-size:9.5pt; margin:3mm 0 1mm; }
+@page { margin: 17mm 16mm 16mm; }
+body { font-family: DejaVu Sans, sans-serif; font-size: 9pt; color: #222; }
+h1 { color: <?= $escape($accent) ?>; text-align:center; font-size:16pt; margin: 0 0 4mm; }
+h2 { color:<?= $escape($header_text_color) ?>; background:<?= $escape($accent) ?>; padding:5px 7px; font-size:10.5pt; margin:5mm 0 2mm; }
 .logo { display:block; max-width:<?= min(95, $logo_width) ?>px; max-height:<?= min(72, $logo_height) ?>px; margin:0 auto; }
-.pdf-header { table-layout:fixed; margin:0 0 2mm; }
-.pdf-header td { border:0; padding:0 2px 1mm; vertical-align:bottom; }
+.pdf-header { table-layout:fixed; margin:0 0 4mm; }
+.pdf-header td { border:0; padding:0 3px 2mm; vertical-align:bottom; }
 .pdf-header .immo-cell { width:35%; text-align:left; }
 .pdf-header .logo-cell { width:30%; text-align:center; }
 .pdf-header .date-cell { width:35%; text-align:right; }
-.header-label { color:#111; font-size:8pt; font-weight:normal; }
-.header-value { display:inline-block; min-width:45mm; color:<?= $escape($accent) ?>; font-size:11pt; font-weight:bold; border-bottom:2px solid <?= $escape($accent) ?>; padding:0 3mm 1mm; }
-table { width:100%; border-collapse:collapse; margin:1mm 0 2mm; }
-th,td { border:1px solid #999; padding:3px 4px; vertical-align:top; }
+.header-label { color:#111; font-size:9pt; font-weight:normal; }
+.header-value { display:inline-block; box-sizing:border-box; min-width:45mm; height:9mm; color:<?= $escape($accent) ?>; font-size:12pt; line-height:7mm; font-weight:bold; border-bottom:2px solid <?= $escape($accent) ?>; padding:0 3mm 1mm; vertical-align:bottom; }
+table { width:100%; border-collapse:collapse; margin:2mm 0 3mm; }
+th,td { border:1px solid #999; padding:4px 5px; vertical-align:top; }
 th { background:#f1f1f1; text-align:left; }
 .field { font-weight:bold; white-space:nowrap; }
 .general-table { table-layout:fixed; }
 .general-table .service-label { width:18%; }
 .general-table .service-value { width:17%; }
 .general-table .requester-label { width:16%; }
-.asset { page-break-inside:avoid; margin-bottom:1.5mm; }
+.asset { page-break-inside:avoid; margin-bottom:3mm; }
 .asset-table { table-layout:fixed; }
 .asset-table .label { width:19%; }
 .asset-table .value { width:31%; }
-.free { white-space:pre-wrap; min-height:5mm; }
-.signature td { height:14mm; }
+.free { white-space:pre-wrap; min-height:9mm; }
+.signature td { height:18mm; }
 </style></head><body>
 <table class="pdf-header"><tr><td class="immo-cell"><span class="header-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape($immo) ?></span></td><td class="logo-cell"><?= $logo_html ?></td><td class="date-cell"><span class="header-label"><?= $escape(__('Date de mise au rebut', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape(self::displayDate($disposal_date)) ?></span></td></tr></table>
 <h1><?= $escape(__('Procès-verbal de mise au rebut', 'protocolsmanager')) ?></h1>
