@@ -141,6 +141,21 @@ function plugin_protocolsmanager_install(): bool
         ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
 
+    // Singleton settings are intentionally separate from the unlimited inventory templates.
+    $createTable(
+        'glpi_plugin_protocolsmanager_settings',
+        "CREATE TABLE glpi_plugin_protocolsmanager_settings (
+            id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+            setting_key VARCHAR(64) NOT NULL,
+            setting_value LONGTEXT NOT NULL,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_setting_key (setting_key)
+        ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    require_once __DIR__ . '/inc/pvtemplate.class.php';
+    PluginProtocolsmanagerPvtemplate::seedDefaults();
+
     // Add missing fields on update
     $fieldsToAdd = [
         'author_name' => "ALTER TABLE glpi_plugin_protocolsmanager_config ADD author_name VARCHAR(255) AFTER email_template",
@@ -171,6 +186,7 @@ function plugin_protocolsmanager_uninstall(): bool
     global $DB;
     $tables = [
         'glpi_plugin_protocolsmanager_protocols',
+        'glpi_plugin_protocolsmanager_settings',
         'glpi_plugin_protocolsmanager_config',
         'glpi_plugin_protocolsmanager_profiles',
         'glpi_plugin_protocolsmanager_emailconfig'

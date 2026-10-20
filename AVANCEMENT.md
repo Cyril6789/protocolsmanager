@@ -196,6 +196,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Définir et documenter les invariants de compatibilité avec les données et modèles déjà enregistrés.
 - [ ] Garder le code et les métadonnées sur la version `1.6.0.20` pendant le chantier.
 - [ ] Vérifier que l’installation neuve et la mise à jour d’une installation existante suivent les mêmes migrations idempotentes.
+- [x] Créer un stockage singleton séparé pour identité visuelle et modèles PV, sans toucher aux lignes des modèles d’inventaire ni aux réglages e-mail.
+- [x] Initialiser les deux modèles PV avec les libellés, choix et chapitres actuels; initialiser logo/couleur globaux en reprenant les valeurs historiques à titre de point de départ.
 
 ### B. Navigation et gestion des réglages
 
@@ -260,7 +262,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 
 ### G. Migration, sécurité, documentation et livraison
 
-- [ ] Ajouter les colonnes/tables nécessaires avec migrations compatibles et répétables.
+- [x] Ajouter la table de réglages singleton à l’installation/mise à jour avec création conditionnelle et l’ajouter à la désinstallation du plugin.
+- [ ] Vérifier l’installation/mise à jour et la répétabilité des migrations en base sur une instance GLPI.
 - [ ] Fournir des valeurs par défaut complètes pour les anciennes installations et pour une installation neuve.
 - [ ] Vérifier les limites de taille, la validation des couleurs et la validation de la structure des champs/chapitres.
 - [ ] Mettre à jour le README et les instructions d’administration.
@@ -273,5 +276,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 
 ## Journal des commits du chantier
 
-- À renseigner après chaque commit ciblé. Aucun commit de code n’a encore été créé.
+- `9a245e7` — documentation initiale exhaustive et cases à cocher.
+- `044c0ad` — critères de finition GLPI et cartographie des réglages/PV.
+- À renseigner après chaque commit de code ciblé.
 
