@@ -1,145 +1,126 @@
 # Protocols Manager
 
-Protocols Manager is a GLPI plugin for creating, storing, and managing PDF documents related to equipment in GLPI. It provides three document workflows:
+Protocols Manager is a GLPI plugin for creating and managing PDF documents from inventory data. Version **2.0.0.0** provides three document workflows:
 
-- user inventory reports, which list equipment assigned to a user;
-- asset commissioning certificates (*procès-verbaux de mise en service*), which record the commissioning of one or more assets;
-- asset disposal certificates (*procès-verbaux de mise au rebut*), which record the disposal of one or more assets.
+- **Inventory reports** for equipment assigned to a user.
+- **Commissioning certificates** (*procès-verbaux de mise en service*).
+- **Disposal certificates** (*procès-verbaux de mise au rebut*).
 
-The generated PDFs are stored as GLPI Documents and linked to the relevant GLPI records. The plugin is maintained at [github.com/Cyril6789/protocolsmanager](https://github.com/Cyril6789/protocolsmanager). The plugin card in GLPI also includes a shortcut to this project.
-
-![Protocols Manager setup](docs/img/setup.gif)
+Generated PDFs are stored as GLPI Documents and linked to the relevant GLPI records. Inventory reports have an unlimited, independently managed set of templates. Commissioning and disposal each use their own dedicated, configurable form and PDF model. A single global logo and accent color are shared by all three document types.
 
 ## Features
 
-### User inventory reports
+### Inventory reports
 
-- Create a PDF from all or a chosen subset of equipment assigned to a user.
-- Open the inventory from a user record, or from a supported equipment record to see its assigned user's inventory.
-- Review equipment type, manufacturer, model, name, serial number, inventory number, and comments.
-- Choose how serial and inventory numbers appear: in separate columns, or as one value using the serial number when available and the inventory number otherwise.
-- Edit a comment for each selected item, add custom rows, and add a note to the report.
-- Choose a document template before generating the PDF.
-- View generated reports in the plugin's document list and in GLPI's Documents, open them, delete selected reports, or send them by email.
+- Generate a PDF for all or selected equipment assigned to a user. The inventory tab is available on user records and supported equipment records.
+- Inspect type, manufacturer, model, name, serial number, inventory number, GLPI status, assigned person, and purchase price in the selection table. The status, assigned person, and purchase price are selection aids and are not added to the PDF by these columns.
+- Choose whether serial and inventory numbers use separate columns or a single column that falls back to the inventory number when no serial number exists.
+- Add a comment to each selected item, add custom rows, and enter a report note.
+- Create as many inventory templates as needed. Each template can set its document title, font, font size, page orientation, word breaking, city, upper text, main text, footer text, number display mode, PDF author, and automatic email behavior.
+- View generated reports in the plugin list and GLPI Documents, open or delete reports, and send them by email when available to the profile.
 
-![Inventory report configuration](docs/img/config.gif)
+### Commissioning certificates
 
-![Generating an inventory report](docs/img/generate_standard.gif)
+The **Procès-Verbaux** tab is available on computers, monitors, printers, peripherals, phones, network equipment, and software licenses.
 
-### Asset commissioning certificates
+- Select which assets sharing the same asset number (*numéro immo*) to include. The selection table shows the name, type, model, inventory number, status, assigned person, purchase price, and serial number. A select-all control selects or clears the entire list.
+- Generate a certificate without an asset number when the current hardware or license has no GLPI management information. The PDF leaves the asset number blank and the document remains linked to the current record.
+- Configure the form field labels and visibility, commissioning status checkboxes, validator roles, and available places. Checkbox labels, visibility, and default checked state are editable; validator roles and place choices can be added, renamed, activated, or removed.
+- Configure the title, visibility, and introductory text of each standard PDF chapter. Add or remove free-form annexes. Standard chapters have a fixed order; their generated asset data and tables are supplied by the plugin.
+- The effective commissioning date uses the unique purchase/acquisition date available in GLPI for the selected group as its default. When available, the form states this fallback beside the date field. If no unambiguous date is available, the field is left blank for entry.
+- The generated document contains asset identification, commissioning statements and selected checkboxes, planned use, observations, a validator signature table, and the selected place when those chapters and fields are enabled. If observations are empty, the PDF uses `RAS`.
+- The `{observations}` marker in the observations chapter introduction is replaced with the entered observation and is not printed twice.
+- The document is linked to every selected asset. Certificates started from a software license remain linked to that license and are handled separately from hardware groups.
 
-The **Procès-Verbaux** tab is available on computers, monitors, printers, peripherals, phones, network equipment, and software licenses. It offers a choice between a commissioning certificate (*PV de mise en service*) and an asset disposal certificate (*PV de mise au rebut*).
+### Disposal certificates
 
-The certificate includes:
+- Select which assets sharing the same asset number to include. The selection table displays the same identifying and management information as the commissioning selector and has a select-all control.
+- Generate a certificate without an asset number for the current hardware or license record.
+- Configure the title, form fields and labels, disposal methods, checklist items, standard chapter titles/visibility/introductory text, and free-form PDF annexes.
+- Add, rename, enable, disable, or remove disposal methods and checklist items. Configure the default checked state for each checklist item. If **Autre** is available and selected, the user must provide its details.
+- The generated PDF records the disposal date, requester and job title from the current GLPI user, asset identification, reason, selected method, checklist state, and signature section when enabled by the model.
+- `{reason}` and `{method}` in their corresponding chapter introductions are replaced with the submitted values; values are not repeated beneath the introduction when its marker is used.
+- The detailed asset information remains in the PDF. The redundant **Détails de l’immobilisation** table has been removed from the form; the asset selection table remains.
 
-- an identification table with the asset designation, inventory number, serial number, supplier, purchase date, invoice number, acquisition value before tax, and the top-level location;
-- the GLPI asset number (*numéro immo*), when available;
-- a commissioning statement signed with the current user's first and last name, four preselected but editable status checkboxes (installed, tested, accepted as compliant, and put into operation), the effective commissioning date, and a planned-use description;
-- an observations section, which defaults to “RAS” when left empty;
-- a validation table for the user manager, technical manager (if applicable), accounting, and management/line manager, with space for name, signature, and date;
-- the document date and a choice between Eichhoffen and Barr as the place of issue.
+### Shared PDF branding and footer
 
-The PDF uses the shared logo and accent color from the plugin's global branding settings. Its title, form field labels, standard chapter titles and introductory text can be adjusted in the commissioning settings. Administrators can add or remove status checkboxes, place choices, and custom PDF annexes. Chapter 4 starts on the second page. Empty GLPI management fields remain blank in the certificate; they do not prevent generation.
+The **Identité visuelle** settings provide one PNG/JPEG logo and one accent color for inventory reports and both certificate types. The logo must be no larger than 2 MB or 5,000 × 5,000 pixels. Removing or replacing it updates branding for all generated PDFs.
 
-Assets with the same asset number can be included in one certificate, subject to the user's GLPI read access to those assets. The PDF includes the total acquisition value for a multi-asset certificate when the values are available. The generated document is linked to each selected asset. When the source asset has no asset number, a certificate can still be generated for that equipment; its asset number is left blank and the document is linked to the source equipment. A certificate can also be generated with no management information: the identification table remains present with blank values.
+Every page has a shared footer with the logo at the left, document type centered, asset number centered on the next line when available, and page count at the right aligned with that second line. The inventory template's configured footer text is retained in the inventory PDF footer.
 
-A certificate can also be started from a software license. Its asset number is read from the license's GLPI management information and appears in the PDF and its filename when present. The PDF uses the license's available name, type, serial number, and inventory number, and is linked to that license. License certificates are generated separately from the hardware groups; acquisition and location fields stay blank when GLPI has no values for them.
+### Email templates
 
-The disposal certificate uses the same global logo and accent color. It records the disposal date (today by default), the IT department, the current user's name and job title, asset identification details (including the acquisition date as the available commissioning date), the reason and disposal method, a configurable checklist, and a signature block. Administrators can add or remove disposal methods and checklist items, rename them, and control which checklist items are selected by default. The reason and a disposal method are required when their fields are enabled; the special **Autre** method also requires details. Custom PDF annexes can be added or removed in the disposal settings. The certificate can be generated without an asset number; the PDF then leaves it blank and remains linked to the current record.
+- Create, edit, and delete reusable email templates with recipients, subject, message, and an option to include the inventory owner as a recipient.
+- Inventory templates can enable automatic email delivery after generation. Reports can also be sent manually from the document list.
+- Email delivery uses GLPI's configured mail transport. Template text supports the inventory substitutions listed below.
 
-![Commissioning certificate workflow](docs/img/generate_com.gif)
+## Configuration
 
-## Requirements and compatibility
+Open **Plugins → Protocols Manager**. The configuration screen has separate sections for **Inventory templates**, **PV de mise en service**, **PV de mise au rebut**, **Global branding**, and **Emails**.
 
-- GLPI 11.x or GLPI 12.x (the plugin declares compatibility with GLPI versions from 11.0 up to, but not including, 13.0).
-- PHP 8.0 or newer for the plugin. GLPI 12 requires PHP 8.3 or newer.
-- The GLPI Documents feature and the user's GLPI rights must allow document creation to generate PDFs.
+Inventory template text and email subject/message fields support these substitutions:
 
-## Installation
-
-1. Download or clone this repository.
-2. Copy the `protocolsmanager` directory into the GLPI `plugins` directory.
-3. In GLPI, open **Setup → Plugins**, install Protocols Manager, then activate it.
-4. Grant the required plugin and document rights to the appropriate profiles (see [Permissions](#permissions)).
-
-## Updating
-
-1. Back up the GLPI database and plugin directory according to your normal GLPI maintenance procedure.
-2. Replace the existing `protocolsmanager` directory with the new release files, preserving any local changes you intentionally maintain.
-3. In **Setup → Plugins**, run the available plugin update and confirm that the plugin is active.
-
-## Configuration and templates
-
-Open **Plugins → Protocols Manager** to manage the plugin settings. The configuration page has separate sections for inventory templates, commissioning, disposal, global branding, and email templates. Inventory templates remain independently creatable, editable, and deletable. PV forms use the dedicated commissioning and disposal settings directly; users do not select a different PV template while generating each document.
-
-Templates can configure:
-
-- template name and document title;
-- font and font size, portrait or landscape orientation, and word breaking;
-- city, upper content, main content, and footer;
-- inventory report serial/inventory number display mode;
-- PDF author, either the current PDF generator or a fixed author name;
-- optional automatic email sending and the email template to use.
-
-Text fields for titles, content, and email templates support these substitutions:
-
-| Token | Replaced with |
+| Token | Value |
 | --- | --- |
-| `{owner}` | The inventory owner’s name |
-| `{admin}` | The current PDF generator’s name |
-| `{cur_date}` | The current date, formatted as `d.m.Y` |
+| `{owner}` | Inventory owner's name |
+| `{admin}` | Name of the user generating the report |
+| `{cur_date}` | Current date, formatted as `d.m.Y` |
 
-Email templates define a name, recipients, subject, and message. They can be configured to include the inventory owner. Reports can also be sent manually from the generated-document list. Email delivery depends on the GLPI mail configuration.
+Each PV has one dedicated model; users do not pick a different PV model while generating a certificate. For standard chapters, the configuration screen controls title, visibility, and introductory text. Dynamic tables and asset fields are populated by the plugin from GLPI and the form. Additional free-form chapters are rendered as numbered annexes after the standard chapters. The order of standard chapters and their structured fields are fixed.
 
-The **Global branding** section sets one PNG/JPEG logo and accent color shared by inventory reports and both PV types. Changing inventory template content does not alter either PV model.
-
-The **PV de mise en service** and **PV de mise au rebut** sections configure each PV title, the fields shown on its creation form, the options available to users, and the titles, visibility, and introductory text for standard PDF chapters. Administrators can add or remove checkbox items and custom text annexes. Disposal methods and commissioning place choices can also be added or removed. The state of each checklist item is printed in the generated PDF.
-
-![Template configuration](docs/img/config.gif)
+The global branding setting applies to all PDFs. Existing inventory template typography, page orientation, content, and footer remain configured on each inventory template.
 
 ## Permissions
 
-Configure access under **Administration → Profiles → [profile] → Protocols Manager**:
+Configure the plugin rights under **Administration → Profiles → [profile] → Protocols Manager**:
 
-- **Plugin configuration** grants access to the plugin's configuration and template management. GLPI configuration-update rights are also required to save configuration.
-- **Tab access** grants access to the plugin tabs on supported GLPI records.
-- **Document creation** is a GLPI Documents right required to generate PDFs. Without it, users may view existing commissioning certificates when they have access to the tab, but cannot generate new ones.
+- **Plugin configuration** grants access to the configuration page. Saving settings also requires GLPI configuration update rights.
+- **Tab access** grants access to Protocols Manager tabs on supported GLPI records.
+- **Document creation** is the GLPI Documents right required to generate PDFs.
 
-Users also need the ordinary GLPI rights to read the relevant users and assets. For grouped commissioning certificates, the matching assets must be readable for them to be included.
+Users also need the ordinary GLPI read rights for the users and assets involved. Grouped PV generation validates access to each selected asset. The availability of send/delete actions depends on the user's rights and the GLPI mail setup.
 
-## Using the plugin
+## Usage
 
-### Generate a user inventory report
+### Generate an inventory report
 
-1. Open a user record (or a supported equipment record assigned to that user) and select the **Protocols Manager** tab.
-2. Select all or some listed items. Edit item comments if needed.
-3. Add custom rows or an export note if needed.
-4. Choose a template and generate the PDF.
-5. Open the generated document from the list. It is also available under **Management → Documents** and is linked to the user and the included equipment.
-6. Select documents in the list to delete them or send them by email when those actions are available to your profile.
+1. Open a user record or a supported equipment record associated with a user, then open the **Protocols Manager** tab.
+2. Select the inventory template and the items to include. The item table includes status, assigned person, and purchase price for reference.
+3. Add per-item comments, custom rows, or a report note as needed.
+4. Generate the PDF. It is available from the plugin's document list and **Management → Documents**, and is linked to the user and included equipment.
 
 ### Generate a commissioning certificate
 
-1. Open a computer, monitor, printer, peripheral, phone, network equipment, or software license record and select **Procès-Verbaux**.
-2. Choose **PV de mise en service**.
-3. If the asset has an asset number, review the assets with the same number and select which ones belong in this certificate. If it has no asset number, the certificate can still be made for the current equipment.
-4. Fill in the fields and configurable status checkboxes. If enabled, choose the place of issue. If the commissioning date is left blank, generation uses the acquisition date when it is available and consistent for the selected assets.
-6. Generate the PDF. It appears in the tab's generated-document list and in GLPI Documents, linked to the selected asset or assets (or to the current license).
+1. Open a supported hardware or software license record and select **Procès-Verbaux**.
+2. Expand **PV de mise en service**. Select the assets to include when they share an asset number, then complete the enabled fields and checkboxes.
+3. Review the effective date. The form uses a unique GLPI purchase date as the initial value when available; otherwise enter a date if required for the certificate.
+4. Generate the PDF. It appears in the PV document list and GLPI Documents, linked to the selected assets or the current record.
 
-### Generate an asset disposal certificate
+### Generate a disposal certificate
 
-1. Open the **Procès-Verbaux** tab and choose **PV de mise au rebut**.
-2. Confirm the disposal date, which defaults to today. The department is set to Informatique and the requester and job title come from the current GLPI user.
-3. Enter the required disposal reason, choose one of the configured disposal methods, and provide details when choosing **Autre**. Complete the configured checklist items. The asset details are filled from GLPI, including the manufacturer and model when available.
-4. Generate the PDF. It is stored in GLPI Documents and linked to the selected asset or assets. If no asset number is available, the certificate is still generated and linked to the current record.
+1. Open a supported hardware or software license record and select **Procès-Verbaux**.
+2. Expand **PV de mise au rebut**. Select the assets to include when they share an asset number.
+3. Complete the enabled fields, enter the reason, choose a configured disposal method, provide details for **Autre** when applicable, and set the checklist state.
+4. Generate the PDF. It is stored in GLPI Documents and linked to the selected assets or the current record.
 
-## Where generated documents are stored
+## Requirements and compatibility
 
-Protocols Manager creates standard GLPI Documents. They can be opened from the plugin's document list and from **Management → Documents**. Inventory reports are associated with their user and included equipment. Commissioning certificates are associated with each selected asset; certificates made without an asset number are associated with the source equipment.
+- GLPI **11.0 or newer and below 13.0** (the plugin declares GLPI 11.x and 12.x compatibility).
+- PHP **8.0 or newer** for the plugin. GLPI 12 itself requires PHP 8.3 or newer.
+- GLPI Documents must be available, and the user's profile must have the required document rights to generate PDFs.
 
-## Project and support
+## Installation and updates
 
-- Source code, releases, and issue tracking: [github.com/Cyril6789/protocolsmanager](https://github.com/Cyril6789/protocolsmanager)
-- The project is based on the original Protocols Manager plugin by Mateusz Nitka. Thanks to [Nomino](https://nomino.pl/) for supporting the original project.
+1. Back up the GLPI database and plugin files before installing or updating.
+2. Place the `protocolsmanager` directory in GLPI's `plugins` directory.
+3. Open **Setup → Plugins**, install Protocols Manager, then activate it.
+4. Assign the plugin and document rights to the appropriate profiles.
+
+For an existing installation, deploy the new plugin files and use GLPI's plugin update workflow if GLPI offers one. Keep the existing database and do not uninstall the plugin as part of an update: the uninstall hook removes the plugin's configuration and document-index tables. The plugin installation hook creates any missing settings table and initializes the PV defaults while retaining existing inventory templates and email settings.
+
+## Project
+
+- Source, releases, and issue tracking: [github.com/Cyril6789/protocolsmanager](https://github.com/Cyril6789/protocolsmanager)
+- The project builds on the original Protocols Manager plugin by Mateusz Nitka. Thanks to [Nomino](https://nomino.pl/) for supporting the original project.
 
 ![Nomino](docs/img/logo-nomino.png)

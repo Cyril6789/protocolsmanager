@@ -173,8 +173,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 ## Cadre validé
 
 - Branche de travail créée depuis l’état courant : `feature/pv-templates-1.60.20`.
-- Version de départ : `1.6.0.20`; portée à `1.6.0.21` une seule fois pour déclencher la migration du stockage dédié. Aucune hausse pour les modifications simples suivantes; pas de passage à `2.0.0.0` ici.
-- Aucun push et aucun merge vers `master` avant validation explicite de l’utilisateur, à la fin du chantier.
+- Version de départ : `1.6.0.20`; portée à `1.6.0.21` une seule fois pour déclencher la migration du stockage dédié. Après achèvement du chantier, la version de livraison est portée à `2.0.0.0` comme demandé; aucune hausse pour les modifications simples suivantes.
+- Aucun push ni merge vers `master` sans autorisation explicite de l’utilisateur. L’utilisateur a autorisé la livraison finale `2.0.0.0`, le merge vers `master` et le push.
 - Conserver autant de modèles de fiches d’inventaire Protocols Manager que nécessaire.
 - Créer une zone de réglages dédiée aux procès-verbaux de mise en service et de mise au rebut.
 - Logo et couleur d’accentuation sont des réglages globaux partagés par tous les modèles PDF.
@@ -196,6 +196,9 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Cartographier les chemins complets de génération des fiches d’inventaire, notamment substitution des champs, numérotation, création des documents GLPI et e-mails.
 - [ ] Définir et documenter les invariants de compatibilité avec les données et modèles déjà enregistrés.
 - [x] Ne pas incrémenter la version à chaque retouche; faire un incrément unique `1.6.0.21` pour que GLPI exécute l’ajout de la table de réglages sur les installations existantes.
+- [x] Porter la version publiée à `2.0.0.0` pour la livraison finale sur `master`, après les modifications du chantier.
+- [x] Remettre le README en cohérence avec les trois flux PDF, les réglages, les droits, la compatibilité et les parcours actuels.
+- [x] Retirer les captures d’écran obsolètes des références du README et des métadonnées du plugin.
 - [ ] Vérifier que l’installation neuve et la mise à jour d’une installation existante suivent les mêmes migrations idempotentes.
 - [x] Créer un stockage singleton séparé pour identité visuelle et modèles PV, sans toucher aux lignes des modèles d’inventaire ni aux réglages e-mail.
 - [x] Initialiser les deux modèles PV avec les libellés, choix et chapitres actuels; initialiser logo/couleur globaux en reprenant les valeurs historiques à titre de point de départ.
