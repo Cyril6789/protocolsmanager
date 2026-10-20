@@ -117,7 +117,7 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			self::displayChoiceListEditor('cities', $form_fields['cities'] ?? [], __('Lieux proposés', 'protocolsmanager'), __('Ajouter un lieu', 'protocolsmanager'), __('Lieu', 'protocolsmanager'));
 		} else {
 			self::displayChoiceListEditor('methods', $form_fields['methods'] ?? [], __('Modes proposés', 'protocolsmanager'), __('Ajouter un mode', 'protocolsmanager'), __('Libellé du mode', 'protocolsmanager'));
-			echo '<p class="form-text">' . htmlescape(__('Le choix dont la clé est « autre » conserve son champ de précision obligatoire.', 'protocolsmanager')) . '</p>';
+			echo '<p class="form-text">' . htmlescape(__('Le choix libellé « Autre » demande une précision dans le formulaire de génération.', 'protocolsmanager')) . '</p>';
 			self::displayCheckboxListEditor($type, 'checks', $form_fields['checks'] ?? []);
 		}
 		echo '</div></section>';

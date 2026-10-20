@@ -244,7 +244,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Ajouter une liste de contrôle dédiée au PV de mise au rebut, avec ajout/suppression d’options, libellé, visibilité et état coché par défaut.
 - [x] Afficher la liste paramétrée dans le formulaire de mise au rebut et reprendre toutes les cases actives avec leur état sélectionné dans un chapitre dédié du PDF.
 - [x] Permettre d’ajouter/supprimer sans plafond applicatif les modes de mise au rebut, avec libellé et activation; refuser l’enregistrement si le champ reste obligatoire sans aucun mode actif.
-- [x] Préserver la validation serveur du motif, du mode actif sélectionné et de la précision « Autre » quand le choix portant la clé `autre` existe et est actif.
+- [x] Préserver la validation serveur du motif et du mode actif sélectionné; exiger une précision si le choix actif porte la clé `autre` ou le libellé « Autre ».
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
 - [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.
 - [x] Reprendre dans le PDF de mise au rebut le libellé configuré du champ date.
@@ -306,6 +306,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `d69f49b` — reprise du logo d’un ancien modèle limitée aux images PNG/JPEG locales valides et conformes aux limites; les réglages historiques restent inchangés.
 - `e36620a` — rendre la reprise des préférences historiques compatible avec l’absence de colonnes avant les migrations de schéma.
 - `5f38fbb` — documenter les réglages globaux, les cases et choix configurables, les annexes PDF et les parcours PV sans sélection de modèle à la génération.
-- En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité, avec retours d’erreur visibles pour l’identité globale. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
+- `c47b3d2` — afficher les erreurs de sauvegarde de l’identité visuelle sans masquer les messages détaillés de validation.
+- En cours — rendre la précision « Autre » indépendante de la clé technique lorsqu’une option a été supprimée puis recréée; revue et vérifications en instance GLPI restent ouvertes.
 - En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
 

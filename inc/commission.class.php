@@ -655,11 +655,13 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		$method_other = self::cleanText($_POST['disposal_method_other'] ?? '', 10000);
 		$reason_required = !empty($template['form']['reason']['enabled']);
 		$method_required = !empty($template['form']['method']['enabled']);
-		if (($reason_required && $reason === '') || ($method_required && !isset($method_options[$method_key])) || ($method_required && $method_key === 'autre' && $method_other === '')) {
+		$is_other_method = isset($method_options[$method_key])
+			&& ($method_key === 'autre' || strtolower($method_options[$method_key]) === 'autre');
+		if (($reason_required && $reason === '') || ($method_required && !isset($method_options[$method_key])) || ($method_required && $is_other_method && $method_other === '')) {
 			Session::addMessageAfterRedirect(__('Le motif et le mode de mise au rebut sont obligatoires. Précisez le mode si « Autre » est sélectionné.', 'protocolsmanager'), false, ERROR);
 			return false;
 		}
-		$method = isset($method_options[$method_key]) ? $method_options[$method_key] . ($method_key === 'autre' ? ' : ' . $method_other : '') : '';
+		$method = isset($method_options[$method_key]) ? $method_options[$method_key] . ($is_other_method ? ' : ' . $method_other : '') : '';
 		$active_checks = [];
 		foreach (($template['form']['checks'] ?? []) as $entry) {
 			if (is_array($entry) && !empty($entry['enabled']) && isset($entry['key'])) {
