@@ -250,6 +250,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Reprendre dans le PDF de mise au rebut le libellé configuré du champ date.
 - [ ] Permettre de créer/supprimer des chapitres, configurer les champs structurés et changer l’ordre de rendu.
 - [x] Construire le formulaire et les titres/activations/textes introductifs du PDF depuis le modèle de mise au rebut sans modifier les réglages de mise en service.
+- [x] Afficher le titre paramétré de mise au rebut dans le formulaire de création et dans le titre principal du PDF.
 - [x] Employer le logo et l’accentuation globaux.
 - [x] Initialiser le modèle de mise au rebut avec les choix, libellés et chapitres déjà proposés par le formulaire/PDF.
 
@@ -307,6 +308,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `e36620a` — rendre la reprise des préférences historiques compatible avec l’absence de colonnes avant les migrations de schéma.
 - `5f38fbb` — documenter les réglages globaux, les cases et choix configurables, les annexes PDF et les parcours PV sans sélection de modèle à la génération.
 - `c47b3d2` — afficher les erreurs de sauvegarde de l’identité visuelle sans masquer les messages détaillés de validation.
-- En cours — rendre la précision « Autre » indépendante de la clé technique lorsqu’une option a été supprimée puis recréée; revue et vérifications en instance GLPI restent ouvertes.
+- `6177423` — maintenir la validation « Autre » si son option est recréée et reçoit une clé technique différente.
+- En cours — afficher le titre paramétré du PV de mise au rebut dans son formulaire; revue et vérifications en instance GLPI restent ouvertes.
 - En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
 

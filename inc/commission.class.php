@@ -228,6 +228,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			echo Html::hidden('source_itemtype', ['value' => $source_itemtype]);
 			echo Html::hidden('source_item_id', ['value' => $source_item_id]);
 		}
+		echo "<div class='mb-3'><h3 class='h4 mb-1'>" . htmlescape($pv_template['title'] ?? __('Procès-verbal de mise au rebut', 'protocolsmanager')) . "</h3><p class='text-muted mb-0'>" . htmlescape(__('Renseignez les informations du procès-verbal et choisissez les contrôles à faire figurer dans le document.', 'protocolsmanager')) . '</p></div>';
 		if ($immo_number !== '' && $group !== []) {
 			$is_license_group = count(array_filter($group, static fn($asset) => $asset['itemtype'] === self::LICENSE_ITEMTYPE)) === count($group);
 			$group_title = $is_license_group ? __('Licence concernée', 'protocolsmanager') : __('Matériels concernés', 'protocolsmanager');
