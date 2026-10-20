@@ -330,4 +330,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `99a7537` — rétablir les quatre rôles initiaux à la génération PDF quand une configuration préexistante ne possède pas encore la clé `validators`, sans migration et sans réinitialiser une liste explicitement vide.
 - `209a8d5` — afficher également la date effective dans l’en-tête du PV, à droite du logo, tout en la conservant dans le chapitre 2 et en laissant une ligne manuscrite si aucune date n’est disponible.
 - `ff4295d` — ajouter un footer Dompdf partagé sur chaque page des inventaires et des deux PV, avec logo global, type/nom et pagination; conserver le texte de pied des modèles d’inventaire.
+- `6225b91` — consigner le footer commun dans le journal d’avancement.
+- `ae6c264` — ajouter une case de sélection générale synchronisée pour chaque groupe de matériels PV et interpréter `{reason}` / `{method}` dans les textes introductifs sans doublonner les valeurs.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
