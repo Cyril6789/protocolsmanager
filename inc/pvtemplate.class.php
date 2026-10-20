@@ -160,11 +160,21 @@ class PluginProtocolsmanagerPvtemplate
             $branding = ['logo' => '', 'accent_color' => '#8A6428'];
             if ($DB->tableExists('glpi_plugin_protocolsmanager_config')) {
                 $color_found = false;
-                $templates = $DB->request([
-                    'SELECT' => ['logo', 'theme_color'],
-                    'FROM' => 'glpi_plugin_protocolsmanager_config',
-                    'ORDER' => ['id ASC'],
-                ]);
+                $legacy_fields = [];
+                foreach (['logo', 'theme_color'] as $field) {
+                    if ($DB->fieldExists('glpi_plugin_protocolsmanager_config', $field)) {
+                        $legacy_fields[] = $field;
+                    }
+                }
+                if ($legacy_fields !== []) {
+                    $templates = $DB->request([
+                        'SELECT' => $legacy_fields,
+                        'FROM' => 'glpi_plugin_protocolsmanager_config',
+                        'ORDER' => ['id ASC'],
+                    ]);
+                } else {
+                    $templates = [];
+                }
                 foreach ($templates as $template) {
                     if ($branding['logo'] === '' && !empty($template['logo'])) {
                         $candidate = basename((string)$template['logo']);

@@ -304,5 +304,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `3fdda1c` — suppression des plafonds applicatifs des listes et omission du lieu dans le PDF lorsqu’aucun choix n’est configuré.
 - `8b4361d` — aperçu de logo limité aux fichiers globaux PNG/JPEG lisibles de 2 Mo maximum.
 - `d69f49b` — reprise du logo d’un ancien modèle limitée aux images PNG/JPEG locales valides et conformes aux limites; les réglages historiques restent inchangés.
+- En cours — sécuriser l’ordre d’exécution de la reprise des préférences avant l’ajout éventuel de colonnes historiques absentes.
 - En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
 
