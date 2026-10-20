@@ -114,14 +114,9 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 
 		if ($type === 'commission') {
 			self::displayCheckboxListEditor($type, 'states', $form_fields['states'] ?? []);
-			echo "<h4 class='h6 mt-4'>" . htmlescape(__('Lieux proposés', 'protocolsmanager')) . '</h4><div class="row g-3">';
-			foreach (($form_fields['cities'] ?? []) as $index => $city) {
-				$path = 'template[form][cities][' . (int)$index . ']';
-				echo '<div class="col-md-6"><label class="form-label">' . htmlescape(__('Lieu', 'protocolsmanager')) . '</label><input type="hidden" name="' . htmlescape($path . '[key]') . '" value="' . htmlescape($city['key'] ?? '') . '"><input class="form-control" maxlength="100" name="' . htmlescape($path . '[label]') . '" value="' . htmlescape($city['label'] ?? '') . '"><input type="hidden" name="' . htmlescape($path . '[enabled]') . '" value="0"><label class="form-check mt-1"><input class="form-check-input" type="checkbox" name="' . htmlescape($path . '[enabled]') . '" value="1"' . (!empty($city['enabled']) ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape(__('Proposer dans le formulaire', 'protocolsmanager')) . '</span></label></div>';
-			}
-			echo '</div>';
+			self::displayChoiceListEditor('cities', $form_fields['cities'] ?? [], __('Lieux proposés', 'protocolsmanager'), __('Ajouter un lieu', 'protocolsmanager'), __('Lieu', 'protocolsmanager'));
 		} else {
-			self::displayChoiceListEditor('methods', $form_fields['methods'] ?? []);
+			self::displayChoiceListEditor('methods', $form_fields['methods'] ?? [], __('Modes proposés', 'protocolsmanager'), __('Ajouter un mode', 'protocolsmanager'), __('Libellé du mode', 'protocolsmanager'));
 			echo '<p class="form-text">' . htmlescape(__('Le choix dont la clé est « autre » conserve son champ de précision obligatoire.', 'protocolsmanager')) . '</p>';
 			self::displayCheckboxListEditor($type, 'checks', $form_fields['checks'] ?? []);
 		}
@@ -187,26 +182,26 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		echo '</template></div>';
 	}
 
-	private static function displayChoiceListEditor(string $list_key, array $entries): void
+	private static function displayChoiceListEditor(string $list_key, array $entries, string $title, string $add_label, string $entry_label): void
 	{
 		$list_id = 'pv-choice-list-' . $list_key;
 		$base = 'template[form][' . $list_key . ']';
 		$next_index = $entries === [] ? 0 : max(array_map('intval', array_keys($entries))) + 1;
-		echo "<div class='mt-4'><div class='d-flex align-items-center justify-content-between flex-wrap gap-2'><h4 class='h6 mb-0'>" . htmlescape(__('Modes proposés', 'protocolsmanager')) . '</h4>';
-		echo '<button class="btn btn-sm btn-outline-primary" type="button" data-pv-add-row="' . htmlescape($list_id) . '"><i class="ti ti-plus me-1"></i>' . htmlescape(__('Ajouter un mode', 'protocolsmanager')) . '</button></div>';
+		echo "<div class='mt-4'><div class='d-flex align-items-center justify-content-between flex-wrap gap-2'><h4 class='h6 mb-0'>" . htmlescape($title) . '</h4>';
+		echo '<button class="btn btn-sm btn-outline-primary" type="button" data-pv-add-row="' . htmlescape($list_id) . '"><i class="ti ti-plus me-1"></i>' . htmlescape($add_label) . '</button></div>';
 		echo '<div class="table-responsive mt-2"><table class="table align-middle"><thead><tr><th>' . htmlescape(__('Libellé', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Actif', 'protocolsmanager')) . '</th><th><span class="visually-hidden">' . htmlescape(__('Action', 'protocolsmanager')) . '</span></th></tr></thead><tbody id="' . htmlescape($list_id) . '" data-next-index="' . $next_index . '">';
 		foreach ($entries as $index => $entry) {
-			self::displayChoiceRow($base . '[' . (int)$index . ']', (string)($entry['key'] ?? ''), (string)($entry['label'] ?? ''), !empty($entry['enabled']));
+			self::displayChoiceRow($base . '[' . (int)$index . ']', (string)($entry['key'] ?? ''), (string)($entry['label'] ?? ''), !empty($entry['enabled']), $entry_label);
 		}
 		echo '</tbody></table></div><template id="template-' . htmlescape($list_id) . '">';
-		self::displayChoiceRow($base . '[__INDEX__]', 'custom-mode-__INDEX__', '', true);
+		self::displayChoiceRow($base . '[__INDEX__]', 'custom-' . $list_key . '-__INDEX__', '', true, $entry_label);
 		echo '</template></div>';
 	}
 
-	private static function displayChoiceRow(string $path, string $key, string $label, bool $enabled): void
+	private static function displayChoiceRow(string $path, string $key, string $label, bool $enabled, string $entry_label): void
 	{
 		$path = htmlescape($path);
-		echo '<tr data-pv-config-row><td><input type="hidden" name="' . $path . '[key]" value="' . htmlescape($key) . '"><input class="form-control" maxlength="160" required name="' . $path . '[label]" value="' . htmlescape($label) . '" aria-label="' . htmlescape(__('Libellé du mode', 'protocolsmanager')) . '"></td>';
+		echo '<tr data-pv-config-row><td><input type="hidden" name="' . $path . '[key]" value="' . htmlescape($key) . '"><input class="form-control" maxlength="160" required name="' . $path . '[label]" value="' . htmlescape($label) . '" aria-label="' . htmlescape($entry_label) . '"></td>';
 		echo '<td><input type="hidden" name="' . $path . '[enabled]" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . $path . '[enabled]" value="1"' . ($enabled ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Actif', 'protocolsmanager')) . '</span></label></td>';
 		echo '<td><button class="btn btn-sm btn-outline-danger" type="button" data-pv-remove-row aria-label="' . htmlescape(__('Supprimer ce mode', 'protocolsmanager')) . '"><i class="ti ti-trash" aria-hidden="true"></i></button></td></tr>';
 	}
@@ -284,7 +279,7 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 				$template['form'][$key] = self::sanitizeCheckboxEntries($posted_form[$key] ?? []);
 				continue;
 			}
-			if ($key === 'methods') {
+			if ($key === 'methods' || $key === 'cities') {
 				$template['form'][$key] = self::sanitizeChoiceEntries($posted_form[$key] ?? []);
 				continue;
 			}

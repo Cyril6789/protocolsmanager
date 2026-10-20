@@ -223,6 +223,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Permettre de régler le titre du PV, les champs actuellement prévus, leurs libellés et leur affichage.
 - [x] Permettre d’activer, désactiver, renommer et définir l’état par défaut des cases à cocher existantes du formulaire.
 - [x] Permettre d’ajouter et supprimer des cases de mise en service dans les réglages; enregistrer une liste personnalisable jusqu’à 100 options avec libellé, visibilité et valeur par défaut.
+- [x] Permettre d’ajouter et supprimer les lieux proposés comme choix radio, puis afficher dans le PDF le libellé du lieu sélectionné.
 - [x] Afficher les options configurées dans le formulaire de création et reprendre les options actives, cochées ou non, dans le chapitre de mise en service du PDF.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
 - [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.
@@ -295,6 +296,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `138cc81` — version `1.6.0.21` pour déclencher la migration des réglages sur les installations existantes.
 - `8786680` — ajout/suppression d’options cochables pour les deux PV, validation et sauvegarde des listes personnalisées, et rendu de l’état complet des cases dans les PDFs.
 - `cf16ef6` — refonte des éditeurs et des listes de modèles d’inventaire et d’e-mail en composants carte/formulaire GLPI; correction des formulaires imbriqués et du sélecteur de taille de police.
-- En cours — rendre les modes de mise au rebut ajoutables/supprimables et valider qu’un mode actif existe lorsque le champ est obligatoire; les chapitres libres et leurs textes sont déjà repris par les deux PDFs.
-- À renseigner après chaque commit de code ciblé.
+- `e49f055` — ajout de chapitres personnalisés et prise en compte des libellés paramétrés dans les PDFs; validation renforcée du logo global.
+- `6dd820c` — modes de mise au rebut ajoutables/supprimables avec contrôle d’au moins un mode actif lorsque le champ est affiché.
+- `891e902` — mise à jour du journal après le commit des modes dynamiques.
+- En cours — rendre les lieux de mise en service ajoutables/supprimables; les modèles disposent déjà de listes de cases, de choix de mise au rebut et de chapitres libres configurables.
 
