@@ -320,4 +320,3 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `a452da7` — préserver les préférences historiques de couleurs et dimensions par modèle lors de leur édition.
 - `fb31f52` — numéroter à la suite uniquement les annexes activées dans les PDFs.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
-
