@@ -963,10 +963,9 @@ h2 { color:<?= $escape($header_text_color) ?>; background:<?= $escape($accent) ?
 .pdf-header .date-cell { width:34%; text-align:right; }
 .logo { max-width:120px; max-height:120px; margin:0 auto; }
 .immo-label { color:#111; font-size:9pt; font-weight:normal; }
-.immo-value { display:inline-block; color:<?= $escape($accent) ?>; font-size:13pt; font-weight:bold; border-bottom:2px solid <?= $escape($accent) ?>; padding:0 5mm 1mm; }
+.immo-value, .date-value { display:inline-block; color:<?= $escape($accent) ?>; font-size:13pt; font-weight:bold; border-bottom:2px solid <?= $escape($accent) ?>; padding:0 5mm 1mm; }
 .date-label { color:#111; font-size:9pt; font-weight:normal; }
-.date-value { display:inline-block; color:<?= $escape($accent) ?>; text-align:center; text-decoration:underline; }
-.date-value.is-empty { box-sizing:border-box; width:40mm; min-height:6mm; border-bottom:1px solid #555; color:#222; text-decoration:none; }
+.date-value.is-empty { box-sizing:border-box; width:40mm; min-height:6mm; border-bottom:1px solid #555; color:#222; font-size:9pt; font-weight:normal; padding:0 0 1mm; }
 .effective-date { color:<?= $escape($accent) ?>; text-decoration:underline; }
 table { width:100%; border-collapse:collapse; margin:2mm 0 4mm; }
 th,td { border:1px solid #999; padding:5px; vertical-align:top; }
