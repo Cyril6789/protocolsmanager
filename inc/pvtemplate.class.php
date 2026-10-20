@@ -61,6 +61,7 @@ class PluginProtocolsmanagerPvtemplate
                         ['key' => 'recyclage_deee', 'label' => 'Recyclage DEEE après dépose du disque dur', 'enabled' => true],
                         ['key' => 'autre', 'label' => 'Autre', 'enabled' => true],
                     ],
+                    'checks' => [],
                 ],
                 'chapters' => [
                     ['key' => 'general', 'title' => 'Informations générales', 'enabled' => true,
@@ -70,6 +71,8 @@ class PluginProtocolsmanagerPvtemplate
                     ['key' => 'reason', 'title' => 'Motif de la mise au rebut', 'enabled' => true,
                         'content' => ''],
                     ['key' => 'method', 'title' => 'Mode de mise au rebut', 'enabled' => true,
+                        'content' => ''],
+                    ['key' => 'checks', 'title' => 'Liste de contrôle', 'enabled' => true,
                         'content' => ''],
                     ['key' => 'signature', 'title' => 'Signature', 'enabled' => true,
                         'content' => ''],

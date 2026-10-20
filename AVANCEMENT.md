@@ -181,6 +181,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - Il existe un modèle de PV de mise en service et un modèle de PV de mise au rebut, chacun entièrement réglable.
 - Les champs proposés dans chaque formulaire de création de PV et les chapitres/contenus de chaque PDF doivent être pilotés par leur modèle.
 - Les cases à cocher proposées dans les formulaires de PV doivent pouvoir être éditées dans les réglages et leur état saisi doit être repris dans le PDF.
+- Dans les deux modèles de PV, l’administrateur doit pouvoir ajouter et supprimer librement des éléments cochables; chaque option a son libellé, son activation et son état coché par défaut.
 - Ce journal est la source de suivi exhaustive : une case ne passe à `[x]` qu’une fois son implémentation achevée. Les validations dépendant d’une instance GLPI restent ouvertes tant qu’elles n’y ont pas été exécutées.
 - Les commits ne doivent contenir que les fichiers du chantier explicitement sélectionnés. Le répertoire de travail comportait déjà de nombreux changements locaux (notamment `dompdf/`, `docs/img/`, `locales/` et `screenshots/`) avant le début de ce chantier ; ils sont préservés et exclus.
 
@@ -221,6 +222,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Stocker un modèle unique de mise en service, distinct des modèles d’inventaire.
 - [x] Permettre de régler le titre du PV, les champs actuellement prévus, leurs libellés et leur affichage.
 - [x] Permettre d’activer, désactiver, renommer et définir l’état par défaut des cases à cocher existantes du formulaire.
+- [x] Permettre d’ajouter et supprimer des cases de mise en service dans les réglages; enregistrer une liste personnalisable jusqu’à 100 options avec libellé, visibilité et valeur par défaut.
+- [x] Afficher les options configurées dans le formulaire de création et reprendre les options actives, cochées ou non, dans le chapitre de mise en service du PDF.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
 - [ ] Permettre de créer/supprimer des champs et chapitres, de configurer les champs structurés de chaque chapitre et de changer l’ordre de rendu.
 - [ ] Préserver les valeurs saisies et leur état lorsque le PV est généré ou réédité.
@@ -234,6 +237,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Stocker un modèle unique de mise au rebut, distinct du modèle de mise en service et des modèles d’inventaire.
 - [x] Permettre de régler le titre du PV, les champs actuellement prévus et les libellés affichés.
 - [x] Permettre d’activer, désactiver et renommer les modes de mise au rebut proposés.
+- [x] Ajouter une liste de contrôle dédiée au PV de mise au rebut, avec ajout/suppression d’options, libellé, visibilité et état coché par défaut.
+- [x] Afficher la liste paramétrée dans le formulaire de mise au rebut et reprendre toutes les cases actives avec leur état sélectionné dans un chapitre dédié du PDF.
 - [ ] Permettre d’ajouter/supprimer des modes de mise au rebut et changer leur ordre.
 - [ ] Préserver les règles de validation métier (motif, mode, précision « Autre ») dans l’interface et côté serveur.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
@@ -247,6 +252,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Garder les deux parcours de PV distincts et identifiables depuis l’onglet GLPI.
 - [x] Afficher les champs activés des deux modèles de PV et valider côté serveur les cases et modes transmis.
 - [x] Permettre à l’utilisateur de modifier les cases du formulaire de mise en service et les choix de mise au rebut configurés.
+- [x] Permettre à l’utilisateur de cocher/décocher les listes administrables des deux formulaires PV avant génération; valider côté serveur les valeurs transmises selon les options actives.
 - [ ] Conserver les valeurs par défaut et préremplissages actuels lorsque le modèle correspondant le prévoit.
 - [ ] Préserver le regroupement par numéro immo, la sélection d’objets, les PV sans numéro immo et les associations GLPI actuelles.
 - [ ] Préserver les contrôles d’accès et la validation serveur des identifiants d’objets soumis.
@@ -283,5 +289,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `044c0ad` — critères de finition GLPI et cartographie des réglages/PV.
 - `a68c9be` — stockage séparé des modèles de PV et réglages visuels, avec valeurs initiales de compatibilité.
 - `138cc81` — version `1.6.0.21` pour déclencher la migration des réglages sur les installations existantes.
+- En cours — ajout/suppression d’options cochables pour les deux PV, validation et sauvegarde des listes personnalisées, et rendu de l’état complet des cases dans les PDFs. Fichiers prévus : `inc/config.class.php`, `inc/pvtemplate.class.php`, `inc/commission.class.php`, `public/js/plugin-homepage.js`, `AVANCEMENT.md`.
 - À renseigner après chaque commit de code ciblé.
 

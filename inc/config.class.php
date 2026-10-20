@@ -112,34 +112,23 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			echo "<div class='col-md-2'><input type='hidden' name='template[form][" . htmlescape($key) . "][enabled]' value='0'><label class='form-check'><input class='form-check-input' type='checkbox' name='template[form][" . htmlescape($key) . "][enabled]' value='1'" . (!empty($field['enabled']) ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape(__('Afficher', 'protocolsmanager')) . '</span></label></div></div>';
 		}
 
-		$list_key = $type === 'commission' ? 'states' : 'methods';
-		$list_title = $type === 'commission' ? __('Cases à cocher', 'protocolsmanager') : __('Modes proposés', 'protocolsmanager');
-		$list = $form_fields[$list_key] ?? [];
-		echo "<h4 class='h6 mt-4'>" . htmlescape($list_title) . '</h4>';
-		echo "<div class='table-responsive'><table class='table align-middle'><thead><tr><th>" . htmlescape(__('Libellé', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Actif', 'protocolsmanager')) . '</th>';
 		if ($type === 'commission') {
-			echo '<th>' . htmlescape(__('Cochée par défaut', 'protocolsmanager')) . '</th>';
-		}
-		echo '</tr></thead><tbody>';
-		foreach ($list as $index => $entry) {
-			$key = (string)($entry['key'] ?? '');
-			$path = 'template[form][' . $list_key . '][' . (int)$index . ']';
-			echo '<tr><td><input type="hidden" name="' . htmlescape($path . '[key]') . '" value="' . htmlescape($key) . '"><input class="form-control" maxlength="160" aria-label="' . htmlescape(__('Libellé', 'protocolsmanager')) . '" name="' . htmlescape($path . '[label]') . '" value="' . htmlescape($entry['label'] ?? '') . '"></td>';
-			echo '<td><input type="hidden" name="' . htmlescape($path . '[enabled]') . '" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . htmlescape($path . '[enabled]') . '" value="1"' . (!empty($entry['enabled']) ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Actif', 'protocolsmanager')) . '</span></label></td>';
-			if ($type === 'commission') {
-				echo '<td><input type="hidden" name="' . htmlescape($path . '[checked]') . '" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . htmlescape($path . '[checked]') . '" value="1"' . (!empty($entry['checked']) ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Cochée par défaut', 'protocolsmanager')) . '</span></label></td>';
-			}
-			echo '</tr>';
-		}
-		if ($type === 'commission') {
-			echo "</tbody></table></div><h4 class='h6 mt-4'>" . htmlescape(__('Lieux proposés', 'protocolsmanager')) . '</h4><div class="row g-3">';
+			self::displayCheckboxListEditor($type, 'states', $form_fields['states'] ?? []);
+			echo "<h4 class='h6 mt-4'>" . htmlescape(__('Lieux proposés', 'protocolsmanager')) . '</h4><div class="row g-3">';
 			foreach (($form_fields['cities'] ?? []) as $index => $city) {
 				$path = 'template[form][cities][' . (int)$index . ']';
 				echo '<div class="col-md-6"><label class="form-label">' . htmlescape(__('Lieu', 'protocolsmanager')) . '</label><input type="hidden" name="' . htmlescape($path . '[key]') . '" value="' . htmlescape($city['key'] ?? '') . '"><input class="form-control" maxlength="100" name="' . htmlescape($path . '[label]') . '" value="' . htmlescape($city['label'] ?? '') . '"><input type="hidden" name="' . htmlescape($path . '[enabled]') . '" value="0"><label class="form-check mt-1"><input class="form-check-input" type="checkbox" name="' . htmlescape($path . '[enabled]') . '" value="1"' . (!empty($city['enabled']) ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape(__('Proposer dans le formulaire', 'protocolsmanager')) . '</span></label></div>';
 			}
 			echo '</div>';
 		} else {
+			$list = $form_fields['methods'] ?? [];
+			echo "<h4 class='h6 mt-4'>" . htmlescape(__('Modes proposés', 'protocolsmanager')) . '</h4><div class='table-responsive'><table class='table align-middle'><thead><tr><th>" . htmlescape(__('Libellé', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Actif', 'protocolsmanager')) . '</th></tr></thead><tbody>';
+			foreach ($list as $index => $entry) {
+				$path = 'template[form][methods][' . (int)$index . ']';
+				echo '<tr><td><input type="hidden" name="' . htmlescape($path . '[key]') . '" value="' . htmlescape($entry['key'] ?? '') . '"><input class="form-control" maxlength="160" aria-label="' . htmlescape(__('Libellé', 'protocolsmanager')) . '" name="' . htmlescape($path . '[label]') . '" value="' . htmlescape($entry['label'] ?? '') . '"></td><td><input type="hidden" name="' . htmlescape($path . '[enabled]') . '" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . htmlescape($path . '[enabled]') . '" value="1"' . (!empty($entry['enabled']) ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Actif', 'protocolsmanager')) . '</span></label></td></tr>';
+			}
 			echo '</tbody></table></div><p class="form-text">' . htmlescape(__('Le mode « Autre » conserve son champ de précision obligatoire.', 'protocolsmanager')) . '</p>';
+			self::displayCheckboxListEditor($type, 'checks', $form_fields['checks'] ?? []);
 		}
 		echo '</div></section>';
 
@@ -155,6 +144,35 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		}
 		echo '</div></section>';
 		echo "<div class='d-flex justify-content-end mb-4'><button class='btn btn-primary' type='submit' name='save_pv_template' value='1'><i class='ti ti-device-floppy me-1'></i>" . htmlescape(__('Enregistrer le modèle', 'protocolsmanager')) . '</button></div></form>';
+	}
+
+	private static function displayCheckboxListEditor(string $type, string $list_key, array $entries): void
+	{
+		$title = $type === 'commission' ? __('Cases de mise en service', 'protocolsmanager') : __('Cases de contrôle de mise au rebut', 'protocolsmanager');
+		$add_id = 'add-pv-check-' . $type;
+		$list_id = 'pv-check-list-' . $type;
+		$base = 'template[form][' . $list_key . ']';
+		$next_index = $entries === [] ? 0 : max(array_map('intval', array_keys($entries))) + 1;
+		echo "<div class='mt-4'><div class='d-flex align-items-center justify-content-between flex-wrap gap-2'><h4 class='h6 mb-0'>" . htmlescape($title) . '</h4>';
+		echo '<button class="btn btn-sm btn-outline-primary" type="button" id="' . htmlescape($add_id) . '" data-pv-add-row="' . htmlescape($list_id) . '"><i class="ti ti-plus me-1"></i>' . htmlescape(__('Ajouter une case', 'protocolsmanager')) . '</button></div>';
+		echo '<div class="table-responsive mt-2"><table class="table align-middle"><thead><tr><th>' . htmlescape(__('Libellé de la case', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Afficher', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Cochée par défaut', 'protocolsmanager')) . '</th><th><span class="visually-hidden">' . htmlescape(__('Action', 'protocolsmanager')) . '</span></th></tr></thead><tbody id="' . htmlescape($list_id) . '" data-next-index="' . $next_index . '">';
+		foreach ($entries as $index => $entry) {
+			$path = $base . '[' . (int)$index . ']';
+			self::displayCheckboxRow($path, (string)($entry['key'] ?? ''), (string)($entry['label'] ?? ''), !empty($entry['enabled']), !empty($entry['checked']));
+		}
+		echo '</tbody></table></div>';
+		echo '<template id="template-' . htmlescape($list_id) . '">';
+		self::displayCheckboxRow($base . '[__INDEX__]', 'custom___INDEX__', '', true, false);
+		echo '</template></div>';
+	}
+
+	private static function displayCheckboxRow(string $path, string $key, string $label, bool $enabled, bool $checked): void
+	{
+		$path = htmlescape($path);
+		echo '<tr data-pv-config-row><td><input type="hidden" name="' . $path . '[key]" value="' . htmlescape($key) . '"><input class="form-control" maxlength="160" name="' . $path . '[label]" value="' . htmlescape($label) . '" aria-label="' . htmlescape(__('Libellé de la case', 'protocolsmanager')) . '"></td>';
+		echo '<td><input type="hidden" name="' . $path . '[enabled]" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . $path . '[enabled]" value="1"' . ($enabled ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Afficher', 'protocolsmanager')) . '</span></label></td>';
+		echo '<td><input type="hidden" name="' . $path . '[checked]" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . $path . '[checked]" value="1"' . ($checked ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Cochée par défaut', 'protocolsmanager')) . '</span></label></td>';
+		echo '<td><button class="btn btn-sm btn-outline-danger" type="button" data-pv-remove-row aria-label="' . htmlescape(__('Supprimer cette case', 'protocolsmanager')) . '"><i class="ti ti-trash" aria-hidden="true"></i></button></td></tr>';
 	}
 
 	private static function pvFieldTitle(string $key): string
@@ -217,6 +235,10 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			if (!is_array($defaults['form'][$key])) {
 				continue;
 			}
+			if ($key === 'states' || $key === 'checks') {
+				$template['form'][$key] = self::sanitizeCheckboxEntries($posted_form[$key] ?? []);
+				continue;
+			}
 			if (in_array($key, ['states', 'cities', 'methods'], true)) {
 				$source = is_array($posted_form[$key] ?? null) ? $posted_form[$key] : [];
 				foreach ($defaults['form'][$key] as $index => $default_entry) {
@@ -243,6 +265,39 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			$template['chapters'][$index]['enabled'] = ($entry['enabled'] ?? '0') === '1';
 		}
 		return PluginProtocolsmanagerPvtemplate::save($type, $template);
+	}
+
+	private static function sanitizeCheckboxEntries($source): array
+	{
+		if (!is_array($source)) {
+			return [];
+		}
+		$entries = [];
+		$keys = [];
+		foreach ($source as $entry) {
+			if (!is_array($entry)) {
+				continue;
+			}
+			$key = (string)($entry['key'] ?? '');
+			if (!preg_match('/^[A-Za-z0-9_-]{1,64}$/', $key) || isset($keys[$key])) {
+				continue;
+			}
+			$label = self::settingText($entry['label'] ?? '', 160);
+			if ($label === '') {
+				continue;
+			}
+			$keys[$key] = true;
+			$entries[] = [
+				'key' => $key,
+				'label' => $label,
+				'enabled' => ($entry['enabled'] ?? '0') === '1',
+				'checked' => ($entry['checked'] ?? '0') === '1',
+			];
+			if (count($entries) >= 100) {
+				break;
+			}
+		}
+		return $entries;
 	}
 
 	public static function saveBranding(): bool

@@ -308,6 +308,16 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		}
 		echo '<label class="form-label mt-2" for="disposal-method-other">' . htmlescape(__('Préciser si autre', 'protocolsmanager')) . '</label><textarea class="form-control" id="disposal-method-other" name="disposal_method_other" rows="2"></textarea></div></section>';
 		}
+		$active_checks = array_values(array_filter(($form['checks'] ?? []), static fn($entry) => is_array($entry) && !empty($entry['enabled']) && !empty($entry['key']) && !empty($entry['label'])));
+		if ($active_checks !== []) {
+			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Liste de contrôle', 'protocolsmanager')) . '</strong></div><div class="card-body"><div class="row g-2">';
+			foreach ($active_checks as $check) {
+				$key = (string)$check['key'];
+				$checked = !empty($check['checked']) ? ' checked' : '';
+				echo '<div class="col-md-6"><label class="form-check"><input class="form-check-input" type="checkbox" name="checks[]" value="' . htmlescape($key) . '"' . $checked . '> <span class="form-check-label">' . htmlescape($check['label']) . '</span></label></div>';
+			}
+			echo '</div></div></section>';
+		}
 		echo "<p class='form-text mb-3'>" . htmlescape(__('Le logo et la couleur d’accentuation globaux seront appliqués à ce PDF.', 'protocolsmanager')) . '</p>';
 		echo "<div class='d-flex justify-content-end mb-4'><button class='btn btn-primary' type='submit' name='generate_disposal' value='1'><i class='ti ti-file-type-pdf me-1'></i>" . htmlescape(__('Générer le PV de mise au rebut', 'protocolsmanager')) . '</button></div></form>';
 	}
@@ -648,7 +658,15 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			return false;
 		}
 		$method = isset($method_options[$method_key]) ? $method_options[$method_key] . ($method_key === 'autre' ? ' : ' . $method_other : '') : '';
-		return self::createDisposalPdf(array_values($assets), $immo, $disposal_date, $reason, $method);
+		$active_checks = [];
+		foreach (($template['form']['checks'] ?? []) as $entry) {
+			if (is_array($entry) && !empty($entry['enabled']) && isset($entry['key'])) {
+				$active_checks[(string)$entry['key']] = (string)($entry['label'] ?? '');
+			}
+		}
+		$submitted_checks = $_POST['checks'] ?? [];
+		$checks = is_array($submitted_checks) ? array_values(array_intersect(array_keys($active_checks), array_filter($submitted_checks, 'is_string'))) : [];
+		return self::createDisposalPdf(array_values($assets), $immo, $disposal_date, $reason, $method, $active_checks, $checks);
 	}
 
 	private static function disposalMethodOptions(): array
@@ -672,7 +690,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		return mb_substr(trim($value), 0, $limit);
 	}
 
-	private static function createDisposalPdf(array $assets, string $immo, string $disposal_date, string $reason, string $method): bool
+	private static function createDisposalPdf(array $assets, string $immo, string $disposal_date, string $reason, string $method, array $check_labels, array $checks): bool
 	{
 		global $DB;
 		$config = PluginProtocolsmanagerPvtemplate::load('branding');
@@ -785,7 +803,8 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 <?php if (count($assets) > 1 && $all_amounts_present): ?><p><strong><?= $escape(__('Montant total', 'protocolsmanager')) ?> : <?= $escape(number_format($total, 2, ',', ' ')) ?> €</strong></p><?php endif; ?><?php endif; ?>
 <?php if ($chapter_enabled('reason')): ?><h2>3. <?= $escape($chapter_title('reason', __('Motif de la mise au rebut', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('reason') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('reason'))) ?></p><?php endif; ?><div class="free"><?= $escape($reason) ?></div><?php endif; ?>
 <?php if ($chapter_enabled('method')): ?><h2>4. <?= $escape($chapter_title('method', __('Mode de mise au rebut', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('method') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('method'))) ?></p><?php endif; ?><div class="free"><?= $escape($method) ?></div><?php endif; ?>
-<?php if ($chapter_enabled('signature')): ?><h2>5. <?= $escape($chapter_title('signature', __('Signature', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('signature') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('signature'))) ?></p><?php endif; ?>
+<?php if ($chapter_enabled('checks') && $check_labels !== []): ?><h2>5. <?= $escape($chapter_title('checks', __('Liste de contrôle', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('checks') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('checks'))) ?></p><?php endif; ?><ul><?php foreach ($check_labels as $key => $label): ?><li><?= in_array($key, $checks, true) ? '☒' : '☐' ?> <?= $escape($label) ?></li><?php endforeach; ?></ul><?php endif; ?>
+<?php if ($chapter_enabled('signature')): ?><h2>6. <?= $escape($chapter_title('signature', __('Signature', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('signature') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('signature'))) ?></p><?php endif; ?>
 <table class="signature"><tr><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th></tr><tr><td><?= $escape($requester) ?></td><td></td><td></td></tr></table>
 <?php endif; ?>
 </body></html>

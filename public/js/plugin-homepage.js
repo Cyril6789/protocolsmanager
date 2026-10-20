@@ -30,6 +30,25 @@
 		}
 		ensureRepositoryLink();
 		new MutationObserver(ensureRepositoryLink).observe(document.body, { childList: true, subtree: true });
+		document.addEventListener('click', (event) => {
+			const addButton = event.target.closest('[data-pv-add-row]');
+			if (addButton) {
+				const listId = addButton.dataset.pvAddRow;
+				const list = document.getElementById(listId);
+				const template = document.getElementById(`template-${listId}`);
+				if (!list || !template) {
+					return;
+				}
+				const index = Number.parseInt(list.dataset.nextIndex || '0', 10);
+				list.insertAdjacentHTML('beforeend', template.innerHTML.replaceAll('__INDEX__', String(index)));
+				list.dataset.nextIndex = String(index + 1);
+				return;
+			}
+			const removeButton = event.target.closest('[data-pv-remove-row]');
+			if (removeButton) {
+				removeButton.closest('[data-pv-config-row]')?.remove();
+			}
+		});
 	};
 
 	if (document.readyState === 'loading') {
