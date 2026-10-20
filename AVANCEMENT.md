@@ -312,6 +312,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `6177423` — maintenir la validation « Autre » si son option est recréée et reçoit une clé technique différente.
 - `c306b69` — afficher le titre paramétré du PV de mise au rebut dans son formulaire.
 - `6059f0a` — supprimer les messages génériques redondants après les erreurs détaillées de sauvegarde PV.
-- En cours — préserver à l’écran les listes PV volontairement vidées; revue et vérifications en instance GLPI restent ouvertes.
+- `ab28963` — conserver dans les réglages la suppression de toutes les lignes d’une liste sans restaurer les options par défaut.
+- En cours — revue finale de cohérence; revue visuelle et vérifications en instance GLPI restent ouvertes.
 - En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
 
