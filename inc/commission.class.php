@@ -147,12 +147,12 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($group_title) . '</strong>';
 			echo "<span class='badge bg-secondary ms-2'>" . htmlescape(__('Numéro immo', 'protocolsmanager')) . ': ' . htmlescape($immo_number) . "</span></div><div class='card-body'>";
 			echo "<div class='form-check mb-2'><input class='form-check-input' type='checkbox' id='commission-select-all' data-pv-select-all checked><label class='form-check-label' for='commission-select-all'>" . htmlescape(__('Tout sélectionner / tout décocher', 'protocolsmanager')) . '</label></div>';
-			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-3'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape($item_title) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
+			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-3'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape($item_title) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Statut', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Personne affectée', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
 			foreach ($group as $asset) {
 				$key = $asset['itemtype'] . ':' . $asset['id'];
 				echo '<tr><td><input class="form-check-input protocolsmanager-pv-item" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape($include_label) . '"></td>';
 				echo '<td><strong>' . htmlescape($asset['name'] !== '' ? $asset['name'] : '#' . $asset['id']) . '</strong><div class="text-muted small">' . htmlescape($asset['type']) . '</div></td>';
-				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
+				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['status'] !== '' ? htmlescape($asset['status']) : '—') . '</td><td>' . ($asset['assigned_to'] !== '' ? htmlescape($asset['assigned_to']) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
 			}
 			echo '</tbody></table></div>';
 		} else {
@@ -164,7 +164,12 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		$branding = PluginProtocolsmanagerPvtemplate::load('branding');
 		echo "<div class='row g-3 align-items-end'>";
 		if (!empty($form['effective_date']['enabled'])) {
-			echo '<div class="col-md-8"><label class="form-label" for="effective-date">' . htmlescape($form['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) . '</label><input class="form-control" type="date" id="effective-date" name="effective_date" value="' . htmlescape(self::commonPurchaseDate($group)) . '"></div>';
+			$fallback_date = self::commonPurchaseDate($group);
+			echo '<div class="col-md-8"><label class="form-label" for="effective-date">' . htmlescape($form['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) . '</label><input class="form-control" type="date" id="effective-date" name="effective_date" value="' . htmlescape($fallback_date) . '">';
+			if ($fallback_date !== '') {
+				echo '<div class="form-text">' . htmlescape(__('Date de la facture si non remplie :', 'protocolsmanager') . ' ' . self::displayDate($fallback_date)) . '</div>';
+			}
+			echo '</div>';
 		}
 		echo '<div class="col-md-4"><div class="form-text">' . htmlescape(__('Identité visuelle globale appliquée au PDF.', 'protocolsmanager')) . '</div>';
 		if (!empty($branding['accent_color'])) {
@@ -238,13 +243,13 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($group_title) . '</strong>';
 			echo "<span class='badge bg-secondary ms-2'>" . htmlescape(__('Numéro immo', 'protocolsmanager')) . ': ' . htmlescape($immo_number) . "</span></div><div class='card-body'>";
 			echo "<div class='form-check mb-2'><input class='form-check-input' type='checkbox' id='disposal-select-all' data-pv-select-all checked><label class='form-check-label' for='disposal-select-all'>" . htmlescape(__('Tout sélectionner / tout décocher', 'protocolsmanager')) . '</label></div>';
-			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-0'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape($item_title) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
+			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-0'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape($item_title) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Statut', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Personne affectée', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
 			foreach ($group as $asset) {
 				$key = $asset['itemtype'] . ':' . $asset['id'];
 				$include_label = $is_license_group ? __('Inclure cette licence', 'protocolsmanager') : __('Inclure ce matériel', 'protocolsmanager');
 				echo '<tr><td><input class="form-check-input protocolsmanager-pv-item" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape($include_label) . '"></td>';
 				echo '<td><strong>' . htmlescape($asset['name'] !== '' ? $asset['name'] : '#' . $asset['id']) . '</strong><div class="text-muted small">' . htmlescape($asset['type']) . '</div></td>';
-				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
+				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['status'] !== '' ? htmlescape($asset['status']) : '—') . '</td><td>' . ($asset['assigned_to'] !== '' ? htmlescape($asset['assigned_to']) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
 			}
 			echo '</tbody></table></div></div></section>';
 		} else {
@@ -395,11 +400,15 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		$supplier = self::supplierName((int)($info['suppliers_id'] ?? 0));
 		$manufacturer = self::dropdownName('glpi_manufacturers', (int)($fields['manufacturers_id'] ?? 0));
 		$model = self::modelName($itemtype, $fields);
+		$status = self::dropdownName('glpi_states', (int)($fields['states_id'] ?? 0));
+		$assigned_to = self::userName((int)($fields['users_id'] ?? 0));
 		return [
 			'id' => $id,
 			'itemtype' => $itemtype,
 			'type' => $item->getTypeName(),
 			'name' => (string)($fields['name'] ?? ''),
+			'status' => $status,
+			'assigned_to' => $assigned_to,
 			'immo_number' => trim((string)($info['immo_number'] ?? '')),
 			'inventory_number' => (string)($fields['otherserial'] ?? ''),
 			'serial' => (string)($fields['serial'] ?? ''),
@@ -440,6 +449,15 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		$result = $DB->request(['SELECT' => ['name'], 'FROM' => $table, 'WHERE' => ['id' => $id]]);
 		$row = $result->current();
 		return (string)($row['name'] ?? '');
+	}
+
+	private static function userName(int $id): string
+	{
+		if ($id <= 0) {
+			return '';
+		}
+		$user = new User();
+		return $user->getFromDB($id) ? $user->getFriendlyName() : '';
 	}
 
 	private static function isSupportedSourceItemType(string $itemtype): bool
@@ -830,7 +848,7 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 			$pdf->loadHtml($html, 'UTF-8');
 			$pdf->setPaper('A4', 'portrait');
 			$pdf->render();
-			PluginProtocolsmanagerPdf::addFooter($pdf, $logo_path, __('Procès-verbal de mise au rebut', 'protocolsmanager'), (string)($pv_template['title'] ?? __('Procès-verbal de mise au rebut', 'protocolsmanager')));
+			PluginProtocolsmanagerPdf::addFooter($pdf, $logo_path, __('Procès-verbal de mise au rebut', 'protocolsmanager'), $immo);
 			$pdf_content = $pdf->output();
 		} catch (\Throwable $exception) {
 			error_log('ProtocolsManager disposal PDF rendering failed: ' . $exception->getMessage());
@@ -1034,7 +1052,7 @@ $rows = [
 			$pdf->loadHtml($html, 'UTF-8');
 			$pdf->setPaper('A4', 'portrait');
 			$pdf->render();
-			PluginProtocolsmanagerPdf::addFooter($pdf, $logo_path, __('Procès-verbal de mise en service', 'protocolsmanager'), (string)($pv_template['title'] ?? __('Procès-verbal de mise en service', 'protocolsmanager')));
+			PluginProtocolsmanagerPdf::addFooter($pdf, $logo_path, __('Procès-verbal de mise en service', 'protocolsmanager'), $immo);
 			$pdf_content = $pdf->output();
 		} catch (\Throwable $exception) {
 			error_log('ProtocolsManager commissioning PDF rendering failed: ' . $exception->getMessage());

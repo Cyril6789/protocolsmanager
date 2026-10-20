@@ -118,6 +118,8 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 			$header .= "<th>".__('Name')."</th>";
 			$header .= "<th>".__('Serial number')."</th>";
 			$header .= "<th>".__('Inventory number')."</th>";
+			$header .= "<th>".__('Status')."</th>";
+			$header .= "<th>".__('Assigned to')."</th>";
 			$header .= "<th>".__('Comments')."</th></tr>";
 			echo $header;
 			
@@ -251,6 +253,31 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 									$otherserial = '';
 								}
 								
+								echo "</td>";
+								echo "<td class='center'>";
+								$state_name = '';
+								$state_id = (int)($data['states_id'] ?? 0);
+								if ($state_id > 0) {
+									$state_result = $DB->request([
+										'SELECT' => ['name'],
+										'FROM' => 'glpi_states',
+										'WHERE' => ['id' => $state_id],
+									]);
+									$state_row = $state_result->current();
+									$state_name = (string)($state_row['name'] ?? '');
+								}
+								echo $state_name !== '' ? htmlescape($state_name) : '&nbsp;';
+								echo "</td>";
+								echo "<td class='center'>";
+								$assigned_name = '';
+								$assigned_id = (int)($data['users_id'] ?? 0);
+								if ($assigned_id > 0) {
+									$assigned_user = new User();
+									if ($assigned_user->getFromDB($assigned_id)) {
+										$assigned_name = $assigned_user->getFriendlyName();
+									}
+								}
+								echo $assigned_name !== '' ? htmlescape($assigned_name) : '&nbsp;';
 								echo "</td>";
 								
 								if (isset($data["name"]) && !empty($data["name"])) {
@@ -468,7 +495,9 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 				global $DB, $CFG_GLPI;
 	
 				// Input from $_POST is no longer auto-sanitized. This is fine, as we are not using addslashes.
-				$number = $_POST['number'];
+				$number = is_array($_POST['number'] ?? null) ? $_POST['number'] : [];
+				$posted_ids = is_array($_POST['ids'] ?? null) ? $_POST['ids'] : [];
+				$posted_classes = is_array($_POST['classes'] ?? null) ? $_POST['classes'] : [];
 				$type_name = $_POST['type_name'];
 				$man_name = $_POST['man_name'];
 				$mod_name = $_POST['mod_name'];
@@ -481,6 +510,38 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 				$doc_no = $_POST['list'];
 				$id = $_POST['user_id'];
 				$notes = $_POST['notes'];
+				$inventory_immo = '';
+				$resolved_immo_numbers = [];
+				$all_selected_immo_resolved = $number !== [];
+				foreach ($number as $row_index) {
+					if (!is_scalar($row_index) || !ctype_digit((string)$row_index)) {
+						$all_selected_immo_resolved = false;
+						break;
+					}
+					$row_index = (int)$row_index;
+					$item_id = (int)($posted_ids[$row_index] ?? 0);
+					$itemtype = is_string($posted_classes[$row_index] ?? null) ? $posted_classes[$row_index] : '';
+					$item = $item_id > 0 && $itemtype !== '' ? getItemForItemtype($itemtype) : null;
+					if (!$item || !$item->can($item_id, READ)) {
+						$all_selected_immo_resolved = false;
+						break;
+					}
+					$info_result = $DB->request([
+						'SELECT' => ['immo_number'],
+						'FROM' => 'glpi_infocoms',
+						'WHERE' => ['itemtype' => $itemtype, 'items_id' => $item_id],
+					]);
+					$info = $info_result->current();
+					$asset_immo = trim((string)($info['immo_number'] ?? ''));
+					if ($asset_immo === '') {
+						$all_selected_immo_resolved = false;
+						break;
+					}
+					$resolved_immo_numbers[$asset_immo] = true;
+				}
+				if ($all_selected_immo_resolved && count($resolved_immo_numbers) === 1) {
+					$inventory_immo = (string)array_key_first($resolved_immo_numbers);
+				}
 				
 				$prot_num = self::getDocNumber();
 
@@ -625,7 +686,7 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 
 				$doc_name = str_replace(' ', '_', $title)."-".date('dmY').'.pdf';
 				$inventory_logo_path = $full_img_name !== '' ? GLPI_PICTURE_DIR . '/' . basename($full_img_name) : '';
-				PluginProtocolsmanagerPdf::addFooter($html2pdf, $inventory_logo_path, __('Inventaire', 'protocolsmanager'), (string)$title_template, (string)$footer);
+				PluginProtocolsmanagerPdf::addFooter($html2pdf, $inventory_logo_path, __('Inventaire', 'protocolsmanager'), $inventory_immo, (string)$footer);
 				$output = $html2pdf->output();
 
 				file_put_contents(GLPI_UPLOAD_DIR .'/'.$doc_name, $output);

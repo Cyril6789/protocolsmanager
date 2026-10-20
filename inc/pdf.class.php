@@ -5,7 +5,7 @@ use Dompdf\Dompdf;
 /** Shared repeating footer for generated Protocols Manager PDFs. */
 class PluginProtocolsmanagerPdf
 {
-	public static function addFooter(Dompdf $pdf, string $logo_path, string $document_type, string $document_name, string $additional_text = ''): void
+	public static function addFooter(Dompdf $pdf, string $logo_path, string $document_type, string $immo_number, string $additional_text = ''): void
 	{
 		$logo_dimensions = null;
 		if ($logo_path !== '' && is_file($logo_path) && is_readable($logo_path)) {
@@ -16,10 +16,10 @@ class PluginProtocolsmanagerPdf
 		}
 
 		$document_type = self::singleLine($document_type);
-		$document_name = self::singleLine($document_name);
+		$immo_number = self::singleLine($immo_number);
 		$additional_text = self::singleLine($additional_text);
 		$canvas = $pdf->getCanvas();
-		$canvas->page_script(static function (int $page_number, int $page_count, $canvas, $font_metrics) use ($logo_path, $logo_dimensions, $document_type, $document_name, $additional_text): void {
+		$canvas->page_script(static function (int $page_number, int $page_count, $canvas, $font_metrics) use ($logo_path, $logo_dimensions, $document_type, $immo_number, $additional_text): void {
 			$page_width = $canvas->get_width();
 			$page_height = $canvas->get_height();
 			$left = 34.0;
@@ -43,17 +43,17 @@ class PluginProtocolsmanagerPdf
 			$name_size = 7.0;
 			$note_size = 5.5;
 			$type = self::fitText($document_type, $bold_font, $font_metrics, $type_size, $center_width);
-			$name = self::fitText($document_name, $font, $font_metrics, $name_size, $center_width);
+			$immo = self::fitText($immo_number, $font, $font_metrics, $name_size, $center_width);
 			$note = self::fitText($additional_text, $font, $font_metrics, $note_size, $center_width);
 			self::drawCentered($canvas, $font_metrics, $type, $bold_font, $type_size, $color, $page_width / 2, $page_height - 43.0);
-			self::drawCentered($canvas, $font_metrics, $name, $font, $name_size, $color, $page_width / 2, $page_height - 34.0);
+			self::drawCentered($canvas, $font_metrics, $immo, $font, $name_size, $color, $page_width / 2, $page_height - 34.0);
 			if ($note !== '') {
 				self::drawCentered($canvas, $font_metrics, $note, $font, $note_size, $color, $page_width / 2, $page_height - 24.0);
 			}
 
 			$page_label = sprintf(__('Page', 'protocolsmanager') . ' %d sur %d', $page_number, $page_count);
 			$page_width_text = $font_metrics->getTextWidth($page_label, $font, 7.0);
-			$canvas->text($right - $page_width_text, $page_height - 24.0, $page_label, $font, 7.0, $color);
+			$canvas->text($right - $page_width_text, $page_height - 34.0, $page_label, $font, 7.0, $color);
 		});
 	}
 

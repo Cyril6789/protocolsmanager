@@ -49,7 +49,10 @@ function plugin_init_protocolsmanager(): void
 
     $PLUGIN_HOOKS['csrf_compliant']['protocolsmanager'] = true;
     $PLUGIN_HOOKS['add_css']['protocolsmanager']        = 'css/styles.css';
-    $PLUGIN_HOOKS['add_javascript']['protocolsmanager'] = 'public/js/plugin-homepage.js';
+    $PLUGIN_HOOKS['add_javascript']['protocolsmanager'] = [
+        'public/js/plugin-homepage.js',
+        'public/js/plugin-pv-selection.js',
+    ];
 
     // Register tabs for supported item types
     $tabTargets = [

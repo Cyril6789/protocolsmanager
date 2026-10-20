@@ -230,6 +230,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Décomposer les quatre fonctions de validation du tableau de mise en service en rôles configurables : modifier leur libellé, ajouter/supprimer des rôles, activer/désactiver chaque rôle et générer une ligne PDF par rôle actif; conserver une liste vide si tous les rôles sont supprimés.
 - [x] À la génération PDF, reprendre les quatre rôles initiaux si la clé de configuration est absente sur une installation antérieure; respecter une liste explicitement enregistrée vide sans imposer de migration.
 - [x] Dupliquer la date effective de mise en service dans l’en-tête à droite du logo, symétriquement au numéro immo; conserver la date d’acquisition renseignée comme valeur de repli et laisser une ligne vide à compléter à la main si aucune date n’est disponible.
+- [x] À côté de la date effective dans le formulaire, afficher la date de facture/acquisition préremplie au format `jj/mm/aaaa` lorsqu’elle est disponible comme indication de la valeur de repli.
 - [x] Afficher les options configurées dans le formulaire de création et reprendre les options actives, cochées ou non, dans le chapitre de mise en service du PDF.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
 - [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.
@@ -269,6 +270,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Permettre à l’utilisateur de modifier les cases du formulaire de mise en service et les choix de mise au rebut configurés.
 - [x] Permettre à l’utilisateur de cocher/décocher les listes administrables des deux formulaires PV avant génération; valider côté serveur les valeurs transmises selon les options actives.
 - [x] Ajouter dans les deux formulaires PV une case maître « Tout sélectionner / tout décocher », synchronisée avec les cases des matériels/licences sélectionnables.
+- [x] Charger la synchronisation des cases maître et individuelles depuis un fichier JavaScript dédié enregistré par le hook GLPI `add_javascript`.
+- [x] Afficher le statut GLPI et la personne affectée dans les tableaux de choix des matériels, pour les inventaires et les deux formulaires PV; ces informations restent visuelles et ne sont pas ajoutées aux PDFs.
 - [ ] Conserver les valeurs par défaut et préremplissages actuels lorsque le modèle correspondant le prévoit.
 - [ ] Préserver le regroupement par numéro immo, la sélection d’objets, les PV sans numéro immo et les associations GLPI actuelles.
 - [ ] Préserver les contrôles d’accès et la validation serveur des identifiants d’objets soumis.
@@ -277,7 +280,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 ### F. Génération et structure des PDF
 
 - [ ] Mettre en place un rendu commun qui reçoit le type de document, le modèle, les données GLPI et les valeurs du formulaire.
-- [x] Afficher sur chaque page des trois familles de PDF un pied de page commun avec logo global réduit à gauche, type et nom au centre, pagination « Page x sur y » à droite; conserver le texte de pied configuré sur les modèles d’inventaire.
+- [x] Afficher sur chaque page des trois familles de PDF un pied de page commun avec logo global réduit à gauche, type et numéro immo disponible au centre (ligne immo vide s’il n’y en a pas), pagination « Page x sur y » alignée à droite sur cette seconde ligne; conserver le texte de pied configuré sur les modèles d’inventaire.
 - [ ] Conserver le moteur Dompdf et éviter toute modification non nécessaire de `dompdf/`.
 - [ ] Rendre les chapitres configurés dans le bon ordre et respecter leur activation/désactivation.
 - [x] Appliquer le logo et la couleur globale aux PDFs d’inventaire, de mise en service et de mise au rebut.
@@ -332,4 +335,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `ff4295d` — ajouter un footer Dompdf partagé sur chaque page des inventaires et des deux PV, avec logo global, type/nom et pagination; conserver le texte de pied des modèles d’inventaire.
 - `6225b91` — consigner le footer commun dans le journal d’avancement.
 - `ae6c264` — ajouter une case de sélection générale synchronisée pour chaque groupe de matériels PV et interpréter `{reason}` / `{method}` dans les textes introductifs sans doublonner les valeurs.
+- `7444d70` — consigner les corrections des PV et la sélection des matériels.
+- En cours — afficher la date de facture/acquisition à côté de la date effective, fiabiliser le chargement de la sélection générale, aligner la pagination du footer sur le numéro immo, et ajouter statut/personne affectée aux tableaux de sélection sans altérer les PDFs.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
