@@ -190,8 +190,9 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 
 - [x] Relever la branche, la version déclarée et les principaux composants existants de réglages, formulaire et génération des PV.
 - [x] Créer une branche de travail dédiée depuis l’état courant, sans toucher aux changements locaux préexistants.
-- [ ] Cartographier complètement le schéma SQL/migrations et les formulaires de configuration existants.
-- [ ] Cartographier les chemins de génération des fiches d’inventaire, du PV de mise en service et du PV de mise au rebut.
+- [x] Cartographier le schéma actuel : les modèles d’inventaire sont des lignes multiples dans `glpi_plugin_protocolsmanager_config`; les réglages visuels (logo, dimensions, couleurs) sont actuellement par modèle; les e-mails vivent dans `glpi_plugin_protocolsmanager_emailconfig`; les PV n’ont pas encore de table de configuration dédiée.
+- [x] Cartographier les points d’entrée : `front/config.form.php` et `PluginProtocolsmanagerConfig` pour les réglages; `PluginProtocolsmanagerGenerate::makeProtocol()` pour les fiches d’inventaire; `PluginProtocolsmanagerCommission::generateFromRequest()` / `generateDisposalFromRequest()` et `createPdf()` / `createDisposalPdf()` pour les PV.
+- [ ] Cartographier les chemins complets de génération des fiches d’inventaire, notamment substitution des champs, numérotation, création des documents GLPI et e-mails.
 - [ ] Définir et documenter les invariants de compatibilité avec les données et modèles déjà enregistrés.
 - [ ] Garder le code et les métadonnées sur la version `1.6.0.20` pendant le chantier.
 - [ ] Vérifier que l’installation neuve et la mise à jour d’une installation existante suivent les mêmes migrations idempotentes.
@@ -199,6 +200,11 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 ### B. Navigation et gestion des réglages
 
 - [ ] Réorganiser l’écran de configuration en espaces distincts : modèles d’inventaire, PV de mise en service, PV de mise au rebut et réglages visuels globaux.
+- [ ] Utiliser les composants et conventions d’interface GLPI réellement prévus pour les pages de configuration (en-tête, navigation/onglets, formulaires, boutons, messages et retours après sauvegarde), en vérifiant leur disponibilité dans les versions GLPI supportées.
+- [ ] Présenter les réglages sous forme de sections lisibles et hiérarchisées, avec libellés, aides contextuelles, états vides et actions explicites, sans tableaux HTML bricolés comme structure principale.
+- [ ] Vérifier l’ergonomie clavier, les labels associés, les erreurs de validation visibles et la cohérence visuelle avec GLPI sur grand écran et écran étroit.
+- [ ] Éliminer les formulaires HTML imbriqués/incomplets et les styles inline de présentation au profit des helpers et styles GLPI/plugin appropriés.
+- [ ] Faire relire le parcours de configuration complet et vérifier son rendu visuel dans une instance GLPI avant validation de cette exigence.
 - [ ] Conserver la création, modification, suppression et sélection d’un nombre illimité de modèles d’inventaire.
 - [ ] Conserver les réglages d’e-mail existants et leur comportement.
 - [ ] Ajouter un réglage global de logo utilisable par toutes les sorties PDF.
