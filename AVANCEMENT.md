@@ -321,4 +321,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `a452da7` — préserver les préférences historiques de couleurs et dimensions par modèle lors de leur édition.
 - `fb31f52` — numéroter à la suite uniquement les annexes activées dans les PDFs.
 - `125822c` — retirer l’espace final superflu du journal et vérifier le diff commité depuis `master`.
+- `4d4d35c` — rendre les rôles du tableau de validation de mise en service modifiables, activables, ajoutables et supprimables dans les réglages; générer une ligne PDF par rôle actif.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
