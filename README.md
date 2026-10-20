@@ -1,6 +1,6 @@
 # Protocols Manager
 
-Protocols Manager is a GLPI plugin for creating and managing PDF documents from inventory data. Version **2.0.0.0** provides three document workflows:
+Protocols Manager is a GLPI plugin for creating and managing PDF documents from inventory data. Version **2.0.0** provides three document workflows:
 
 - **Inventory reports** for equipment assigned to a user.
 - **Commissioning certificates** (*procès-verbaux de mise en service*).

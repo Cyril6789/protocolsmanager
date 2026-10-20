@@ -173,8 +173,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 ## Cadre validé
 
 - Branche de travail créée depuis l’état courant : `feature/pv-templates-1.60.20`.
-- Version de départ : `1.6.0.20`; portée à `1.6.0.21` une seule fois pour déclencher la migration du stockage dédié. Après achèvement du chantier, la version de livraison est portée à `2.0.0.0` comme demandé; aucune hausse pour les modifications simples suivantes.
-- Aucun push ni merge vers `master` sans autorisation explicite de l’utilisateur. L’utilisateur a autorisé la livraison finale `2.0.0.0`, le merge vers `master` et le push.
+- Version de départ : `1.6.0.20`; portée à `1.6.0.21` une seule fois pour déclencher la migration du stockage dédié. Après achèvement du chantier, la version de livraison a d’abord été portée à `2.0.0.0`, puis normalisée à `2.0.0` à la demande de l’utilisateur; aucune hausse pour les modifications simples suivantes.
+- Aucun push ni merge vers `master` sans autorisation explicite de l’utilisateur. L’utilisateur a autorisé la livraison finale, le merge vers `master` et le push; il a ensuite demandé le format de version `2.0.0`.
 - Conserver autant de modèles de fiches d’inventaire Protocols Manager que nécessaire.
 - Créer une zone de réglages dédiée aux procès-verbaux de mise en service et de mise au rebut.
 - Logo et couleur d’accentuation sont des réglages globaux partagés par tous les modèles PDF.
@@ -196,7 +196,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Cartographier les chemins complets de génération des fiches d’inventaire, notamment substitution des champs, numérotation, création des documents GLPI et e-mails.
 - [ ] Définir et documenter les invariants de compatibilité avec les données et modèles déjà enregistrés.
 - [x] Ne pas incrémenter la version à chaque retouche; faire un incrément unique `1.6.0.21` pour que GLPI exécute l’ajout de la table de réglages sur les installations existantes.
-- [x] Porter la version publiée à `2.0.0.0` pour la livraison finale sur `master`, après les modifications du chantier.
+- [x] Porter la version publiée à `2.0.0.0` pour la livraison finale sur `master`, après les modifications du chantier (format initial, normalisé ensuite à trois composants).
 - [x] Remettre le README en cohérence avec les trois flux PDF, les réglages, les droits, la compatibilité et les parcours actuels.
 - [x] Retirer les captures d’écran obsolètes des références du README et des métadonnées du plugin.
 - [ ] Vérifier que l’installation neuve et la mise à jour d’une installation existante suivent les mêmes migrations idempotentes.
@@ -348,12 +348,15 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `ac995a6` — retirer du formulaire de mise au rebut le tableau « Détails de l’immobilisation » redondant, tout en gardant les détails du document généré.
 - `a2e02e6` — remplacer le marqueur `{observations}` de l’introduction du chapitre Observations par la valeur saisie, sans doublon avec le texte affiché sous l’introduction.
 - `177684c` — réécrire le README sans captures obsolètes, actualiser les métadonnées du plugin, et porter sa version déclarée à `2.0.0.0`.
+- Normaliser à trois composants la version active (`2.0.0`) dans `setup.php`, `plugin.xml`, le README et ce journal, à la demande de l’utilisateur.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
 
-### Livraison 2.0.0.0
+### Livraison 2.0.0
 
 - [x] Mettre à jour le README et les métadonnées sans publier de captures d’écran obsolètes.
-- [x] Déclarer la version `2.0.0.0` dans `setup.php` et `plugin.xml`.
+- [x] Déclarer initialement la version `2.0.0.0` dans `setup.php` et `plugin.xml`.
 - [x] Faire avancer `master` de `eb6a17f` à `b04c19b` par fast-forward depuis `feature/pv-templates-1.60.20`.
 - [x] Pousser `master` vers `origin` le 2026-10-20; le push a confirmé `eb6a17f..b04c19b`.
+- [x] Normaliser la version déclarée à `2.0.0` dans `setup.php`, `plugin.xml` et le README.
+- [x] Pousser le correctif de version sur `master` après la livraison initiale.
 - [ ] Effectuer une vérification visuelle et fonctionnelle de la release dans une instance GLPI avant annonce aux utilisateurs.
