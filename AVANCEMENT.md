@@ -204,9 +204,9 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 
 - [x] Réorganiser l’écran de configuration en espaces distincts : modèles d’inventaire, PV de mise en service, PV de mise au rebut, identité visuelle globale et e-mails.
 - [ ] Utiliser les composants et conventions d’interface GLPI réellement prévus pour les pages de configuration (en-tête, navigation/onglets, formulaires, boutons, messages et retours après sauvegarde), en vérifiant leur disponibilité dans les versions GLPI supportées.
-- [ ] Présenter les réglages sous forme de sections lisibles et hiérarchisées, avec libellés, aides contextuelles, états vides et actions explicites, sans tableaux HTML bricolés comme structure principale.
+- [x] Présenter les réglages d’inventaire, de PV et d’e-mail sous forme de cartes et sections hiérarchisées, avec libellés, aides contextuelles, états vides et actions explicites; garder les tableaux seulement pour les listes répétées (modèles et cases configurables).
 - [ ] Vérifier l’ergonomie clavier, les labels associés, les erreurs de validation visibles et la cohérence visuelle avec GLPI sur grand écran et écran étroit.
-- [ ] Éliminer les formulaires HTML imbriqués/incomplets et les styles inline de présentation au profit des helpers et styles GLPI/plugin appropriés.
+- [x] Éliminer les formulaires imbriqués/incomplets des éditeurs d’inventaire et d’e-mail et des listes d’actions; corriger le sélecteur de taille de police et remplacer les styles de présentation par classes GLPI/Bootstrap.
 - [ ] Faire relire le parcours de configuration complet et vérifier son rendu visuel dans une instance GLPI avant validation de cette exigence.
 - [ ] Conserver la création, modification, suppression et sélection d’un nombre illimité de modèles d’inventaire.
 - [ ] Conserver les réglages d’e-mail existants et leur comportement.
@@ -289,6 +289,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `044c0ad` — critères de finition GLPI et cartographie des réglages/PV.
 - `a68c9be` — stockage séparé des modèles de PV et réglages visuels, avec valeurs initiales de compatibilité.
 - `138cc81` — version `1.6.0.21` pour déclencher la migration des réglages sur les installations existantes.
-- En cours — ajout/suppression d’options cochables pour les deux PV, validation et sauvegarde des listes personnalisées, et rendu de l’état complet des cases dans les PDFs. Fichiers prévus : `inc/config.class.php`, `inc/pvtemplate.class.php`, `inc/commission.class.php`, `public/js/plugin-homepage.js`, `AVANCEMENT.md`.
+- `8786680` — ajout/suppression d’options cochables pour les deux PV, validation et sauvegarde des listes personnalisées, et rendu de l’état complet des cases dans les PDFs.
+- En cours — refonte de l’éditeur et de la liste des modèles d’inventaire et des modèles e-mail en composants carte/formulaire GLPI; correction des formulaires imbriqués et du sélecteur de taille de police. Fichiers prévus : `inc/config.class.php`, `public/css/styles.css`, `AVANCEMENT.md`.
 - À renseigner après chaque commit de code ciblé.
 

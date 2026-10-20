@@ -24,3 +24,24 @@
 .protocolsmanager-settings-form fieldset legend {
 	margin-bottom: .5rem;
 }
+
+.protocolsmanager-settings-form .form-text {
+	max-width: 80ch;
+}
+
+.protocolsmanager-settings-form textarea {
+	resize: vertical;
+}
+
+.protocolsmanager-settings-form .card-header a {
+	text-decoration: none;
+}
+
+.protocolsmanager-settings-form .form-check {
+	min-height: 1.5rem;
+}
+
+.protocolsmanager-settings table td form,
+.protocolsmanager-settings table td .d-flex form {
+	margin: 0;
+}

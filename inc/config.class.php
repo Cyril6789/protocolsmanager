@@ -436,126 +436,58 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			$font='freesans';
 		}
 		
-		echo "<div class='center'>";
 		echo "<form name='form' action='config.form.php' method='post' enctype='multipart/form-data' class='protocolsmanager-settings-form'>";
+		if (method_exists(Session::class, 'getNewCSRFToken')) {
+			echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
+		}
 		echo Html::hidden('section', ['value' => 'inventory']);
-		echo "<input type='hidden' name='MAX_FILE_SIZE' value=1948000>";
-		// Added htmlescape for XSS protection
-		echo "<input type='hidden' name='mode' value='" . htmlescape($mode) . "'>";
-		echo "<table class='tab_cadre_fixe'>";
-		echo "<tr><th colspan='3'>".__('Create')." ".__('template')."<a href='https://github.com/mateusznitka/protocolsmanager/wiki/Using-the-plugin' target='_blank'><img src='../img/help.png' width='20px' height='20px' align='right'></a></th></tr>";
-		// Added htmlescape for XSS protection
-		echo "<tr><td>".__('Template name')."*</td><td colspan='2'><input type='text' name='template_name' style='width:80%;' value='" . htmlescape($template_name) . "'></td></tr>";
-		echo "<tr><td>".__('Document title', 'protocolsmanager')."*</td><td colspan='2'><input type='text' name='title' style='width:80%;' value='" . htmlescape($title) . "'></td></tr>";
-		echo "<tr><td></td><td colspan='2'><small class='text-muted'>".__('You can use {owner} here.', 'protocolsmanager')."</small></td></tr>";
-
-		echo "<tr><td>Font</td><td colspan='2'><select name='font' style='width:150px'>";
-			foreach($fonts as $code => $fontname) {
-				echo "<option value='".$code."' ";
-				if ($code == $font) {
-					echo " selected";
-				}
-				echo ">".$fontname."</option>";
-			}
-		echo "</select></td></tr>";
-		
-		echo "<tr><td>Font size</td><td colspan='2'><select name='fontsize' style='width:150px'";
-			foreach($fontsizes as $fsize => $fsizes) {
-				echo "<option value='".$fsize."' ";
-				if ($fsize == $fontsize) {
-					echo " selected";
-				}
-				echo ">".$fsizes."</option>";
-			}
-			
-		echo "<tr><td>Word breaking</td><td><label><input type='radio' name='breakword' value=1 ";
-		if ($breakword == 1)
-			echo "checked='checked'";
-		echo "> On</label></td>";
-		echo "<td><label><input type='radio' name='breakword' value=0 ";
-		if ($breakword == 0)
-			echo "checked='checked'";
-		echo "> Off</label></td></tr>";
-		echo "<tr><td colspan='3'><div class='alert alert-info mb-0'>" . htmlescape(__('Le logo et la couleur sont désormais réglés globalement dans Identité visuelle.', 'protocolsmanager')) . " <a href='config.form.php?section=branding'>" . htmlescape(__('Ouvrir ces réglages', 'protocolsmanager')) . '</a></div></td></tr>';
-		
-		// Added htmlescape for XSS protection
-		echo "<tr><td>".__('City')."</td><td colspan='2'><input type='text' name='city' style='width:80%;' value='" . htmlescape($city) . "'></td></tr>";
-		echo "<tr><td>".__('Upper Content')."</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' cols='50' rows'8' name='template_uppercontent'>" . htmlescape($template_uppercontent) . "</textarea></td></tr>";
-		echo "<tr><td></td><td colspan='2'><small class='text-muted'>".__('You can use {owner} or {admin} here.', 'protocolsmanager')."</small></td></tr>";
-		echo "<tr><td>".__('Content')."</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' cols='50' rows'8' name='template_content'>" . htmlescape($template_content) . "</textarea></td></tr>";
-		echo "<tr><td></td><td colspan='2'><small class='text-muted'>".__('You can use {owner} or {admin} here.', 'protocolsmanager')."</small></td></tr>";
-		echo "<tr><td>".__('Footer')."</td><td class='middle' colspan='2'><textarea style='width:80%; height:100px;' cols='45' rows'4' name='footer_text'>" . htmlescape($template_footer) . "</textarea></td></tr>";	
-		echo "<tr><td>".__('Orientation')."</td><td colspan='2'><select name='orientation' style='width:150px'>";
-			foreach($orientations as $vals => $valname) {
-				echo "<option value='".$vals."' ";
-				if ($vals == $orientation) {
-					echo " selected";
-				}
-				echo ">".$valname."</option>";
-			}	
-		echo "</select></td></tr>";
-		echo "<tr><td>".__('Serial number')."</td><td><label><input type='radio' name='serial_mode' value='1' ";
-		if ($serial_mode == 1)
-			echo "checked='checked'";
-		echo "> serial and inventory number in separate columns</label></td>";
-		echo "<td><label><input type='radio' name='serial_mode' value='2' ";
-		if ($serial_mode == 2)
-			echo "checked='checked'";
-		echo "> serial or inventory number if serial doesn't exists</label></td></tr>";
-		// ... suite du formulaire ...
-		echo "<tr><td>".__('Enable email autosending')."</td><td><label><input type='radio' name='email_mode' value='1'";
-		if ($email_mode == 1)
-			echo "checked='checked'";
-		echo "> ON</label></td>";
-		echo "<td><label><input type='radio' name='email_mode' value='2'";
-		if ($email_mode == 2)
-			echo "checked='checked'";
-		echo "> OFF</label></td></tr>";
-		echo "<tr><td>".__('Email template')."</td><td colspan='2'><select name='email_template' required style='width:150px'>";
-			
-			// Updated DB->request syntax
-			foreach ($DB->request(['FROM' => 'glpi_plugin_protocolsmanager_emailconfig']) as $uid => $list) {
-				echo '<option value=';
-				// Added htmlescape for XSS protection
-				echo htmlescape($list["id"]);
-				if ($uid == $email_template) {
-					echo ' selected';
-				}
-				echo '>';
-				// Added htmlescape for XSS protection
-				echo htmlescape($list["tname"]);
-				echo '</option>';
-			}
-		echo "</select></td></tr>";
-		/**
-		 *
-		 */
-		echo "<tr><td>".__('Select who should generate the pdf', 'protocolsmanager')."</td>";
-		
-		if($author_state == 2)
-		{
-			echo "<td><label><input type='radio' name='author_state' value='1'> ".__('The user who generates the document', 'protocolsmanager')."</label></td>";
-			// Added htmlescape for XSS protection
-			echo "<td><input type='radio' name='author_state' value='2' checked='checked'> <input type='text' name='author_name' value='" . htmlescape($author_name) . "'/></td>";
-
+		echo Html::hidden('MAX_FILE_SIZE', ['value' => 1948000]);
+		echo Html::hidden('mode', ['value' => $mode]);
+		echo "<div class='card mb-4'><div class='card-header d-flex align-items-center justify-content-between flex-wrap gap-2'><h2 class='h4 mb-0'>" . htmlescape($mode ? __('Modifier un modèle d’inventaire', 'protocolsmanager') : __('Créer un modèle d’inventaire', 'protocolsmanager')) . "</h2><a href='https://github.com/mateusznitka/protocolsmanager/wiki/Using-the-plugin' target='_blank' rel='noopener noreferrer'>" . htmlescape(__('Aide sur les modèles', 'protocolsmanager')) . " <i class='ti ti-external-link' aria-hidden='true'></i></a></div><div class='card-body'>";
+		echo "<div class='alert alert-info'>" . htmlescape(__('Le logo et la couleur d’accentuation sont partagés par tous les modèles.', 'protocolsmanager')) . " <a class='alert-link' href='config.form.php?section=branding'>" . htmlescape(__('Configurer l’identité visuelle', 'protocolsmanager')) . '</a></div>';
+		echo "<div class='row g-3'>";
+		echo "<div class='col-md-6'><label class='form-label' for='inventory-template-name'>" . htmlescape(__('Template name')) . " *</label><input class='form-control' id='inventory-template-name' name='template_name' required maxlength='255' value='" . htmlescape($template_name) . "'></div>";
+		echo "<div class='col-md-6'><label class='form-label' for='inventory-document-title'>" . htmlescape(__('Document title', 'protocolsmanager')) . " *</label><input class='form-control' id='inventory-document-title' name='title' required maxlength='255' value='" . htmlescape($title) . "'><div class='form-text'>" . htmlescape(__('You can use {owner} here.', 'protocolsmanager')) . '</div></div>';
+		echo "<div class='col-md-4'><label class='form-label' for='inventory-font'>" . htmlescape(__('Font')) . "</label><select class='form-select' id='inventory-font' name='font'>";
+		foreach ($fonts as $code => $fontname) {
+			echo '<option value="' . htmlescape($code) . '"' . ($code == $font ? ' selected' : '') . '>' . htmlescape($fontname) . '</option>';
 		}
-		else {
-			echo "<td><label><input type='radio' name='author_state' value='1' checked='checked'> ".__('The user who generates the document', 'protocolsmanager')."</label></td>";
-			// Added htmlescape for XSS protection
-			echo "<td><input type='radio' name='author_state' value='2'> <input type='text' name='author_name' value='" . htmlescape($author_name) . "'/></td>";
+		echo "</select></div><div class='col-md-4'><label class='form-label' for='inventory-font-size'>" . htmlescape(__('Font size')) . "</label><select class='form-select' id='inventory-font-size' name='fontsize'>";
+		foreach ($fontsizes as $fsize => $fsizes) {
+			echo '<option value="' . htmlescape($fsize) . '"' . ($fsize == $fontsize ? ' selected' : '') . '>' . htmlescape($fsizes) . '</option>';
 		}
-
-		echo "</tr>";
-		/**
-		*
-		*/
-	
-		echo "</table>";
-		echo "<table class='tab_cadre_fixe'><td style='text-align:right;'><input type='submit' name='save' class='submit'></td>";
-		Html::closeForm();
-		echo "<form name='cancelform' action='config.form.php' method='post'><td style='text-align:left;'><input type='submit' class='submit' name='cancel' value=".__('Cancel')."></td></table>";
-		Html::closeForm();
-		echo "</div>";
+		echo "</select></div><div class='col-md-4'><label class='form-label' for='inventory-orientation'>" . htmlescape(__('Orientation')) . "</label><select class='form-select' id='inventory-orientation' name='orientation'>";
+		foreach ($orientations as $value => $label) {
+			echo '<option value="' . htmlescape($value) . '"' . ($value == $orientation ? ' selected' : '') . '>' . htmlescape($label) . '</option>';
+		}
+		echo "</select></div><div class='col-md-6'><label class='form-label' for='inventory-city'>" . htmlescape(__('City')) . "</label><input class='form-control' id='inventory-city' name='city' value='" . htmlescape($city) . "'></div>";
+		echo "<div class='col-md-6'><label class='form-label' for='inventory-email-template'>" . htmlescape(__('Email template')) . "</label><select class='form-select' id='inventory-email-template' name='email_template' required>";
+		foreach ($DB->request(['FROM' => 'glpi_plugin_protocolsmanager_emailconfig']) as $email_template_row) {
+			$id = (string)$email_template_row['id'];
+			echo '<option value="' . htmlescape($id) . '"' . ($id == $email_template ? ' selected' : '') . '>' . htmlescape($email_template_row['tname']) . '</option>';
+		}
+		echo "</select></div></div>";
+		echo "<hr><h3 class='h5'>" . htmlescape(__('Contenu et affichage', 'protocolsmanager')) . '</h3>';
+		echo "<div class='mb-3'><label class='form-label' for='inventory-upper-content'>" . htmlescape(__('Upper Content')) . "</label><textarea class='form-control' id='inventory-upper-content' name='template_uppercontent' rows='4'>" . htmlescape($template_uppercontent) . "</textarea><div class='form-text'>" . htmlescape(__('You can use {owner} or {admin} here.', 'protocolsmanager')) . '</div></div>';
+		echo "<div class='mb-3'><label class='form-label' for='inventory-content'>" . htmlescape(__('Content')) . "</label><textarea class='form-control' id='inventory-content' name='template_content' rows='8'>" . htmlescape($template_content) . "</textarea><div class='form-text'>" . htmlescape(__('You can use {owner} or {admin} here.', 'protocolsmanager')) . '</div></div>';
+		echo "<div class='mb-3'><label class='form-label' for='inventory-footer'>" . htmlescape(__('Footer')) . "</label><textarea class='form-control' id='inventory-footer' name='footer_text' rows='3'>" . htmlescape($template_footer) . '</textarea></div>';
+		echo "<div class='row g-3'><div class='col-lg-6'><fieldset><legend class='fs-6'>" . htmlescape(__('Word breaking')) . '</legend>';
+		foreach ([1 => __('On'), 0 => __('Off')] as $value => $label) {
+			echo '<label class="form-check form-check-inline"><input class="form-check-input" type="radio" name="breakword" value="' . $value . '"' . ((int)$breakword === $value ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape($label) . '</span></label>';
+		}
+		echo "</fieldset></div><div class='col-lg-6'><fieldset><legend class='fs-6'>" . htmlescape(__('Serial number')) . '</legend>';
+		foreach ([1 => __('Serial and inventory number in separate columns', 'protocolsmanager'), 2 => __('Serial or inventory number if serial does not exist', 'protocolsmanager')] as $value => $label) {
+			echo '<label class="form-check"><input class="form-check-input" type="radio" name="serial_mode" value="' . $value . '"' . ((int)$serial_mode === $value ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape($label) . '</span></label>';
+		}
+		echo "</fieldset></div><div class='col-lg-6'><fieldset><legend class='fs-6'>" . htmlescape(__('Enable email autosending')) . '</legend>';
+		foreach ([1 => __('On'), 2 => __('Off')] as $value => $label) {
+			echo '<label class="form-check form-check-inline"><input class="form-check-input" type="radio" name="email_mode" value="' . $value . '"' . ((int)$email_mode === $value ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape($label) . '</span></label>';
+		}
+		echo "</fieldset></div><div class='col-lg-6'><fieldset><legend class='fs-6'>" . htmlescape(__('Select who should generate the pdf', 'protocolsmanager')) . '</legend>';
+		echo '<label class="form-check"><input class="form-check-input" type="radio" name="author_state" value="1"' . ((int)$author_state !== 2 ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape(__('The user who generates the document', 'protocolsmanager')) . '</span></label>';
+		echo '<div class="d-flex gap-2 align-items-center"><label class="form-check"><input class="form-check-input" type="radio" name="author_state" value="2"' . ((int)$author_state === 2 ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape(__('Other author', 'protocolsmanager')) . '</span></label><input class="form-control" name="author_name" aria-label="' . htmlescape(__('Author name', 'protocolsmanager')) . '" value="' . htmlescape($author_name) . '"></div></fieldset></div></div>';
+		echo "<div class='d-flex justify-content-end gap-2 mt-4'><a class='btn btn-secondary' href='config.form.php?section=inventory'>" . htmlescape(__('Cancel')) . "</a><button type='submit' name='save' value='1' class='btn btn-primary'><i class='ti ti-device-floppy me-1'></i>" . htmlescape(__('Save')) . '</button></div>';
+		echo '</div></div></form>';
 		echo "<br>";
 		self::showConfigs();
 	}
@@ -590,35 +522,22 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			$email_edit_id = 0;
 		}
 		
-		//email template edit
-		echo "<div class='center'>";
-		echo "<form name ='email_template_edit' action='config.form.php' method='post' enctype='multipart/form-data' class='protocolsmanager-settings-form'>";
-		echo Html::hidden('section', ['value' => 'email']);
-		
-		echo "<table class='tab_cadre_fixe'>";
-		echo "<tr><th colspan='3'>".__('Create')." ".__('email template')."<a href='https://github.com/mateusznitka/protocolsmanager/wiki/Email-sending-configuration' target='_blank'><img src='../img/help.png' width='20px' height='20px' align='right'></a></th></tr>";
-		// Added htmlescape for XSS protection
-		echo "<tr><td>".__('Template name')."*</td><td colspan='2' class='middle'><input type='text' class='eboxes' name='tname' style='width:80%;' value='" . htmlescape($tname) . "'></td></tr>";
-		echo "<tr><td>".__('Send to user')."</td><td><label><input type='radio' name='send_user' value='1' class='eboxes' ";
-		if ($send_user == 1)
-			echo "checked='checked'";
-		echo "> send to user</label></td>";
-		echo "<td><label><input type='radio' name='send_user' value='2' class='eboxes' ";
-		if ($send_user == 2)
-			echo "checked='checked'";
-		echo "> don't send to user</label></td></tr>";
-		// Added htmlescape for XSS protection
-		echo "<tr><td>".__('Email content')."*</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' class='eboxes' cols='50' rows'8' name='email_content'>" . htmlescape($email_content) . "</textarea></td></tr>";
-		echo "<tr><td>".__('Email subject')."*</td><td colspan='2' class='middle'><input type='text' class='eboxes' name='email_subject' style='width:80%;' value='" . htmlescape($email_subject) . "'></td></tr>";
-		echo "<tr><td>".__('Add emails - use ; to separate')."*</td><td colspan='2' class='middle'><textarea style='width:80%; height:100px;' class='eboxes' cols='50' rows '8' name='recipients'>" . htmlescape($recipients) . "</textarea></td></tr>";
-		echo "</table>";
-		// Added htmlescape for XSS protection
-		echo "<input type='hidden' name='email_edit_id' value='" . htmlescape($email_edit_id) . "'>";
-		echo "<table class='tab_cadre_fixe'><td style='text-align:right;'><input type='submit' name='save_email' class='submit' id='email_submit'></td>";
-		Html::closeForm();
-		echo "<form name='cancelform' action='config.form.php' method='post'><td style='text-align:left;'><input type='submit' class='submit' name='cancel_email' value=".__('Cancel')."></td></table>";
-		Html::closeForm();
-		echo "</div>";
+		echo "<form name='email_template_edit' action='config.form.php' method='post' class='protocolsmanager-settings-form'>";
+		if (method_exists(Session::class, 'getNewCSRFToken')) {
+			echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
+		}
+		echo Html::hidden('section', ['value' => 'email']) . Html::hidden('email_edit_id', ['value' => $email_edit_id]);
+		echo "<section class='card mb-4'><div class='card-header d-flex align-items-center justify-content-between flex-wrap gap-2'><h2 class='h4 mb-0'>" . htmlescape($email_edit_id ? __('Modifier un modèle d’e-mail', 'protocolsmanager') : __('Créer un modèle d’e-mail', 'protocolsmanager')) . "</h2><a href='https://github.com/mateusznitka/protocolsmanager/wiki/Email-sending-configuration' target='_blank' rel='noopener noreferrer'>" . htmlescape(__('Aide sur l’envoi d’e-mails', 'protocolsmanager')) . " <i class='ti ti-external-link' aria-hidden='true'></i></a></div><div class='card-body'>";
+		echo "<div class='mb-3'><label class='form-label' for='email-template-name'>" . htmlescape(__('Template name')) . " *</label><input class='form-control' id='email-template-name' name='tname' required maxlength='255' value='" . htmlescape($tname) . "'></div>";
+		echo "<fieldset class='mb-3'><legend class='fs-6'>" . htmlescape(__('Send to user')) . '</legend>';
+		foreach ([1 => __('Send to user'), 2 => __('Do not send to user')] as $value => $label) {
+			echo '<label class="form-check form-check-inline"><input class="form-check-input" type="radio" name="send_user" value="' . $value . '"' . ((int)$send_user === $value ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape($label) . '</span></label>';
+		}
+		echo '</fieldset>';
+		echo "<div class='mb-3'><label class='form-label' for='email-subject'>" . htmlescape(__('Email subject')) . " *</label><input class='form-control' id='email-subject' name='email_subject' required maxlength='255' value='" . htmlescape($email_subject) . "'></div>";
+		echo "<div class='mb-3'><label class='form-label' for='email-content'>" . htmlescape(__('Email content')) . " *</label><textarea class='form-control' id='email-content' name='email_content' rows='8' required>" . htmlescape($email_content) . '</textarea></div>';
+		echo "<div class='mb-3'><label class='form-label' for='email-recipients'>" . htmlescape(__('Add emails - use ; to separate')) . " *</label><textarea class='form-control' id='email-recipients' name='recipients' rows='3' required>" . htmlescape($recipients) . '</textarea></div>';
+		echo "<div class='d-flex justify-content-end gap-2'><a class='btn btn-secondary' href='config.form.php?section=email'>" . htmlescape(__('Cancel')) . "</a><button class='btn btn-primary' type='submit' name='save_email' value='1'><i class='ti ti-device-floppy me-1'></i>" . htmlescape(__('Save')) . '</button></div></div></section></form>';
 		echo "<br>";
 		self::showEmailConfigs();
 	}
@@ -901,65 +820,58 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 
 	static function showConfigs() {
 		global $DB, $CFG_GLPI;
-		$configs = [];
-		
-		echo "<div class='spaced' id='show_configs'>";
-		echo "<table class='tab_cadre_fixehov' style='width:90%;'>";
-		echo "<tr class='tab_bg_1'><th colspan='3'>".__('Templates')."</th></tr>";
-		echo "<tr class='tab_bg_1'><td class='center'><b>".__('Name')."</b></td>";
-		echo "<td class='center' colspan=2'><b>".__('Action')."</b></td></tr>";
-		
-		// Updated DB->request syntax
-		foreach ($DB->request(['FROM' => 'glpi_plugin_protocolsmanager_config']) as $config_data => $configs) {
-				
-				echo "<tr class='tab_bg_1'><td class='center'>";
-				// Added htmlescape for XSS protection
-				echo htmlescape($configs['name']);
-				echo "</td>";
-				$conf_id = $configs['id'];
-				// Added htmlescape for XSS protection
-				echo "<td class='center' width='7%'>
-						<form method='post' action='config.form.php'><input type='hidden' value='" . htmlescape($conf_id) . "' name='edit_id'><input type='submit' name='edit' value=".__('Edit')." class='submit'></td>";
-						echo "<input type='hidden' name='menu_mode' value='t'>";
-						Html::closeForm();	
-						echo "<td class='center' width='7%'><form method='post' action='config.form.php'><input type='hidden' value='" . htmlescape($conf_id) . "' name='conf_id'><input type='submit' name='delete' value=".__('Delete')." class='submit'></td></tr>";
-						Html::closeForm();				
+		$rows = $DB->request(['FROM' => 'glpi_plugin_protocolsmanager_config', 'ORDER' => ['name ASC']]);
+		echo "<section class='card mb-4' id='show_configs'><div class='card-header'><h2 class='h4 mb-0'>" . htmlescape(__('Modèles d’inventaire', 'protocolsmanager')) . '</h2></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>' . htmlescape(__('Name')) . '</th><th class="text-end">' . htmlescape(__('Action')) . '</th></tr></thead><tbody>';
+		$has_rows = false;
+		foreach ($rows as $row) {
+			$has_rows = true;
+			$id = (int)$row['id'];
+			echo '<tr><td><strong>' . htmlescape($row['name']) . '</strong></td><td><div class="d-flex justify-content-end gap-2">';
+			echo "<form method='post' action='config.form.php'>";
+			if (method_exists(Session::class, 'getNewCSRFToken')) {
+				echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
 			}
-		echo "</table></div>";
+			echo Html::hidden('section', ['value' => 'inventory']) . Html::hidden('edit_id', ['value' => $id]);
+			echo "<button class='btn btn-sm btn-outline-primary' type='submit' name='edit' value='1'><i class='ti ti-pencil me-1'></i>" . htmlescape(__('Edit')) . '</button></form>';
+			echo "<form method='post' action='config.form.php'>";
+			if (method_exists(Session::class, 'getNewCSRFToken')) {
+				echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
+			}
+			echo Html::hidden('section', ['value' => 'inventory']) . Html::hidden('conf_id', ['value' => $id]);
+			echo "<button class='btn btn-sm btn-outline-danger' type='submit' name='delete' value='1'><i class='ti ti-trash me-1'></i>" . htmlescape(__('Delete')) . '</button></form></div></td></tr>';
+		}
+		if (!$has_rows) {
+			echo '<tr><td colspan="2" class="text-center text-muted py-4">' . htmlescape(__('Aucun modèle d’inventaire. Créez le premier avec le formulaire ci-dessus.', 'protocolsmanager')) . '</td></tr>';
+		}
+		echo '</tbody></table></div></div></section>';
 	}
 	
 	static function showEmailConfigs() {
 		global $DB, $CFG_GLPI;
-		$emailconfigs = [];
-		
-		echo "<div class='spaced' id='show_emailconfigs'>";
-		echo "<table class='tab_cadre_fixehov' style='width:90%;'>";
-		echo "<tr class='tab_bg_1'><th colspan='4'>".__('Templates')."</th></tr>";
-		echo "<tr class='tab_bg_1'><td class='center'><b>".__('Name')."</b></td>";
-		echo "<td class='center'><b>".__('Recipients')."</b></td>";
-		echo "<td class='center' colspan=2'><b>".__('Action')."</b></td></tr>";
-		
-		// Updated DB->request syntax
-		foreach ($DB->request(['FROM' => 'glpi_plugin_protocolsmanager_emailconfig']) as $configs_data => $emailconfigs) {
-				
-				echo "<tr class='tab_bg_1'><td class='center'>";
-				// Added htmlescape for XSS protection
-				echo htmlescape($emailconfigs['tname']);
-				echo "</td>";
-				echo "<td class='center'>";
-				// Added htmlescape for XSS protection
-				echo htmlescape($emailconfigs['recipients']);
-				echo "</td>";
-				$email_conf_id = $emailconfigs['id'];
-				// Added htmlescape for XSS protection
-				echo "<td class='center' width='7%'>
-						<form method='post' action='config.form.php'><input type='hidden' value='" . htmlescape($email_conf_id) . "' name='email_edit_id'><input type='submit' name='email_edit' value=".__('Edit')." class='submit'></td>";
-						echo "<input type='hidden' name='menu_mode' value='e'>";
-						Html::closeForm();	
-						echo "<td class='center' width='7%'><form method='post' action='config.form.php'><input type='hidden' value='" . htmlescape($email_conf_id) . "' name='email_conf_id'><input type='submit' name='delete_email' value=".__('Delete')." class='submit'></td></tr>";
-						Html::closeForm();				
+		$rows = $DB->request(['FROM' => 'glpi_plugin_protocolsmanager_emailconfig', 'ORDER' => ['tname ASC']]);
+		echo "<section class='card mb-4' id='show_emailconfigs'><div class='card-header'><h2 class='h4 mb-0'>" . htmlescape(__('Modèles d’e-mail', 'protocolsmanager')) . '</h2></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>' . htmlescape(__('Name')) . '</th><th>' . htmlescape(__('Recipients')) . '</th><th class="text-end">' . htmlescape(__('Action')) . '</th></tr></thead><tbody>';
+		$has_rows = false;
+		foreach ($rows as $row) {
+			$has_rows = true;
+			$id = (int)$row['id'];
+			echo '<tr><td><strong>' . htmlescape($row['tname']) . '</strong></td><td>' . htmlescape($row['recipients']) . '</td><td><div class="d-flex justify-content-end gap-2">';
+			echo "<form method='post' action='config.form.php'>";
+			if (method_exists(Session::class, 'getNewCSRFToken')) {
+				echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
 			}
-		echo "</table></div>";
+			echo Html::hidden('section', ['value' => 'email']) . Html::hidden('email_edit_id', ['value' => $id]);
+			echo "<button class='btn btn-sm btn-outline-primary' type='submit' name='email_edit' value='1'><i class='ti ti-pencil me-1'></i>" . htmlescape(__('Edit')) . '</button></form>';
+			echo "<form method='post' action='config.form.php'>";
+			if (method_exists(Session::class, 'getNewCSRFToken')) {
+				echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
+			}
+			echo Html::hidden('section', ['value' => 'email']) . Html::hidden('email_conf_id', ['value' => $id]);
+			echo "<button class='btn btn-sm btn-outline-danger' type='submit' name='delete_email' value='1'><i class='ti ti-trash me-1'></i>" . htmlescape(__('Delete')) . '</button></form></div></td></tr>';
+		}
+		if (!$has_rows) {
+			echo '<tr><td colspan="3" class="text-center text-muted py-4">' . htmlescape(__('Aucun modèle d’e-mail configuré.', 'protocolsmanager')) . '</td></tr>';
+		}
+		echo '</tbody></table></div></div></section>';
 	}
 	
 	static function uploadImage() {
