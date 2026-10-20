@@ -273,6 +273,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Charger la synchronisation des cases maître et individuelles depuis un fichier JavaScript dédié enregistré par le hook GLPI `add_javascript`.
 - [x] Afficher le statut GLPI et la personne affectée dans les tableaux de choix des matériels, pour les inventaires et les deux formulaires PV; ces informations restent visuelles et ne sont pas ajoutées aux PDFs.
 - [x] Afficher le type, le modèle et le prix d’achat renseigné pour chaque matériel dans les tableaux où l’utilisateur coche les objets à inclure; ne pas ajouter ces colonnes d’aide à la sélection au contenu des PDFs.
+- [x] Supprimer du formulaire de mise au rebut le tableau redondant « Détails de l’immobilisation » qui répétait les informations de chaque matériel; garder le tableau à cases pour choisir les matériels et conserver le contenu détaillé prévu dans le PDF.
 - [ ] Conserver les valeurs par défaut et préremplissages actuels lorsque le modèle correspondant le prévoit.
 - [ ] Préserver le regroupement par numéro immo, la sélection d’objets, les PV sans numéro immo et les associations GLPI actuelles.
 - [ ] Préserver les contrôles d’accès et la validation serveur des identifiants d’objets soumis.

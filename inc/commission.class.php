@@ -284,35 +284,6 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		echo '<div class="col-md-6"><label class="form-label">' . htmlescape(__('Fonction', 'protocolsmanager')) . '</label><input class="form-control" type="text" value="' . htmlescape($title) . '" readonly></div>';
 		echo '</div></div></section>';
 
-		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Détails de l’immobilisation', 'protocolsmanager')) . '</strong></div><div class="card-body">';
-		if ($group === []) {
-			echo "<div class='text-muted'>" . htmlescape(__('Aucune information de matériel disponible.', 'protocolsmanager')) . '</div>';
-		} else {
-			foreach ($group as $asset) {
-				echo "<div class='table-responsive mb-3'><table class='table table-sm table-bordered align-middle mb-0'><tbody>";
-				$details = [
-					__('Désignation', 'protocolsmanager') => $asset['name'],
-					__('Numéro d’inventaire', 'protocolsmanager') => $asset['inventory_number'],
-					__('Numéro de série', 'protocolsmanager') => $asset['serial'],
-					__('Date de mise en service', 'protocolsmanager') => self::displayDate($asset['service_date']),
-					__('Montant', 'protocolsmanager') => $asset['value'] === null || $asset['value'] === '' ? '' : number_format((float)$asset['value'], 2, ',', ' ') . ' €',
-					__('Marque', 'protocolsmanager') => $asset['manufacturer'],
-					__('Modèle', 'protocolsmanager') => $asset['model'],
-					__('Type de matériel', 'protocolsmanager') => $asset['type'],
-				];
-				foreach ($details as $label => $value) {
-					echo '<tr><th class="w-25">' . htmlescape($label) . '</th><td>' . htmlescape($value) . '</td></tr>';
-				}
-				echo '</tbody></table></div>';
-			}
-			$all_amounts_present = count(array_filter($group, static fn($asset) => $asset['value'] === null || $asset['value'] === '')) === 0;
-			if (count($group) > 1 && $all_amounts_present) {
-				$total = array_reduce($group, static fn($carry, $asset) => $carry + (float)$asset['value'], 0.0);
-				echo '<p class="mb-0"><strong>' . htmlescape(__('Montant total', 'protocolsmanager')) . ' : ' . htmlescape(number_format($total, 2, ',', ' ')) . ' €</strong></p>';
-			}
-		}
-		echo '</div></section>';
-
 		if (!empty($form['reason']['enabled'])) {
 			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($form['reason']['label'] ?? __('Motif de la mise au rebut', 'protocolsmanager')) . '</strong></div><div class="card-body"><textarea class="form-control" name="disposal_reason" rows="4" aria-label="' . htmlescape($form['reason']['label'] ?? '') . '" required></textarea></div></section>';
 		}
