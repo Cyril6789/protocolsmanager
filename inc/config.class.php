@@ -712,7 +712,39 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			}
 
 			if(isset($_POST["mode"])) {
-				$mode = $_POST["mode"];
+				$mode = (int)$_POST["mode"];
+			}
+			if (!empty($mode) && (!isset($_POST['theme_color']) || !isset($_POST['header_text_color']) || !isset($_POST['logo_width']) || !isset($_POST['logo_height']))) {
+				$legacy_columns = [];
+				foreach (['theme_color', 'header_text_color', 'logo_width', 'logo_height'] as $field) {
+					if ($DB->fieldExists('glpi_plugin_protocolsmanager_config', $field)) {
+						$legacy_columns[] = $field;
+					}
+				}
+				$legacy_values = [];
+				if ($legacy_columns !== []) {
+					$legacy_result = $DB->request([
+						'SELECT' => $legacy_columns,
+						'FROM' => 'glpi_plugin_protocolsmanager_config',
+						'WHERE' => ['id' => (int)$mode],
+						'LIMIT' => 1,
+					]);
+					$legacy_values = $legacy_result->current() ?: [];
+				}
+				if ($legacy_values) {
+					if (!isset($_POST['theme_color']) && preg_match('/^#[0-9A-Fa-f]{6}$/', (string)($legacy_values['theme_color'] ?? ''))) {
+						$theme_color = $legacy_values['theme_color'];
+					}
+					if (!isset($_POST['header_text_color']) && preg_match('/^#[0-9A-Fa-f]{6}$/', (string)($legacy_values['header_text_color'] ?? ''))) {
+						$header_text_color = $legacy_values['header_text_color'];
+					}
+					if (!isset($_POST['logo_width'])) {
+						$logo_width = $legacy_values['logo_width'] ?? null;
+					}
+					if (!isset($_POST['logo_height'])) {
+						$logo_height = $legacy_values['logo_height'] ?? null;
+					}
+				}
 			}
 
 			if(isset($_POST["breakword"])) {
@@ -749,8 +781,16 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			}
 
 
-			$logo_width = isset($_POST["logo_width"]) ? max(0, (int)$_POST["logo_width"]) : null;
-			$logo_height = isset($_POST["logo_height"]) ? max(0, (int)$_POST["logo_height"]) : null;
+			if (isset($_POST["logo_width"])) {
+				$logo_width = max(0, (int)$_POST["logo_width"]);
+			} elseif (!isset($logo_width)) {
+				$logo_width = null;
+			}
+			if (isset($_POST["logo_height"])) {
+				$logo_height = max(0, (int)$_POST["logo_height"]);
+			} elseif (!isset($logo_height)) {
+				$logo_height = null;
+			}
 
 
 			// TODO : concaténé quand les champs sont vides

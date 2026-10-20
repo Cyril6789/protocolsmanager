@@ -213,6 +213,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Ajouter un réglage global de logo utilisable par toutes les sorties PDF.
 - [x] Ajouter une couleur d’accentuation globale utilisée par toutes les sorties PDF.
 - [x] Initialiser les valeurs globales en reprenant le premier accent valide et le premier logo PNG/JPEG local, lisible et conforme aux limites depuis les anciens modèles; ne modifier aucune préférence historique par modèle.
+- [x] Préserver à l’identique les couleurs de modèle et dimensions de logo historiques lors de la modification d’un modèle d’inventaire, même si ces réglages ne sont plus éditables dans l’interface globale.
 - [x] Valider le logo global par son contenu PNG/JPEG réel, sa taille (2 Mo), ses dimensions (5 000 × 5 000 pixels maximum) et nettoyer les anciens fichiers gérés par le nouvel espace global lors du remplacement/suppression ou en cas d’échec de sauvegarde.
 - [x] Limiter également l’aperçu de logo enregistré aux fichiers PNG/JPEG lisibles de 2 Mo maximum, sans intégrer d’autres types MIME dans la page de configuration.
 - [ ] Vérifier les droits GLPI pour la consultation, création, modification et suppression des réglages.
@@ -313,6 +314,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `c306b69` — afficher le titre paramétré du PV de mise au rebut dans son formulaire.
 - `6059f0a` — supprimer les messages génériques redondants après les erreurs détaillées de sauvegarde PV.
 - `ab28963` — conserver dans les réglages la suppression de toutes les lignes d’une liste sans restaurer les options par défaut.
-- En cours — revue finale de cohérence; revue visuelle et vérifications en instance GLPI restent ouvertes.
+- `0eb6a2b` — consigner le comportement de suppression totale des listes PV.
+- En cours — préserver également les couleurs/dimensions historiques par modèle lors des sauvegardes d’inventaire; revue visuelle et vérifications en instance GLPI restent ouvertes.
 - En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
 
