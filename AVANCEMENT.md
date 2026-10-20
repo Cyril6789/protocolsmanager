@@ -212,7 +212,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Conserver les réglages d’e-mail existants et leur comportement en gardant leurs champs, tables et routes de création/modification/suppression.
 - [x] Ajouter un réglage global de logo utilisable par toutes les sorties PDF.
 - [x] Ajouter une couleur d’accentuation globale utilisée par toutes les sorties PDF.
-- [ ] Migrer ou réconcilier proprement les anciens logos et couleurs stockés par modèle sans écraser des préférences sans nécessité.
+- [x] Initialiser les valeurs globales en reprenant le premier accent valide et le premier logo PNG/JPEG local, lisible et conforme aux limites depuis les anciens modèles; ne modifier aucune préférence historique par modèle.
 - [x] Valider le logo global par son contenu PNG/JPEG réel, sa taille (2 Mo), ses dimensions (5 000 × 5 000 pixels maximum) et nettoyer les anciens fichiers gérés par le nouvel espace global lors du remplacement/suppression ou en cas d’échec de sauvegarde.
 - [x] Limiter également l’aperçu de logo enregistré aux fichiers PNG/JPEG lisibles de 2 Mo maximum, sans intégrer d’autres types MIME dans la page de configuration.
 - [ ] Vérifier les droits GLPI pour la consultation, création, modification et suppression des réglages.
@@ -234,7 +234,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Construire le formulaire matériel à partir des options du modèle de mise en service, en conservant le regroupement d’objets et les contrôles de droits existants.
 - [x] Construire les titres, activations et textes introductifs du PDF de mise en service depuis le modèle, en conservant les données GLPI et leur échappement.
 - [x] Employer le logo et l’accentuation globaux.
-- [ ] Définir les valeurs initiales de migration à partir du formulaire et PDF actuellement en service.
+- [x] Initialiser le modèle de mise en service avec les choix, libellés et chapitres déjà proposés par le formulaire/PDF.
 
 ### D. Modèle de PV de mise au rebut
 
@@ -251,7 +251,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Permettre de créer/supprimer des chapitres, configurer les champs structurés et changer l’ordre de rendu.
 - [x] Construire le formulaire et les titres/activations/textes introductifs du PDF depuis le modèle de mise au rebut sans modifier les réglages de mise en service.
 - [x] Employer le logo et l’accentuation globaux.
-- [ ] Définir les valeurs initiales de migration à partir du formulaire et PDF actuellement en service.
+- [x] Initialiser le modèle de mise au rebut avec les choix, libellés et chapitres déjà proposés par le formulaire/PDF.
 
 ### E. Formulaires sur les fiches matériel et licences
 
@@ -279,7 +279,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 
 - [x] Ajouter la table de réglages singleton à l’installation/mise à jour avec création conditionnelle et l’ajouter à la désinstallation du plugin.
 - [ ] Vérifier l’installation/mise à jour et la répétabilité des migrations en base sur une instance GLPI.
-- [ ] Fournir des valeurs par défaut complètes pour les anciennes installations et pour une installation neuve.
+- [x] Fournir des valeurs par défaut pour les deux modèles PV et l’identité visuelle; créer les réglages manquants de manière idempotente.
 - [ ] Vérifier les limites de taille, la validation des couleurs et la validation de la structure des champs/chapitres.
 - [ ] Mettre à jour le README et les instructions d’administration.
 - [ ] Mettre à jour les traductions sources nécessaires sans inclure de changements de compilation préexistants.
@@ -302,5 +302,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `891e902` — mise à jour du journal après le commit des modes dynamiques.
 - `7c0af6c` — lieux de mise en service ajoutables/supprimables, avec libellé affiché dans le PV.
 - `3fdda1c` — suppression des plafonds applicatifs des listes et omission du lieu dans le PDF lorsqu’aucun choix n’est configuré.
+- `8b4361d` — aperçu de logo limité aux fichiers globaux PNG/JPEG lisibles de 2 Mo maximum.
 - En cours — revue des générateurs PDF, des migrations et des points de compatibilité; les modèles disposent déjà de listes de cases, de lieux/modes radio et de chapitres libres administrables sans plafond applicatif.
 

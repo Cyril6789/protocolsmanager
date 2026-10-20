@@ -167,7 +167,21 @@ class PluginProtocolsmanagerPvtemplate
                 ]);
                 foreach ($templates as $template) {
                     if ($branding['logo'] === '' && !empty($template['logo'])) {
-                        $branding['logo'] = basename((string)$template['logo']);
+                        $candidate = basename((string)$template['logo']);
+                        if (defined('GLPI_PICTURE_DIR')) {
+                            $candidate_path = GLPI_PICTURE_DIR . '/' . $candidate;
+                            if (is_file($candidate_path) && is_readable($candidate_path) && (int)filesize($candidate_path) <= 2097152) {
+                                $image = @getimagesize($candidate_path);
+                                $mime = is_array($image) ? ($image['mime'] ?? '') : '';
+                                $width = is_array($image) ? (int)($image[0] ?? 0) : 0;
+                                $height = is_array($image) ? (int)($image[1] ?? 0) : 0;
+                                if (in_array($mime, ['image/png', 'image/jpeg'], true)
+                                    && $width > 0 && $height > 0 && $width <= 5000 && $height <= 5000
+                                    && ($width * $height) <= 25000000) {
+                                    $branding['logo'] = $candidate;
+                                }
+                            }
+                        }
                     }
                     if (!$color_found && preg_match('/^#[0-9a-f]{6}$/i', (string)($template['theme_color'] ?? ''))) {
                         $branding['accent_color'] = (string)$template['theme_color'];
