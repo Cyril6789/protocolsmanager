@@ -342,9 +342,6 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 				'content' => self::settingText($chapter['content'] ?? '', 5000),
 				'enabled' => ($chapter['enabled'] ?? '0') === '1',
 			];
-			if (count($chapters) >= 50) {
-				break;
-			}
 		}
 		return $chapters;
 	}
@@ -367,9 +364,6 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			}
 			$keys[$key] = true;
 			$entries[] = ['key' => $key, 'label' => $label, 'enabled' => ($entry['enabled'] ?? '0') === '1'];
-			if (count($entries) >= 100) {
-				break;
-			}
 		}
 		return $entries;
 	}
@@ -400,9 +394,6 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 				'enabled' => ($entry['enabled'] ?? '0') === '1',
 				'checked' => ($entry['checked'] ?? '0') === '1',
 			];
-			if (count($entries) >= 100) {
-				break;
-			}
 		}
 		return $entries;
 	}

@@ -208,8 +208,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Vérifier l’ergonomie clavier, les labels associés, les erreurs de validation visibles et la cohérence visuelle avec GLPI sur grand écran et écran étroit.
 - [x] Éliminer les formulaires imbriqués/incomplets des éditeurs d’inventaire et d’e-mail et des listes d’actions; corriger le sélecteur de taille de police et remplacer les styles de présentation par classes GLPI/Bootstrap.
 - [ ] Faire relire le parcours de configuration complet et vérifier son rendu visuel dans une instance GLPI avant validation de cette exigence.
-- [ ] Conserver la création, modification, suppression et sélection d’un nombre illimité de modèles d’inventaire.
-- [ ] Conserver les réglages d’e-mail existants et leur comportement.
+- [x] Conserver la création, modification, suppression et sélection d’un nombre illimité de modèles d’inventaire; les modèles restent des lignes indépendantes de l’ancienne table.
+- [x] Conserver les réglages d’e-mail existants et leur comportement en gardant leurs champs, tables et routes de création/modification/suppression.
 - [x] Ajouter un réglage global de logo utilisable par toutes les sorties PDF.
 - [x] Ajouter une couleur d’accentuation globale utilisée par toutes les sorties PDF.
 - [ ] Migrer ou réconcilier proprement les anciens logos et couleurs stockés par modèle sans écraser des préférences sans nécessité.
@@ -222,7 +222,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Stocker un modèle unique de mise en service, distinct des modèles d’inventaire.
 - [x] Permettre de régler le titre du PV, les champs actuellement prévus, leurs libellés et leur affichage.
 - [x] Permettre d’activer, désactiver, renommer et définir l’état par défaut des cases à cocher existantes du formulaire.
-- [x] Permettre d’ajouter et supprimer des cases de mise en service dans les réglages; enregistrer une liste personnalisable jusqu’à 100 options avec libellé, visibilité et valeur par défaut.
+- [x] Permettre d’ajouter et supprimer sans plafond applicatif des cases de mise en service; enregistrer libellé, visibilité et valeur par défaut.
 - [x] Permettre d’ajouter et supprimer les lieux proposés comme choix radio, puis afficher dans le PDF le libellé du lieu sélectionné.
 - [x] Afficher les options configurées dans le formulaire de création et reprendre les options actives, cochées ou non, dans le chapitre de mise en service du PDF.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
@@ -242,7 +242,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Permettre d’activer, désactiver et renommer les modes de mise au rebut proposés.
 - [x] Ajouter une liste de contrôle dédiée au PV de mise au rebut, avec ajout/suppression d’options, libellé, visibilité et état coché par défaut.
 - [x] Afficher la liste paramétrée dans le formulaire de mise au rebut et reprendre toutes les cases actives avec leur état sélectionné dans un chapitre dédié du PDF.
-- [x] Permettre d’ajouter/supprimer jusqu’à 100 modes de mise au rebut, avec libellé et activation; refuser l’enregistrement si le champ reste obligatoire sans aucun mode actif.
+- [x] Permettre d’ajouter/supprimer sans plafond applicatif les modes de mise au rebut, avec libellé et activation; refuser l’enregistrement si le champ reste obligatoire sans aucun mode actif.
 - [x] Préserver la validation serveur du motif, du mode actif sélectionné et de la précision « Autre » quand le choix portant la clé `autre` existe et est actif.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
 - [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.
@@ -299,5 +299,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `e49f055` — ajout de chapitres personnalisés et prise en compte des libellés paramétrés dans les PDFs; validation renforcée du logo global.
 - `6dd820c` — modes de mise au rebut ajoutables/supprimables avec contrôle d’au moins un mode actif lorsque le champ est affiché.
 - `891e902` — mise à jour du journal après le commit des modes dynamiques.
-- En cours — rendre les lieux de mise en service ajoutables/supprimables; les modèles disposent déjà de listes de cases, de choix de mise au rebut et de chapitres libres configurables.
+- `7c0af6c` — lieux de mise en service ajoutables/supprimables, avec libellé affiché dans le PV.
+- En cours — revue des générateurs PDF, des migrations et des points de compatibilité; les modèles disposent déjà de listes de cases, de lieux/modes radio et de chapitres libres administrables sans plafond applicatif.
 
