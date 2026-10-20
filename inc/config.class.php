@@ -121,13 +121,8 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			}
 			echo '</div>';
 		} else {
-			$list = $form_fields['methods'] ?? [];
-			echo "<h4 class='h6 mt-4'>" . htmlescape(__('Modes proposés', 'protocolsmanager')) . '</h4><div class='table-responsive'><table class='table align-middle'><thead><tr><th>" . htmlescape(__('Libellé', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Actif', 'protocolsmanager')) . '</th></tr></thead><tbody>';
-			foreach ($list as $index => $entry) {
-				$path = 'template[form][methods][' . (int)$index . ']';
-				echo '<tr><td><input type="hidden" name="' . htmlescape($path . '[key]') . '" value="' . htmlescape($entry['key'] ?? '') . '"><input class="form-control" maxlength="160" aria-label="' . htmlescape(__('Libellé', 'protocolsmanager')) . '" name="' . htmlescape($path . '[label]') . '" value="' . htmlescape($entry['label'] ?? '') . '"></td><td><input type="hidden" name="' . htmlescape($path . '[enabled]') . '" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . htmlescape($path . '[enabled]') . '" value="1"' . (!empty($entry['enabled']) ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Actif', 'protocolsmanager')) . '</span></label></td></tr>';
-			}
-			echo '</tbody></table></div><p class="form-text">' . htmlescape(__('Le mode « Autre » conserve son champ de précision obligatoire.', 'protocolsmanager')) . '</p>';
+			self::displayChoiceListEditor('methods', $form_fields['methods'] ?? []);
+			echo '<p class="form-text">' . htmlescape(__('Le choix dont la clé est « autre » conserve son champ de précision obligatoire.', 'protocolsmanager')) . '</p>';
 			self::displayCheckboxListEditor($type, 'checks', $form_fields['checks'] ?? []);
 		}
 		echo '</div></section>';
@@ -190,6 +185,30 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		echo '<template id="template-' . htmlescape($list_id) . '">';
 		self::displayCheckboxRow($base . '[__INDEX__]', 'custom___INDEX__', '', true, false);
 		echo '</template></div>';
+	}
+
+	private static function displayChoiceListEditor(string $list_key, array $entries): void
+	{
+		$list_id = 'pv-choice-list-' . $list_key;
+		$base = 'template[form][' . $list_key . ']';
+		$next_index = $entries === [] ? 0 : max(array_map('intval', array_keys($entries))) + 1;
+		echo "<div class='mt-4'><div class='d-flex align-items-center justify-content-between flex-wrap gap-2'><h4 class='h6 mb-0'>" . htmlescape(__('Modes proposés', 'protocolsmanager')) . '</h4>';
+		echo '<button class="btn btn-sm btn-outline-primary" type="button" data-pv-add-row="' . htmlescape($list_id) . '"><i class="ti ti-plus me-1"></i>' . htmlescape(__('Ajouter un mode', 'protocolsmanager')) . '</button></div>';
+		echo '<div class="table-responsive mt-2"><table class="table align-middle"><thead><tr><th>' . htmlescape(__('Libellé', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Actif', 'protocolsmanager')) . '</th><th><span class="visually-hidden">' . htmlescape(__('Action', 'protocolsmanager')) . '</span></th></tr></thead><tbody id="' . htmlescape($list_id) . '" data-next-index="' . $next_index . '">';
+		foreach ($entries as $index => $entry) {
+			self::displayChoiceRow($base . '[' . (int)$index . ']', (string)($entry['key'] ?? ''), (string)($entry['label'] ?? ''), !empty($entry['enabled']));
+		}
+		echo '</tbody></table></div><template id="template-' . htmlescape($list_id) . '">';
+		self::displayChoiceRow($base . '[__INDEX__]', 'custom-mode-__INDEX__', '', true);
+		echo '</template></div>';
+	}
+
+	private static function displayChoiceRow(string $path, string $key, string $label, bool $enabled): void
+	{
+		$path = htmlescape($path);
+		echo '<tr data-pv-config-row><td><input type="hidden" name="' . $path . '[key]" value="' . htmlescape($key) . '"><input class="form-control" maxlength="160" required name="' . $path . '[label]" value="' . htmlescape($label) . '" aria-label="' . htmlescape(__('Libellé du mode', 'protocolsmanager')) . '"></td>';
+		echo '<td><input type="hidden" name="' . $path . '[enabled]" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . $path . '[enabled]" value="1"' . ($enabled ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Actif', 'protocolsmanager')) . '</span></label></td>';
+		echo '<td><button class="btn btn-sm btn-outline-danger" type="button" data-pv-remove-row aria-label="' . htmlescape(__('Supprimer ce mode', 'protocolsmanager')) . '"><i class="ti ti-trash" aria-hidden="true"></i></button></td></tr>';
 	}
 
 	private static function displayCheckboxRow(string $path, string $key, string $label, bool $enabled, bool $checked): void
@@ -265,6 +284,10 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 				$template['form'][$key] = self::sanitizeCheckboxEntries($posted_form[$key] ?? []);
 				continue;
 			}
+			if ($key === 'methods') {
+				$template['form'][$key] = self::sanitizeChoiceEntries($posted_form[$key] ?? []);
+				continue;
+			}
 			if (in_array($key, ['states', 'cities', 'methods'], true)) {
 				$source = is_array($posted_form[$key] ?? null) ? $posted_form[$key] : [];
 				foreach ($defaults['form'][$key] as $index => $default_entry) {
@@ -289,6 +312,13 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			$template['chapters'][$index]['title'] = self::settingText($entry['title'] ?? $chapter['title'], 180) ?: $chapter['title'];
 			$template['chapters'][$index]['content'] = self::settingText($entry['content'] ?? $chapter['content'], 5000);
 			$template['chapters'][$index]['enabled'] = ($entry['enabled'] ?? '0') === '1';
+		}
+		if ($type === 'disposal' && !empty($template['form']['method']['enabled'])) {
+			$enabled_methods = array_filter($template['form']['methods'] ?? [], static fn($entry) => is_array($entry) && !empty($entry['enabled']));
+			if ($enabled_methods === []) {
+				Session::addMessageAfterRedirect(__('Activez au moins un mode de mise au rebut ou masquez le champ correspondant.', 'protocolsmanager'), false, ERROR);
+				return false;
+			}
 		}
 		$template['custom_chapters'] = self::sanitizeCustomChapters($posted['custom_chapters'] ?? []);
 		return PluginProtocolsmanagerPvtemplate::save($type, $template);
@@ -322,6 +352,31 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			}
 		}
 		return $chapters;
+	}
+
+	private static function sanitizeChoiceEntries($source): array
+	{
+		if (!is_array($source)) {
+			return [];
+		}
+		$entries = [];
+		$keys = [];
+		foreach ($source as $entry) {
+			if (!is_array($entry)) {
+				continue;
+			}
+			$key = (string)($entry['key'] ?? '');
+			$label = self::settingText($entry['label'] ?? '', 160);
+			if (!preg_match('/^[A-Za-z0-9_-]{1,64}$/', $key) || isset($keys[$key]) || $label === '') {
+				continue;
+			}
+			$keys[$key] = true;
+			$entries[] = ['key' => $key, 'label' => $label, 'enabled' => ($entry['enabled'] ?? '0') === '1'];
+			if (count($entries) >= 100) {
+				break;
+			}
+		}
+		return $entries;
 	}
 
 	private static function sanitizeCheckboxEntries($source): array

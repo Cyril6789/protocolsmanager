@@ -241,8 +241,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Permettre d’activer, désactiver et renommer les modes de mise au rebut proposés.
 - [x] Ajouter une liste de contrôle dédiée au PV de mise au rebut, avec ajout/suppression d’options, libellé, visibilité et état coché par défaut.
 - [x] Afficher la liste paramétrée dans le formulaire de mise au rebut et reprendre toutes les cases actives avec leur état sélectionné dans un chapitre dédié du PDF.
-- [ ] Permettre d’ajouter/supprimer des modes de mise au rebut et changer leur ordre.
-- [ ] Préserver les règles de validation métier (motif, mode, précision « Autre ») dans l’interface et côté serveur.
+- [x] Permettre d’ajouter/supprimer jusqu’à 100 modes de mise au rebut, avec libellé et activation; refuser l’enregistrement si le champ reste obligatoire sans aucun mode actif.
+- [x] Préserver la validation serveur du motif, du mode actif sélectionné et de la précision « Autre » quand le choix portant la clé `autre` existe et est actif.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
 - [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.
 - [x] Reprendre dans le PDF de mise au rebut le libellé configuré du champ date.
@@ -295,6 +295,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `138cc81` — version `1.6.0.21` pour déclencher la migration des réglages sur les installations existantes.
 - `8786680` — ajout/suppression d’options cochables pour les deux PV, validation et sauvegarde des listes personnalisées, et rendu de l’état complet des cases dans les PDFs.
 - `cf16ef6` — refonte des éditeurs et des listes de modèles d’inventaire et d’e-mail en composants carte/formulaire GLPI; correction des formulaires imbriqués et du sélecteur de taille de police.
-- En cours — chapitres personnalisés éditables aux deux modèles et textes configurables repris dans les PDF; validation des dimensions du logo global et suppression des fichiers globaux remplacés. Fichiers prévus : `inc/config.class.php`, `inc/pvtemplate.class.php`, `inc/commission.class.php`, `AVANCEMENT.md`.
+- En cours — ajouter/supprimer aussi les modes de mise au rebut; les chapitres personnalisés et leurs textes sont déjà repris par les deux PDFs. Fichiers prévus : `inc/config.class.php`, `AVANCEMENT.md`.
 - À renseigner après chaque commit de code ciblé.
 
