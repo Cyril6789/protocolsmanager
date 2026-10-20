@@ -49,6 +49,26 @@
 				removeButton.closest('[data-pv-config-row]')?.remove();
 			}
 		});
+		document.addEventListener('change', (event) => {
+			const master = event.target.closest('[data-pv-select-all]');
+			if (master) {
+				const form = master.closest('form');
+				form?.querySelectorAll('.protocolsmanager-pv-item').forEach((checkbox) => {
+					checkbox.checked = master.checked;
+				});
+				return;
+			}
+			if (event.target.matches('.protocolsmanager-pv-item')) {
+				const form = event.target.closest('form');
+				const toggle = form?.querySelector('[data-pv-select-all]');
+				const items = form ? Array.from(form.querySelectorAll('.protocolsmanager-pv-item')) : [];
+				if (toggle && items.length > 0) {
+					const selected = items.filter((checkbox) => checkbox.checked).length;
+					toggle.checked = selected === items.length;
+					toggle.indeterminate = selected > 0 && selected < items.length;
+				}
+			}
+		});
 	};
 
 	if (document.readyState === 'loading') {

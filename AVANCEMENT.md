@@ -255,6 +255,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.
 - [x] Numéroter les annexes actives à la suite, sans saut lorsqu’une annexe est désactivée.
 - [x] Reprendre dans le PDF de mise au rebut le libellé configuré du champ date.
+- [x] Remplacer les marqueurs `{reason}` et `{method}` présents dans les textes introductifs par la valeur saisie/choisie; ne pas imprimer une seconde fois la même valeur lorsqu’elle est insérée par son marqueur.
 - [ ] Permettre de créer/supprimer des chapitres, configurer les champs structurés et changer l’ordre de rendu.
 - [x] Construire le formulaire et les titres/activations/textes introductifs du PDF depuis le modèle de mise au rebut sans modifier les réglages de mise en service.
 - [x] Afficher le titre paramétré de mise au rebut dans le formulaire de création et dans le titre principal du PDF.
@@ -267,6 +268,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Afficher les champs activés des deux modèles de PV et valider côté serveur les cases et modes transmis.
 - [x] Permettre à l’utilisateur de modifier les cases du formulaire de mise en service et les choix de mise au rebut configurés.
 - [x] Permettre à l’utilisateur de cocher/décocher les listes administrables des deux formulaires PV avant génération; valider côté serveur les valeurs transmises selon les options actives.
+- [x] Ajouter dans les deux formulaires PV une case maître « Tout sélectionner / tout décocher », synchronisée avec les cases des matériels/licences sélectionnables.
 - [ ] Conserver les valeurs par défaut et préremplissages actuels lorsque le modèle correspondant le prévoit.
 - [ ] Préserver le regroupement par numéro immo, la sélection d’objets, les PV sans numéro immo et les associations GLPI actuelles.
 - [ ] Préserver les contrôles d’accès et la validation serveur des identifiants d’objets soumis.

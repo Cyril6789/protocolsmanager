@@ -146,10 +146,11 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			$include_label = $is_license_group ? __('Inclure cette licence', 'protocolsmanager') : __('Inclure ce matériel', 'protocolsmanager');
 			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($group_title) . '</strong>';
 			echo "<span class='badge bg-secondary ms-2'>" . htmlescape(__('Numéro immo', 'protocolsmanager')) . ': ' . htmlescape($immo_number) . "</span></div><div class='card-body'>";
+			echo "<div class='form-check mb-2'><input class='form-check-input' type='checkbox' id='commission-select-all' data-pv-select-all checked><label class='form-check-label' for='commission-select-all'>" . htmlescape(__('Tout sélectionner / tout décocher', 'protocolsmanager')) . '</label></div>';
 			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-3'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape($item_title) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
 			foreach ($group as $asset) {
 				$key = $asset['itemtype'] . ':' . $asset['id'];
-				echo '<tr><td><input class="form-check-input" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape($include_label) . '"></td>';
+				echo '<tr><td><input class="form-check-input protocolsmanager-pv-item" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape($include_label) . '"></td>';
 				echo '<td><strong>' . htmlescape($asset['name'] !== '' ? $asset['name'] : '#' . $asset['id']) . '</strong><div class="text-muted small">' . htmlescape($asset['type']) . '</div></td>';
 				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
 			}
@@ -236,11 +237,12 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			$item_title = $is_license_group ? __('Licence', 'protocolsmanager') : __('Matériel', 'protocolsmanager');
 			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($group_title) . '</strong>';
 			echo "<span class='badge bg-secondary ms-2'>" . htmlescape(__('Numéro immo', 'protocolsmanager')) . ': ' . htmlescape($immo_number) . "</span></div><div class='card-body'>";
+			echo "<div class='form-check mb-2'><input class='form-check-input' type='checkbox' id='disposal-select-all' data-pv-select-all checked><label class='form-check-label' for='disposal-select-all'>" . htmlescape(__('Tout sélectionner / tout décocher', 'protocolsmanager')) . '</label></div>';
 			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-0'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape($item_title) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
 			foreach ($group as $asset) {
 				$key = $asset['itemtype'] . ':' . $asset['id'];
 				$include_label = $is_license_group ? __('Inclure cette licence', 'protocolsmanager') : __('Inclure ce matériel', 'protocolsmanager');
-				echo '<tr><td><input class="form-check-input" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape($include_label) . '"></td>';
+				echo '<tr><td><input class="form-check-input protocolsmanager-pv-item" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape($include_label) . '"></td>';
 				echo '<td><strong>' . htmlescape($asset['name'] !== '' ? $asset['name'] : '#' . $asset['id']) . '</strong><div class="text-muted small">' . htmlescape($asset['type']) . '</div></td>';
 				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
 			}
@@ -754,7 +756,10 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		}
 		$chapter_title = static fn($key, $fallback) => (string)($chapters[$key]['title'] ?? $fallback);
 		$chapter_enabled = static fn($key) => !isset($chapters[$key]) || !empty($chapters[$key]['enabled']);
-		$chapter_intro = static fn($key) => trim((string)($chapters[$key]['content'] ?? ''));
+		$chapter_intro_source = static fn($key) => trim((string)($chapters[$key]['content'] ?? ''));
+		$reason_intro_has_token = str_contains($chapter_intro_source('reason'), '{reason}');
+		$method_intro_has_token = str_contains($chapter_intro_source('method'), '{method}');
+		$chapter_intro = static fn($key) => strtr($chapter_intro_source($key), ['{reason}' => $reason, '{method}' => $method]);
 		$escape = static fn($value) => htmlescape((string)$value);
 		ob_start();
 ?>
@@ -808,8 +813,8 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 <tr><td class="field" style="width:30%"><?= $escape(__('Marque / Modèle', 'protocolsmanager')) ?></td><td colspan="3"><?= $escape($make_model) ?></td></tr>
 </tbody></table></div><?php endforeach; ?>
 <?php if (count($assets) > 1 && $all_amounts_present): ?><p><strong><?= $escape(__('Montant total', 'protocolsmanager')) ?> : <?= $escape(number_format($total, 2, ',', ' ')) ?> €</strong></p><?php endif; ?><?php endif; ?>
-<?php if ($chapter_enabled('reason')): ?><h2>3. <?= $escape($chapter_title('reason', __('Motif de la mise au rebut', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('reason') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('reason'))) ?></p><?php endif; ?><div class="free"><?= $escape($reason) ?></div><?php endif; ?>
-<?php if ($chapter_enabled('method')): ?><h2>4. <?= $escape($chapter_title('method', __('Mode de mise au rebut', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('method') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('method'))) ?></p><?php endif; ?><div class="free"><?= $escape($method) ?></div><?php endif; ?>
+<?php if ($chapter_enabled('reason')): ?><h2>3. <?= $escape($chapter_title('reason', __('Motif de la mise au rebut', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('reason') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('reason'))) ?></p><?php endif; ?><?php if (!$reason_intro_has_token): ?><div class="free"><?= $escape($reason) ?></div><?php endif; ?><?php endif; ?>
+<?php if ($chapter_enabled('method')): ?><h2>4. <?= $escape($chapter_title('method', __('Mode de mise au rebut', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('method') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('method'))) ?></p><?php endif; ?><?php if (!$method_intro_has_token): ?><div class="free"><?= $escape($method) ?></div><?php endif; ?><?php endif; ?>
 <?php if ($chapter_enabled('checks') && $check_labels !== []): ?><h2>5. <?= $escape($chapter_title('checks', __('Liste de contrôle', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('checks') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('checks'))) ?></p><?php endif; ?><ul><?php foreach ($check_labels as $key => $label): ?><li><?= in_array($key, $checks, true) ? '☒' : '☐' ?> <?= $escape($label) ?></li><?php endforeach; ?></ul><?php endif; ?>
 <?php if ($chapter_enabled('signature')): ?><h2>6. <?= $escape($chapter_title('signature', __('Signature', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('signature') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('signature'))) ?></p><?php endif; ?>
 <table class="signature"><tr><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th></tr><tr><td><?= $escape($requester) ?></td><td></td><td></td></tr></table>
