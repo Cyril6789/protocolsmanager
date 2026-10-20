@@ -245,9 +245,11 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		echo "<section class='card mb-3'><div class='card-header'><h3 class='h5 mb-0'>" . htmlescape(__('Logo des PDF', 'protocolsmanager')) . '</h3></div><div class="card-body">';
 		if (!empty($branding['logo'])) {
 			$path = GLPI_PICTURE_DIR . '/' . basename((string)$branding['logo']);
-			if (is_file($path) && is_readable($path)) {
-				$mime = mime_content_type($path) ?: 'image/png';
-				echo '<div class="mb-3"><img class="img-thumbnail" style="max-height:100px;max-width:240px" alt="' . htmlescape(__('Logo actuel', 'protocolsmanager')) . '" src="data:' . htmlescape($mime) . ';base64,' . base64_encode((string)file_get_contents($path)) . '"></div>';
+			if (is_file($path) && is_readable($path) && (int)filesize($path) <= 2097152) {
+				$mime = mime_content_type($path) ?: '';
+				if (in_array($mime, ['image/png', 'image/jpeg'], true)) {
+					echo '<div class="mb-3"><img class="img-thumbnail protocolsmanager-logo-preview" alt="' . htmlescape(__('Logo actuel', 'protocolsmanager')) . '" src="data:' . htmlescape($mime) . ';base64,' . base64_encode((string)file_get_contents($path)) . '"></div>';
+				}
 			}
 		}
 		echo '<label class="form-label" for="global-pdf-logo">' . htmlescape(__('Choisir un logo PNG ou JPEG (2 Mo maximum)', 'protocolsmanager')) . '</label><input class="form-control" type="file" id="global-pdf-logo" name="global_logo" accept="image/png,image/jpeg">';

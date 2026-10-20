@@ -37,6 +37,11 @@
 	text-decoration: none;
 }
 
+.protocolsmanager-logo-preview {
+	max-height: 100px;
+	max-width: 240px;
+}
+
 .protocolsmanager-settings-form .form-check {
 	min-height: 1.5rem;
 }

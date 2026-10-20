@@ -214,6 +214,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Ajouter une couleur d’accentuation globale utilisée par toutes les sorties PDF.
 - [ ] Migrer ou réconcilier proprement les anciens logos et couleurs stockés par modèle sans écraser des préférences sans nécessité.
 - [x] Valider le logo global par son contenu PNG/JPEG réel, sa taille (2 Mo), ses dimensions (5 000 × 5 000 pixels maximum) et nettoyer les anciens fichiers gérés par le nouvel espace global lors du remplacement/suppression ou en cas d’échec de sauvegarde.
+- [x] Limiter également l’aperçu de logo enregistré aux fichiers PNG/JPEG lisibles de 2 Mo maximum, sans intégrer d’autres types MIME dans la page de configuration.
 - [ ] Vérifier les droits GLPI pour la consultation, création, modification et suppression des réglages.
 - [ ] Ajouter les libellés/traductions et l’aide nécessaires à la nouvelle organisation.
 
@@ -300,5 +301,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `6dd820c` — modes de mise au rebut ajoutables/supprimables avec contrôle d’au moins un mode actif lorsque le champ est affiché.
 - `891e902` — mise à jour du journal après le commit des modes dynamiques.
 - `7c0af6c` — lieux de mise en service ajoutables/supprimables, avec libellé affiché dans le PV.
+- `3fdda1c` — suppression des plafonds applicatifs des listes et omission du lieu dans le PDF lorsqu’aucun choix n’est configuré.
 - En cours — revue des générateurs PDF, des migrations et des points de compatibilité; les modèles disposent déjà de listes de cases, de lieux/modes radio et de chapitres libres administrables sans plafond applicatif.
 
