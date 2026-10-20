@@ -44,6 +44,7 @@ class PluginProtocolsmanagerPvtemplate
                     ['key' => 'validation', 'title' => 'Validations', 'enabled' => true,
                         'content' => ''],
                 ],
+                'custom_chapters' => [],
             ];
         }
 
@@ -77,6 +78,7 @@ class PluginProtocolsmanagerPvtemplate
                     ['key' => 'signature', 'title' => 'Signature', 'enabled' => true,
                         'content' => ''],
                 ],
+                'custom_chapters' => [],
             ];
         }
 

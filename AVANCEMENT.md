@@ -213,7 +213,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Ajouter un réglage global de logo utilisable par toutes les sorties PDF.
 - [x] Ajouter une couleur d’accentuation globale utilisée par toutes les sorties PDF.
 - [ ] Migrer ou réconcilier proprement les anciens logos et couleurs stockés par modèle sans écraser des préférences sans nécessité.
-- [ ] Valider les fichiers de logo (type, taille, dimensions) et gérer leur remplacement/suppression sans fichier orphelin.
+- [x] Valider le logo global par son contenu PNG/JPEG réel, sa taille (2 Mo), ses dimensions (5 000 × 5 000 pixels maximum) et nettoyer les anciens fichiers gérés par le nouvel espace global lors du remplacement/suppression ou en cas d’échec de sauvegarde.
 - [ ] Vérifier les droits GLPI pour la consultation, création, modification et suppression des réglages.
 - [ ] Ajouter les libellés/traductions et l’aide nécessaires à la nouvelle organisation.
 
@@ -225,6 +225,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Permettre d’ajouter et supprimer des cases de mise en service dans les réglages; enregistrer une liste personnalisable jusqu’à 100 options avec libellé, visibilité et valeur par défaut.
 - [x] Afficher les options configurées dans le formulaire de création et reprendre les options actives, cochées ou non, dans le chapitre de mise en service du PDF.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
+- [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.
+- [x] Reprendre dans le PDF de mise en service les libellés configurés pour les champs de date et d’utilisation, ainsi que le libellé du lieu sélectionné.
 - [ ] Permettre de créer/supprimer des champs et chapitres, de configurer les champs structurés de chaque chapitre et de changer l’ordre de rendu.
 - [ ] Préserver les valeurs saisies et leur état lorsque le PV est généré ou réédité.
 - [x] Construire le formulaire matériel à partir des options du modèle de mise en service, en conservant le regroupement d’objets et les contrôles de droits existants.
@@ -242,6 +244,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Permettre d’ajouter/supprimer des modes de mise au rebut et changer leur ordre.
 - [ ] Préserver les règles de validation métier (motif, mode, précision « Autre ») dans l’interface et côté serveur.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
+- [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.
+- [x] Reprendre dans le PDF de mise au rebut le libellé configuré du champ date.
 - [ ] Permettre de créer/supprimer des chapitres, configurer les champs structurés et changer l’ordre de rendu.
 - [x] Construire le formulaire et les titres/activations/textes introductifs du PDF depuis le modèle de mise au rebut sans modifier les réglages de mise en service.
 - [x] Employer le logo et l’accentuation globaux.
@@ -290,6 +294,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `a68c9be` — stockage séparé des modèles de PV et réglages visuels, avec valeurs initiales de compatibilité.
 - `138cc81` — version `1.6.0.21` pour déclencher la migration des réglages sur les installations existantes.
 - `8786680` — ajout/suppression d’options cochables pour les deux PV, validation et sauvegarde des listes personnalisées, et rendu de l’état complet des cases dans les PDFs.
-- En cours — refonte de l’éditeur et de la liste des modèles d’inventaire et des modèles e-mail en composants carte/formulaire GLPI; correction des formulaires imbriqués et du sélecteur de taille de police. Fichiers prévus : `inc/config.class.php`, `public/css/styles.css`, `AVANCEMENT.md`.
+- `cf16ef6` — refonte des éditeurs et des listes de modèles d’inventaire et d’e-mail en composants carte/formulaire GLPI; correction des formulaires imbriqués et du sélecteur de taille de police.
+- En cours — chapitres personnalisés éditables aux deux modèles et textes configurables repris dans les PDF; validation des dimensions du logo global et suppression des fichiers globaux remplacés. Fichiers prévus : `inc/config.class.php`, `inc/pvtemplate.class.php`, `inc/commission.class.php`, `AVANCEMENT.md`.
 - À renseigner après chaque commit de code ciblé.
 

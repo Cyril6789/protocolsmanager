@@ -579,7 +579,9 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 				$active_states[] = (string)$state['key'];
 			}
 		}
-		$states = array_values(array_intersect($active_states, (array)($_POST['states'] ?? [])));
+		$submitted_states = $_POST['states'] ?? [];
+		$requested_states = is_array($submitted_states) ? array_values(array_filter($submitted_states, 'is_string')) : [];
+		$states = array_values(array_intersect($active_states, $requested_states));
 		$active_cities = [];
 		foreach (($template['form']['cities'] ?? []) as $city_option) {
 			if (!empty($city_option['enabled']) && isset($city_option['key'])) {
@@ -739,6 +741,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			$requester_with_title .= ' - ' . $title;
 		}
 		$pv_template = PluginProtocolsmanagerPvtemplate::load('disposal');
+		$form_labels = $pv_template['form'] ?? [];
 		$chapters = [];
 		foreach (($pv_template['chapters'] ?? []) as $chapter) {
 			if (isset($chapter['key'])) {
@@ -777,7 +780,7 @@ th { background:#f1f1f1; text-align:left; }
 .free { white-space:pre-wrap; min-height:9mm; }
 .signature td { height:18mm; }
 </style></head><body>
-<table class="pdf-header"><tr><td class="immo-cell"><span class="header-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape($immo) ?></span></td><td class="logo-cell"><?= $logo_html ?></td><td class="date-cell"><span class="header-label"><?= $escape(__('Date de mise au rebut', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape(self::displayDate($disposal_date)) ?></span></td></tr></table>
+<table class="pdf-header"><tr><td class="immo-cell"><span class="header-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape($immo) ?></span></td><td class="logo-cell"><?= $logo_html ?></td><td class="date-cell"><span class="header-label"><?= $escape($form_labels['disposal_date']['label'] ?? __('Date de mise au rebut', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape(self::displayDate($disposal_date)) ?></span></td></tr></table>
 <h1><?= $escape($pv_template['title'] ?? __('Procès-verbal de mise au rebut', 'protocolsmanager')) ?></h1>
 <?php if ($chapter_enabled('general')): ?><h2>1. <?= $escape($chapter_title('general', __('Informations générales', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('general') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('general'))) ?></p><?php endif; ?>
 <table class="general-table"><tbody>
@@ -807,6 +810,7 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 <?php if ($chapter_enabled('signature')): ?><h2>6. <?= $escape($chapter_title('signature', __('Signature', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('signature') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('signature'))) ?></p><?php endif; ?>
 <table class="signature"><tr><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th></tr><tr><td><?= $escape($requester) ?></td><td></td><td></td></tr></table>
 <?php endif; ?>
+<?php foreach (($pv_template['custom_chapters'] ?? []) as $custom_index => $custom_chapter): ?><?php if (!empty($custom_chapter['enabled']) && !empty($custom_chapter['title'])): ?><h2><?= $escape(__('Annexe', 'protocolsmanager')) ?> <?= (int)$custom_index + 1 ?>. <?= $escape($custom_chapter['title']) ?></h2><?php if (trim((string)($custom_chapter['content'] ?? '')) !== ''): ?><div class="free"><?= nl2br($escape($custom_chapter['content'])) ?></div><?php endif; ?><?php endif; ?><?php endforeach; ?>
 </body></html>
 <?php
 		$html = ob_get_clean();
@@ -898,6 +902,14 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 			}
 		}
 		$pv_template = PluginProtocolsmanagerPvtemplate::load('commission');
+		$form_labels = $pv_template['form'] ?? [];
+		$city_label = $city;
+		foreach (($form_labels['cities'] ?? []) as $city_option) {
+			if (!empty($city_option['enabled']) && (string)($city_option['key'] ?? '') === $city) {
+				$city_label = (string)($city_option['label'] ?? $city);
+				break;
+			}
+		}
 		$state_labels = [];
 		foreach (($pv_template['form']['states'] ?? []) as $state) {
 			if (!empty($state['enabled']) && isset($state['key'])) {
@@ -977,15 +989,16 @@ $rows = [
 <?php if ($chapter_enabled('commissioning')): ?><h2>2. <?= $escape($chapter_title('commissioning', __('Mise en service', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('commissioning') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('commissioning'))) ?></p><?php endif; ?>
 <p><?= $escape(__('Je soussigné(e)', 'protocolsmanager')) ?> <strong><?= $escape($signer) ?></strong>, <?= $escape(__('certifie que l’immobilisation décrite ci-dessous a été :', 'protocolsmanager')) ?></p>
 <p><?php foreach ($state_labels as $key => $label): ?><?= in_array($key, $states, true) ? '☒' : '☐' ?> <?= $escape($label) ?>&nbsp;&nbsp;<?php endforeach; ?></p>
-<p><strong><?= $escape(__('Date effective de mise en service', 'protocolsmanager')) ?> :</strong> <?= $escape(self::displayDate($effective_date)) ?></p>
-<p><strong><?= $escape(__('Description de l’utilisation prévue', 'protocolsmanager')) ?> :</strong></p><div class="free"><?= $escape($planned_use) ?></div>
+<p><strong><?= $escape($form_labels['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) ?> :</strong> <?= $escape(self::displayDate($effective_date)) ?></p>
+<p><strong><?= $escape($form_labels['planned_use']['label'] ?? __('Description de l’utilisation prévue', 'protocolsmanager')) ?> :</strong></p><div class="free"><?= $escape($planned_use) ?></div>
 <?php endif; ?>
 <?php if ($chapter_enabled('observations')): ?><h2>3. <?= $escape($chapter_title('observations', __('Observations éventuelles', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('observations') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('observations'))) ?></p><?php endif; ?><div class="free"><?= $escape($observations) ?></div><?php endif; ?>
 <?php if ($chapter_enabled('validation')): ?><h2 class="chapter-four">4. <?= $escape($chapter_title('validation', __('Validations', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('validation') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('validation'))) ?></p><?php endif; ?>
 <table class="signature"><colgroup><col class="role-col"><col class="name-col"><col class="sign-col"><col class="date-col"></colgroup><tr><th><?= $escape(__('Fonction', 'protocolsmanager')) ?></th><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th></tr>
 <?php foreach ([__('Responsable utilisateur', 'protocolsmanager'), __('Responsable technique (si applicable)', 'protocolsmanager'), __('Comptabilité', 'protocolsmanager'), __('Direction / Responsable hiérarchique', 'protocolsmanager')] as $role): ?><tr><td><?= $escape($role) ?></td><td></td><td></td><td></td></tr><?php endforeach; ?></table>
-<p><?= $escape(__('Document établi le', 'protocolsmanager')) ?> : <?= $escape(date('d/m/Y')) ?>, <?= $escape(__('lieu', 'protocolsmanager')) ?> <?= $escape($city) ?></p>
+<p><?= $escape(__('Document établi le', 'protocolsmanager')) ?> : <?= $escape(date('d/m/Y')) ?>, <?= $escape(__('lieu', 'protocolsmanager')) ?> <?= $escape($city_label) ?></p>
 <?php endif; ?>
+<?php foreach (($pv_template['custom_chapters'] ?? []) as $custom_index => $custom_chapter): ?><?php if (!empty($custom_chapter['enabled']) && !empty($custom_chapter['title'])): ?><h2><?= $escape(__('Annexe', 'protocolsmanager')) ?> <?= (int)$custom_index + 1 ?>. <?= $escape($custom_chapter['title']) ?></h2><?php if (trim((string)($custom_chapter['content'] ?? '')) !== ''): ?><div class="free"><?= nl2br($escape($custom_chapter['content'])) ?></div><?php endif; ?><?php endif; ?><?php endforeach; ?>
 </body></html>
 <?php
 		$html = ob_get_clean();

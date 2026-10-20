@@ -142,8 +142,34 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			echo '<label class="form-label" for="chapter-content-' . (int)$index . '">' . htmlescape(__('Texte et instructions', 'protocolsmanager')) . '</label><textarea class="form-control mb-2" id="chapter-content-' . (int)$index . '" name="' . htmlescape($path . '[content]') . '" rows="3" maxlength="5000">' . htmlescape($chapter['content'] ?? '') . '</textarea>';
 			echo '<input type="hidden" name="' . htmlescape($path . '[enabled]') . '" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . htmlescape($path . '[enabled]') . '" value="1"' . (!empty($chapter['enabled']) ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape(__('Inclure dans le PDF', 'protocolsmanager')) . '</span></label></fieldset>';
 		}
+		self::displayCustomChapterEditor($type, $template['custom_chapters'] ?? []);
 		echo '</div></section>';
 		echo "<div class='d-flex justify-content-end mb-4'><button class='btn btn-primary' type='submit' name='save_pv_template' value='1'><i class='ti ti-device-floppy me-1'></i>" . htmlescape(__('Enregistrer le modèle', 'protocolsmanager')) . '</button></div></form>';
+	}
+
+	private static function displayCustomChapterEditor(string $type, array $chapters): void
+	{
+		$list_id = 'pv-custom-chapters-' . $type;
+		$base = 'template[custom_chapters]';
+		$next_index = $chapters === [] ? 0 : max(array_map('intval', array_keys($chapters))) + 1;
+		echo "<div class='border-top pt-3 mt-4'><div class='d-flex align-items-center justify-content-between flex-wrap gap-2'><div><h4 class='h6 mb-1'>" . htmlescape(__('Chapitres personnalisés', 'protocolsmanager')) . "</h4><p class='form-text mb-0'>" . htmlescape(__('Ajoutez des chapitres libres après les sections standard du PDF.', 'protocolsmanager')) . '</p></div>';
+		echo '<button class="btn btn-sm btn-outline-primary" type="button" data-pv-add-row="' . htmlescape($list_id) . '"><i class="ti ti-plus me-1"></i>' . htmlescape(__('Ajouter un chapitre', 'protocolsmanager')) . '</button></div>';
+		echo '<div class="table-responsive mt-3"><table class="table align-middle"><thead><tr><th>' . htmlescape(__('Titre du chapitre', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Contenu', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th><span class="visually-hidden">' . htmlescape(__('Action', 'protocolsmanager')) . '</span></th></tr></thead><tbody id="' . htmlescape($list_id) . '" data-next-index="' . $next_index . '">';
+		foreach ($chapters as $index => $chapter) {
+			self::displayCustomChapterRow($base . '[' . (int)$index . ']', (string)($chapter['key'] ?? ''), (string)($chapter['title'] ?? ''), (string)($chapter['content'] ?? ''), !empty($chapter['enabled']));
+		}
+		echo '</tbody></table></div><template id="template-' . htmlescape($list_id) . '">';
+		self::displayCustomChapterRow($base . '[__INDEX__]', 'custom-chapter-__INDEX__', '', '', true);
+		echo '</template></div>';
+	}
+
+	private static function displayCustomChapterRow(string $path, string $key, string $title, string $content, bool $enabled): void
+	{
+		$path = htmlescape($path);
+		echo '<tr data-pv-config-row><td><input type="hidden" name="' . $path . '[key]" value="' . htmlescape($key) . '"><input class="form-control" maxlength="180" required name="' . $path . '[title]" value="' . htmlescape($title) . '" aria-label="' . htmlescape(__('Titre du chapitre', 'protocolsmanager')) . '"></td>';
+		echo '<td><textarea class="form-control" rows="2" maxlength="5000" name="' . $path . '[content]" aria-label="' . htmlescape(__('Contenu du chapitre', 'protocolsmanager')) . '">' . htmlescape($content) . '</textarea></td>';
+		echo '<td><input type="hidden" name="' . $path . '[enabled]" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . $path . '[enabled]" value="1"' . ($enabled ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Inclure dans le PDF', 'protocolsmanager')) . '</span></label></td>';
+		echo '<td><button class="btn btn-sm btn-outline-danger" type="button" data-pv-remove-row aria-label="' . htmlescape(__('Supprimer ce chapitre', 'protocolsmanager')) . '"><i class="ti ti-trash" aria-hidden="true"></i></button></td></tr>';
 	}
 
 	private static function displayCheckboxListEditor(string $type, string $list_key, array $entries): void
@@ -264,7 +290,38 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			$template['chapters'][$index]['content'] = self::settingText($entry['content'] ?? $chapter['content'], 5000);
 			$template['chapters'][$index]['enabled'] = ($entry['enabled'] ?? '0') === '1';
 		}
+		$template['custom_chapters'] = self::sanitizeCustomChapters($posted['custom_chapters'] ?? []);
 		return PluginProtocolsmanagerPvtemplate::save($type, $template);
+	}
+
+	private static function sanitizeCustomChapters($source): array
+	{
+		if (!is_array($source)) {
+			return [];
+		}
+		$chapters = [];
+		$keys = [];
+		foreach ($source as $chapter) {
+			if (!is_array($chapter)) {
+				continue;
+			}
+			$key = (string)($chapter['key'] ?? '');
+			$title = self::settingText($chapter['title'] ?? '', 180);
+			if (!preg_match('/^[A-Za-z0-9_-]{1,64}$/', $key) || isset($keys[$key]) || $title === '') {
+				continue;
+			}
+			$keys[$key] = true;
+			$chapters[] = [
+				'key' => $key,
+				'title' => $title,
+				'content' => self::settingText($chapter['content'] ?? '', 5000),
+				'enabled' => ($chapter['enabled'] ?? '0') === '1',
+			];
+			if (count($chapters) >= 50) {
+				break;
+			}
+		}
+		return $chapters;
 	}
 
 	private static function sanitizeCheckboxEntries($source): array
@@ -303,6 +360,8 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 	public static function saveBranding(): bool
 	{
 		$branding = PluginProtocolsmanagerPvtemplate::load('branding');
+		$previous_logo = is_string($branding['logo'] ?? null) ? basename($branding['logo']) : '';
+		$new_logo_path = '';
 		$color = $_POST['accent_color'] ?? '';
 		if (!is_string($color) || !preg_match('/^#[0-9a-f]{6}$/i', $color)) {
 			Session::addMessageAfterRedirect(__('La couleur indiquée est invalide.', 'protocolsmanager'), false, ERROR);
@@ -320,9 +379,11 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			}
 			$image = @getimagesize($file['tmp_name']);
 			$mime = is_array($image) ? ($image['mime'] ?? '') : '';
+			$width = is_array($image) ? (int)($image[0] ?? 0) : 0;
+			$height = is_array($image) ? (int)($image[1] ?? 0) : 0;
 			$extensions = ['image/png' => 'png', 'image/jpeg' => 'jpg'];
-			if (!isset($extensions[$mime])) {
-				Session::addMessageAfterRedirect(__('Le logo doit être une image PNG ou JPEG valide.', 'protocolsmanager'), false, ERROR);
+			if (!isset($extensions[$mime]) || $width <= 0 || $height <= 0 || $width > 5000 || $height > 5000 || ($width * $height) > 25000000) {
+				Session::addMessageAfterRedirect(__('Le logo doit être une image PNG ou JPEG valide de 5 000 × 5 000 pixels maximum.', 'protocolsmanager'), false, ERROR);
 				return false;
 			}
 			$name = 'protocolsmanager-global-' . bin2hex(random_bytes(8)) . '.' . $extensions[$mime];
@@ -331,9 +392,20 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 				Session::addMessageAfterRedirect(__('Le logo n’a pas pu être enregistré.', 'protocolsmanager'), false, ERROR);
 				return false;
 			}
+			$new_logo_path = $destination;
 			$branding['logo'] = $name;
 		}
-		return PluginProtocolsmanagerPvtemplate::save('branding', $branding);
+		$saved = PluginProtocolsmanagerPvtemplate::save('branding', $branding);
+		if (!$saved && $new_logo_path !== '' && is_file($new_logo_path)) {
+			@unlink($new_logo_path);
+		}
+		if ($saved && $previous_logo !== '' && $previous_logo !== ($branding['logo'] ?? '') && str_starts_with($previous_logo, 'protocolsmanager-global-')) {
+			$previous_path = GLPI_PICTURE_DIR . '/' . $previous_logo;
+			if (is_file($previous_path) && is_writable($previous_path)) {
+				@unlink($previous_path);
+			}
+		}
+		return $saved;
 	}
 
 	private static function settingText($value, int $limit): string
