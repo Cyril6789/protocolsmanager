@@ -229,6 +229,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Permettre d’ajouter et supprimer les lieux proposés comme choix radio, puis afficher dans le PDF le libellé du lieu sélectionné.
 - [x] Décomposer les quatre fonctions de validation du tableau de mise en service en rôles configurables : modifier leur libellé, ajouter/supprimer des rôles, activer/désactiver chaque rôle et générer une ligne PDF par rôle actif; conserver une liste vide si tous les rôles sont supprimés.
 - [x] À la génération PDF, reprendre les quatre rôles initiaux si la clé de configuration est absente sur une installation antérieure; respecter une liste explicitement enregistrée vide sans imposer de migration.
+- [x] Dupliquer la date effective de mise en service dans l’en-tête à droite du logo, symétriquement au numéro immo; conserver la date d’acquisition renseignée comme valeur de repli et laisser une ligne vide à compléter à la main si aucune date n’est disponible.
 - [x] Afficher les options configurées dans le formulaire de création et reprendre les options actives, cochées ou non, dans le chapitre de mise en service du PDF.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
 - [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.

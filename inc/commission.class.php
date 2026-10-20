@@ -953,10 +953,12 @@ h2 { color:<?= $escape($header_text_color) ?>; background:<?= $escape($accent) ?
 .pdf-header td { border:0; padding:0 3px 2mm; vertical-align:bottom; }
 .pdf-header .immo-cell { width:34%; text-align:left; }
 .pdf-header .logo-cell { width:32%; text-align:center; }
-.pdf-header .spacer-cell { width:34%; }
+.pdf-header .date-cell { width:34%; text-align:right; }
 .logo { max-width:120px; max-height:120px; margin:0 auto; }
 .immo-label { color:#111; font-size:9pt; font-weight:normal; }
 .immo-value { display:inline-block; color:<?= $escape($accent) ?>; font-size:13pt; font-weight:bold; border-bottom:2px solid <?= $escape($accent) ?>; padding:0 5mm 1mm; }
+.date-label { color:#111; font-size:9pt; font-weight:normal; }
+.date-value { display:inline-block; box-sizing:border-box; width:40mm; min-height:6mm; border-bottom:1px solid #555; text-align:center; }
 table { width:100%; border-collapse:collapse; margin:2mm 0 4mm; }
 th,td { border:1px solid #999; padding:5px; vertical-align:top; }
 th { background:#f1f1f1; text-align:left; }
@@ -976,7 +978,8 @@ th { background:#f1f1f1; text-align:left; }
 </style></head><body>
 <table class="pdf-header"><tr>
 <td class="immo-cell"><span class="immo-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="immo-value"><?= $escape($immo) ?></span></td>
-<td class="logo-cell"><?= $logo_html ?></td><td class="spacer-cell"></td>
+<td class="logo-cell"><?= $logo_html ?></td>
+<td class="date-cell"><span class="date-label"><?= $escape($form_labels['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) ?> :</span><br><span class="date-value"><?= $escape(self::displayDate($effective_date)) ?></span></td>
 </tr></table>
 <h1><?= $escape($pv_template['title'] ?? __('Procès-verbal de mise en service d’une immobilisation', 'protocolsmanager')) ?></h1>
 <?php if ($chapter_enabled('identification')): ?><h2>1. <?= $escape($chapter_title('identification', __('Identification de l’immobilisation', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('identification') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('identification'))) ?></p><?php endif; ?>
