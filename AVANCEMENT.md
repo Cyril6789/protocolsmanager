@@ -323,4 +323,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `fb31f52` — numéroter à la suite uniquement les annexes activées dans les PDFs.
 - `125822c` — retirer l’espace final superflu du journal et vérifier le diff commité depuis `master`.
 - `4d4d35c` — rendre les rôles du tableau de validation de mise en service modifiables, activables, ajoutables et supprimables dans les réglages; générer une ligne PDF par rôle actif.
+- `99a7537` — rétablir les quatre rôles initiaux à la génération PDF quand une configuration préexistante ne possède pas encore la clé `validators`, sans migration et sans réinitialiser une liste explicitement vide.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
