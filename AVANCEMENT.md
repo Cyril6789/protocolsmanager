@@ -201,7 +201,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 
 ### B. Navigation et gestion des réglages
 
-- [ ] Réorganiser l’écran de configuration en espaces distincts : modèles d’inventaire, PV de mise en service, PV de mise au rebut et réglages visuels globaux.
+- [x] Réorganiser l’écran de configuration en espaces distincts : modèles d’inventaire, PV de mise en service, PV de mise au rebut, identité visuelle globale et e-mails.
 - [ ] Utiliser les composants et conventions d’interface GLPI réellement prévus pour les pages de configuration (en-tête, navigation/onglets, formulaires, boutons, messages et retours après sauvegarde), en vérifiant leur disponibilité dans les versions GLPI supportées.
 - [ ] Présenter les réglages sous forme de sections lisibles et hiérarchisées, avec libellés, aides contextuelles, états vides et actions explicites, sans tableaux HTML bricolés comme structure principale.
 - [ ] Vérifier l’ergonomie clavier, les labels associés, les erreurs de validation visibles et la cohérence visuelle avec GLPI sur grand écran et écran étroit.
@@ -209,8 +209,8 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Faire relire le parcours de configuration complet et vérifier son rendu visuel dans une instance GLPI avant validation de cette exigence.
 - [ ] Conserver la création, modification, suppression et sélection d’un nombre illimité de modèles d’inventaire.
 - [ ] Conserver les réglages d’e-mail existants et leur comportement.
-- [ ] Ajouter un réglage global de logo utilisable par toutes les sorties PDF.
-- [ ] Ajouter une couleur d’accentuation globale utilisée par toutes les sorties PDF.
+- [x] Ajouter un réglage global de logo utilisable par toutes les sorties PDF.
+- [x] Ajouter une couleur d’accentuation globale utilisée par toutes les sorties PDF.
 - [ ] Migrer ou réconcilier proprement les anciens logos et couleurs stockés par modèle sans écraser des préférences sans nécessité.
 - [ ] Valider les fichiers de logo (type, taille, dimensions) et gérer leur remplacement/suppression sans fichier orphelin.
 - [ ] Vérifier les droits GLPI pour la consultation, création, modification et suppression des réglages.
@@ -218,32 +218,35 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 
 ### C. Modèle de PV de mise en service
 
-- [ ] Stocker un modèle unique de mise en service, distinct des modèles d’inventaire.
-- [ ] Permettre de régler le titre, les champs du formulaire, les valeurs par défaut et les libellés affichés.
-- [ ] Permettre d’activer, désactiver, ordonner et renommer les cases à cocher du formulaire.
-- [ ] Permettre d’éditer les chapitres du PDF : présence, ordre, titre, contenu et champs associés.
+- [x] Stocker un modèle unique de mise en service, distinct des modèles d’inventaire.
+- [x] Permettre de régler le titre du PV, les champs actuellement prévus, leurs libellés et leur affichage.
+- [x] Permettre d’activer, désactiver, renommer et définir l’état par défaut des cases à cocher existantes du formulaire.
+- [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
+- [ ] Permettre de créer/supprimer des champs et chapitres, de configurer les champs structurés de chaque chapitre et de changer l’ordre de rendu.
 - [ ] Préserver les valeurs saisies et leur état lorsque le PV est généré ou réédité.
-- [ ] Construire le formulaire matériel à partir du modèle de mise en service, sans perdre le choix des matériels groupés ni les contrôles de droits.
-- [ ] Construire le PDF depuis les chapitres du modèle, avec échappement/formatage sûr et champs GLPI facultatifs.
-- [ ] Employer le logo et l’accentuation globaux.
+- [x] Construire le formulaire matériel à partir des options du modèle de mise en service, en conservant le regroupement d’objets et les contrôles de droits existants.
+- [x] Construire les titres, activations et textes introductifs du PDF de mise en service depuis le modèle, en conservant les données GLPI et leur échappement.
+- [x] Employer le logo et l’accentuation globaux.
 - [ ] Définir les valeurs initiales de migration à partir du formulaire et PDF actuellement en service.
 
 ### D. Modèle de PV de mise au rebut
 
-- [ ] Stocker un modèle unique de mise au rebut, distinct du modèle de mise en service et des modèles d’inventaire.
-- [ ] Permettre de régler le titre, les champs du formulaire, les valeurs par défaut et les libellés affichés.
-- [ ] Permettre d’activer, désactiver, ordonner et renommer les choix/cases/contrôles du formulaire.
+- [x] Stocker un modèle unique de mise au rebut, distinct du modèle de mise en service et des modèles d’inventaire.
+- [x] Permettre de régler le titre du PV, les champs actuellement prévus et les libellés affichés.
+- [x] Permettre d’activer, désactiver et renommer les modes de mise au rebut proposés.
+- [ ] Permettre d’ajouter/supprimer des modes de mise au rebut et changer leur ordre.
 - [ ] Préserver les règles de validation métier (motif, mode, précision « Autre ») dans l’interface et côté serveur.
-- [ ] Permettre d’éditer les chapitres du PDF : présence, ordre, titre, contenu et champs associés.
-- [ ] Construire le formulaire et le PDF depuis le modèle de mise au rebut sans modifier les réglages de mise en service.
-- [ ] Employer le logo et l’accentuation globaux.
+- [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
+- [ ] Permettre de créer/supprimer des chapitres, configurer les champs structurés et changer l’ordre de rendu.
+- [x] Construire le formulaire et les titres/activations/textes introductifs du PDF depuis le modèle de mise au rebut sans modifier les réglages de mise en service.
+- [x] Employer le logo et l’accentuation globaux.
 - [ ] Définir les valeurs initiales de migration à partir du formulaire et PDF actuellement en service.
 
 ### E. Formulaires sur les fiches matériel et licences
 
 - [ ] Garder les deux parcours de PV distincts et identifiables depuis l’onglet GLPI.
-- [ ] Afficher uniquement les champs actifs du modèle choisi, avec validation cohérente côté serveur.
-- [ ] Permettre à l’utilisateur d’éditer les cases à cocher et choix prévus par chacun des modèles.
+- [x] Afficher les champs activés des deux modèles de PV et valider côté serveur les cases et modes transmis.
+- [x] Permettre à l’utilisateur de modifier les cases du formulaire de mise en service et les choix de mise au rebut configurés.
 - [ ] Conserver les valeurs par défaut et préremplissages actuels lorsque le modèle correspondant le prévoit.
 - [ ] Préserver le regroupement par numéro immo, la sélection d’objets, les PV sans numéro immo et les associations GLPI actuelles.
 - [ ] Préserver les contrôles d’accès et la validation serveur des identifiants d’objets soumis.
@@ -254,7 +257,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Mettre en place un rendu commun qui reçoit le type de document, le modèle, les données GLPI et les valeurs du formulaire.
 - [ ] Conserver le moteur Dompdf et éviter toute modification non nécessaire de `dompdf/`.
 - [ ] Rendre les chapitres configurés dans le bon ordre et respecter leur activation/désactivation.
-- [ ] Appliquer le logo et la couleur globale à toutes les catégories de PDF.
+- [x] Appliquer le logo et la couleur globale aux PDFs d’inventaire, de mise en service et de mise au rebut.
 - [ ] Conserver les réglages propres aux modèles d’inventaire (police, taille, orientation, contenu, pied de page, numéros).
 - [ ] Préserver les retours à la ligne, caractères accentués, tableaux, sauts de page et contenu long.
 - [ ] Échapper les données d’objets et de formulaire pour éviter l’injection HTML dans les PDF.
@@ -279,5 +282,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `9a245e7` — documentation initiale exhaustive et cases à cocher.
 - `044c0ad` — critères de finition GLPI et cartographie des réglages/PV.
 - `a68c9be` — stockage séparé des modèles de PV et réglages visuels, avec valeurs initiales de compatibilité.
+- `138cc81` — version `1.6.0.21` pour déclencher la migration des réglages sur les installations existantes.
 - À renseigner après chaque commit de code ciblé.
 

@@ -5,6 +5,24 @@
 	Html::header(PluginProtocolsmanagerConfig::getTypeName(2), '', "config", "PluginProtocolsmanagerMenu");
 			   
 	$PluginProtocolsmanagerConfig = new PluginProtocolsmanagerConfig();
+
+	if (isset($_POST['save_pv_template'])) {
+		$saved = PluginProtocolsmanagerConfig::savePvTemplate();
+		if ($saved) {
+			Session::addMessageAfterRedirect(__('Modèle de procès-verbal enregistré.', 'protocolsmanager'));
+		} else {
+			Session::addMessageAfterRedirect(__('Le modèle de procès-verbal n’a pas pu être enregistré.', 'protocolsmanager'), false, ERROR);
+		}
+		Html::back();
+	}
+
+	if (isset($_POST['save_branding'])) {
+		$saved = PluginProtocolsmanagerConfig::saveBranding();
+		if ($saved) {
+			Session::addMessageAfterRedirect(__('Identité visuelle enregistrée.', 'protocolsmanager'));
+		}
+		Html::back();
+	}
 	
 	if (isset($_REQUEST['save'])) {
 		$PluginProtocolsmanagerConfig::saveConfigs();

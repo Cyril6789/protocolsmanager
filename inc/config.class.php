@@ -38,19 +38,255 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 	}
 	
 	static function displayContent() {
-		global $CFG_GLPI, $DB;
-		
-		if (isset($_POST["menu_mode"])) {
-			$menu_mode = $_POST["menu_mode"];
-		} else if (isset($_SESSION["menu_mode"])) {
-			$menu_mode = $_SESSION["menu_mode"];
-		} else $menu_mode = "t";
-		
-		if ($menu_mode == "e") {
-			self::displayContentEmail();
-		} else {
-			self::displayContentConfig();
+		$section = (string)($_GET['section'] ?? $_POST['section'] ?? 'inventory');
+		$sections = ['inventory', 'commission', 'disposal', 'branding', 'email'];
+		if (!in_array($section, $sections, true)) {
+			$section = 'inventory';
 		}
+		self::displaySettingsNavigation($section);
+		switch ($section) {
+			case 'commission':
+			case 'disposal':
+				self::displayPvTemplateSettings($section);
+				break;
+			case 'branding':
+				self::displayBrandingSettings();
+				break;
+			case 'email':
+				self::displayContentEmail();
+				break;
+			default:
+				self::displayContentConfig();
+		}
+		echo '</div>';
+	}
+
+	private static function displaySettingsNavigation(string $active): void
+	{
+		$sections = [
+			'inventory' => __('Modèles d’inventaire', 'protocolsmanager'),
+			'commission' => __('PV de mise en service', 'protocolsmanager'),
+			'disposal' => __('PV de mise au rebut', 'protocolsmanager'),
+			'branding' => __('Identité visuelle', 'protocolsmanager'),
+			'email' => __('E-mails', 'protocolsmanager'),
+		];
+		echo "<div class='container-fluid px-0 protocolsmanager-settings'>";
+		echo "<div class='mb-3'><h1 class='h2 mb-1'>" . htmlescape(__('Configuration de Protocols Manager', 'protocolsmanager')) . "</h1>";
+		echo "<p class='text-muted mb-0'>" . htmlescape(__('Gérez les modèles d’inventaire, les procès-verbaux et leur présentation.', 'protocolsmanager')) . '</p></div>';
+		echo "<nav class='nav nav-tabs mb-4' aria-label='" . htmlescape(__('Sections de configuration', 'protocolsmanager')) . "'>";
+		foreach ($sections as $key => $label) {
+			$class = $key === $active ? 'nav-link active' : 'nav-link';
+			$current = $key === $active ? " aria-current='page'" : '';
+			echo "<a class='" . $class . "' href='config.form.php?section=" . rawurlencode($key) . "'" . $current . '>' . htmlescape($label) . '</a>';
+		}
+		echo '</nav>';
+	}
+
+	private static function displayPvTemplateSettings(string $type): void
+	{
+		$template = PluginProtocolsmanagerPvtemplate::load($type);
+		$defaults = PluginProtocolsmanagerPvtemplate::defaults($type);
+		$template = array_replace_recursive($defaults, $template);
+		$title = $type === 'commission' ? __('Mise en service', 'protocolsmanager') : __('Mise au rebut', 'protocolsmanager');
+		$help = __('Ces réglages déterminent les champs proposés à la création et les chapitres du PDF généré.', 'protocolsmanager');
+		echo "<div class='mb-3'><h2 class='h3 mb-1'>" . htmlescape($title) . "</h2><p class='text-muted'>" . htmlescape($help) . '</p></div>';
+		echo "<form action='config.form.php?section=" . htmlescape($type) . "' method='post' class='protocolsmanager-settings-form'>";
+		if (method_exists(Session::class, 'getNewCSRFToken')) {
+			echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
+		}
+		echo Html::hidden('section', ['value' => $type]);
+		echo "<section class='card mb-3'><div class='card-header'><h3 class='h5 mb-0'>" . htmlescape(__('Présentation du document', 'protocolsmanager')) . '</h3></div><div class="card-body">';
+		echo "<label class='form-label' for='pv-title'>" . htmlescape(__('Titre du document', 'protocolsmanager')) . "</label><input class='form-control' id='pv-title' name='template[title]' maxlength='255' required value='" . htmlescape($template['title'] ?? '') . "'>";
+		echo '</div></section>';
+
+		echo "<section class='card mb-3'><div class='card-header'><h3 class='h5 mb-0'>" . htmlescape(__('Formulaire de création', 'protocolsmanager')) . '</h3></div><div class="card-body">';
+		$form_fields = $template['form'] ?? [];
+		$simple_fields = $type === 'commission'
+			? ['effective_date', 'planned_use', 'city', 'observations']
+			: ['disposal_date', 'reason', 'method'];
+		foreach ($simple_fields as $key) {
+			$field = $form_fields[$key] ?? ['label' => $key, 'enabled' => true];
+			$id = 'pv-field-' . $key;
+			echo "<div class='row align-items-center g-2 py-2 border-bottom'><div class='col-md-3'><label class='form-label mb-md-0' for='" . htmlescape($id) . "'>" . htmlescape(self::pvFieldTitle($key)) . '</label></div>';
+			echo "<div class='col-md-7'><input class='form-control' id='" . htmlescape($id) . "' name='template[form][" . htmlescape($key) . "][label]' maxlength='160' value='" . htmlescape($field['label'] ?? '') . "'></div>";
+			echo "<div class='col-md-2'><input type='hidden' name='template[form][" . htmlescape($key) . "][enabled]' value='0'><label class='form-check'><input class='form-check-input' type='checkbox' name='template[form][" . htmlescape($key) . "][enabled]' value='1'" . (!empty($field['enabled']) ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape(__('Afficher', 'protocolsmanager')) . '</span></label></div></div>';
+		}
+
+		$list_key = $type === 'commission' ? 'states' : 'methods';
+		$list_title = $type === 'commission' ? __('Cases à cocher', 'protocolsmanager') : __('Modes proposés', 'protocolsmanager');
+		$list = $form_fields[$list_key] ?? [];
+		echo "<h4 class='h6 mt-4'>" . htmlescape($list_title) . '</h4>';
+		echo "<div class='table-responsive'><table class='table align-middle'><thead><tr><th>" . htmlescape(__('Libellé', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Actif', 'protocolsmanager')) . '</th>';
+		if ($type === 'commission') {
+			echo '<th>' . htmlescape(__('Cochée par défaut', 'protocolsmanager')) . '</th>';
+		}
+		echo '</tr></thead><tbody>';
+		foreach ($list as $index => $entry) {
+			$key = (string)($entry['key'] ?? '');
+			$path = 'template[form][' . $list_key . '][' . (int)$index . ']';
+			echo '<tr><td><input type="hidden" name="' . htmlescape($path . '[key]') . '" value="' . htmlescape($key) . '"><input class="form-control" maxlength="160" aria-label="' . htmlescape(__('Libellé', 'protocolsmanager')) . '" name="' . htmlescape($path . '[label]') . '" value="' . htmlescape($entry['label'] ?? '') . '"></td>';
+			echo '<td><input type="hidden" name="' . htmlescape($path . '[enabled]') . '" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . htmlescape($path . '[enabled]') . '" value="1"' . (!empty($entry['enabled']) ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Actif', 'protocolsmanager')) . '</span></label></td>';
+			if ($type === 'commission') {
+				echo '<td><input type="hidden" name="' . htmlescape($path . '[checked]') . '" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . htmlescape($path . '[checked]') . '" value="1"' . (!empty($entry['checked']) ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Cochée par défaut', 'protocolsmanager')) . '</span></label></td>';
+			}
+			echo '</tr>';
+		}
+		if ($type === 'commission') {
+			echo "</tbody></table></div><h4 class='h6 mt-4'>" . htmlescape(__('Lieux proposés', 'protocolsmanager')) . '</h4><div class="row g-3">';
+			foreach (($form_fields['cities'] ?? []) as $index => $city) {
+				$path = 'template[form][cities][' . (int)$index . ']';
+				echo '<div class="col-md-6"><label class="form-label">' . htmlescape(__('Lieu', 'protocolsmanager')) . '</label><input type="hidden" name="' . htmlescape($path . '[key]') . '" value="' . htmlescape($city['key'] ?? '') . '"><input class="form-control" maxlength="100" name="' . htmlescape($path . '[label]') . '" value="' . htmlescape($city['label'] ?? '') . '"><input type="hidden" name="' . htmlescape($path . '[enabled]') . '" value="0"><label class="form-check mt-1"><input class="form-check-input" type="checkbox" name="' . htmlescape($path . '[enabled]') . '" value="1"' . (!empty($city['enabled']) ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape(__('Proposer dans le formulaire', 'protocolsmanager')) . '</span></label></div>';
+			}
+			echo '</div>';
+		} else {
+			echo '</tbody></table></div><p class="form-text">' . htmlescape(__('Le mode « Autre » conserve son champ de précision obligatoire.', 'protocolsmanager')) . '</p>';
+		}
+		echo '</div></section>';
+
+		echo "<section class='card mb-3'><div class='card-header'><h3 class='h5 mb-0'>" . htmlescape(__('Chapitres du PDF', 'protocolsmanager')) . '</h3></div><div class="card-body">';
+		echo '<p class="form-text">' . htmlescape(__('Activez ou masquez chaque chapitre, puis modifiez son titre et le texte introductif. Les tableaux et valeurs dynamiques restent calculés à partir du formulaire et du matériel.', 'protocolsmanager')) . '</p>';
+		foreach (($template['chapters'] ?? []) as $index => $chapter) {
+			$path = 'template[chapters][' . (int)$index . ']';
+			echo "<fieldset class='border rounded p-3 mb-3'><legend class='float-none w-auto px-2 fs-6'>" . htmlescape(__('Chapitre', 'protocolsmanager') . ' ' . ((int)$index + 1)) . '</legend>';
+			echo '<input type="hidden" name="' . htmlescape($path . '[key]') . '" value="' . htmlescape($chapter['key'] ?? '') . '">';
+			echo '<label class="form-label" for="chapter-title-' . (int)$index . '">' . htmlescape(__('Titre', 'protocolsmanager')) . '</label><input class="form-control mb-2" id="chapter-title-' . (int)$index . '" name="' . htmlescape($path . '[title]') . '" maxlength="180" value="' . htmlescape($chapter['title'] ?? '') . '">';
+			echo '<label class="form-label" for="chapter-content-' . (int)$index . '">' . htmlescape(__('Texte et instructions', 'protocolsmanager')) . '</label><textarea class="form-control mb-2" id="chapter-content-' . (int)$index . '" name="' . htmlescape($path . '[content]') . '" rows="3" maxlength="5000">' . htmlescape($chapter['content'] ?? '') . '</textarea>';
+			echo '<input type="hidden" name="' . htmlescape($path . '[enabled]') . '" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . htmlescape($path . '[enabled]') . '" value="1"' . (!empty($chapter['enabled']) ? ' checked' : '') . '> <span class="form-check-label">' . htmlescape(__('Inclure dans le PDF', 'protocolsmanager')) . '</span></label></fieldset>';
+		}
+		echo '</div></section>';
+		echo "<div class='d-flex justify-content-end mb-4'><button class='btn btn-primary' type='submit' name='save_pv_template' value='1'><i class='ti ti-device-floppy me-1'></i>" . htmlescape(__('Enregistrer le modèle', 'protocolsmanager')) . '</button></div></form>';
+	}
+
+	private static function pvFieldTitle(string $key): string
+	{
+		$labels = [
+			'effective_date' => __('Date effective de mise en service', 'protocolsmanager'),
+			'planned_use' => __('Description de l’utilisation prévue', 'protocolsmanager'),
+			'city' => __('Lieu d’établissement du document', 'protocolsmanager'),
+			'observations' => __('Observations éventuelles', 'protocolsmanager'),
+			'disposal_date' => __('Date de mise au rebut', 'protocolsmanager'),
+			'reason' => __('Motif de la mise au rebut', 'protocolsmanager'),
+			'method' => __('Mode de mise au rebut', 'protocolsmanager'),
+		];
+		return $labels[$key] ?? $key;
+	}
+
+	private static function displayBrandingSettings(): void
+	{
+		$branding = PluginProtocolsmanagerPvtemplate::load('branding');
+		$color = $branding['accent_color'] ?? '#8A6428';
+		if (!is_string($color) || !preg_match('/^#[0-9a-f]{6}$/i', $color)) {
+			$color = '#8A6428';
+		}
+		echo "<div class='mb-3'><h2 class='h3 mb-1'>" . htmlescape(__('Identité visuelle globale', 'protocolsmanager')) . "</h2><p class='text-muted'>" . htmlescape(__('Le logo et la couleur d’accentuation seront partagés par les trois familles de documents.', 'protocolsmanager')) . '</p></div>';
+		echo "<form action='config.form.php?section=branding' method='post' enctype='multipart/form-data' class='protocolsmanager-settings-form'>";
+		if (method_exists(Session::class, 'getNewCSRFToken')) {
+			echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
+		}
+		echo Html::hidden('section', ['value' => 'branding']);
+		echo "<section class='card mb-3'><div class='card-header'><h3 class='h5 mb-0'>" . htmlescape(__('Logo des PDF', 'protocolsmanager')) . '</h3></div><div class="card-body">';
+		if (!empty($branding['logo'])) {
+			$path = GLPI_PICTURE_DIR . '/' . basename((string)$branding['logo']);
+			if (is_file($path) && is_readable($path)) {
+				$mime = mime_content_type($path) ?: 'image/png';
+				echo '<div class="mb-3"><img class="img-thumbnail" style="max-height:100px;max-width:240px" alt="' . htmlescape(__('Logo actuel', 'protocolsmanager')) . '" src="data:' . htmlescape($mime) . ';base64,' . base64_encode((string)file_get_contents($path)) . '"></div>';
+			}
+		}
+		echo '<label class="form-label" for="global-pdf-logo">' . htmlescape(__('Choisir un logo PNG ou JPEG (2 Mo maximum)', 'protocolsmanager')) . '</label><input class="form-control" type="file" id="global-pdf-logo" name="global_logo" accept="image/png,image/jpeg">';
+		if (!empty($branding['logo'])) {
+			echo '<input type="hidden" name="remove_logo" value="0"><label class="form-check mt-2"><input class="form-check-input" type="checkbox" name="remove_logo" value="1"> <span class="form-check-label">' . htmlescape(__('Supprimer le logo global', 'protocolsmanager')) . '</span></label>';
+		}
+		echo '</div></section>';
+		echo "<section class='card mb-3'><div class='card-header'><h3 class='h5 mb-0'>" . htmlescape(__('Couleur d’accentuation', 'protocolsmanager')) . '</h3></div><div class="card-body"><label class="form-label" for="global-accent">' . htmlescape(__('Couleur appliquée aux titres et repères des PDF', 'protocolsmanager')) . '</label><div class="d-flex align-items-center gap-3"><input class="form-control form-control-color" type="color" id="global-accent" name="accent_color" value="' . htmlescape($color) . '"><code>' . htmlescape($color) . '</code></div></div></section>';
+		echo "<div class='d-flex justify-content-end mb-4'><button class='btn btn-primary' type='submit' name='save_branding' value='1'><i class='ti ti-device-floppy me-1'></i>" . htmlescape(__('Enregistrer l’identité visuelle', 'protocolsmanager')) . '</button></div></form>';
+	}
+
+	public static function savePvTemplate(): bool
+	{
+		$type = (string)($_POST['section'] ?? '');
+		if (!in_array($type, ['commission', 'disposal'], true)) {
+			return false;
+		}
+		$defaults = PluginProtocolsmanagerPvtemplate::defaults($type);
+		$posted = is_array($_POST['template'] ?? null) ? $_POST['template'] : [];
+		$template = PluginProtocolsmanagerPvtemplate::load($type);
+		$template = array_replace_recursive($defaults, $template);
+		$template['title'] = self::settingText($posted['title'] ?? '', 255) ?: $defaults['title'];
+		$posted_form = is_array($posted['form'] ?? null) ? $posted['form'] : [];
+		foreach (array_keys($defaults['form']) as $key) {
+			if (!is_array($defaults['form'][$key])) {
+				continue;
+			}
+			if (in_array($key, ['states', 'cities', 'methods'], true)) {
+				$source = is_array($posted_form[$key] ?? null) ? $posted_form[$key] : [];
+				foreach ($defaults['form'][$key] as $index => $default_entry) {
+					$entry = is_array($source[$index] ?? null) ? $source[$index] : [];
+					$template['form'][$key][$index] = $default_entry;
+					$template['form'][$key][$index]['label'] = self::settingText($entry['label'] ?? $default_entry['label'], 160);
+					$template['form'][$key][$index]['enabled'] = ($entry['enabled'] ?? '0') === '1';
+					if (array_key_exists('checked', $default_entry)) {
+						$template['form'][$key][$index]['checked'] = ($entry['checked'] ?? '0') === '1';
+					}
+				}
+			} else {
+				$entry = is_array($posted_form[$key] ?? null) ? $posted_form[$key] : [];
+				$template['form'][$key]['label'] = self::settingText($entry['label'] ?? $template['form'][$key]['label'], 160);
+				$template['form'][$key]['enabled'] = ($entry['enabled'] ?? '0') === '1';
+			}
+		}
+		$posted_chapters = is_array($posted['chapters'] ?? null) ? $posted['chapters'] : [];
+		foreach ($defaults['chapters'] as $index => $chapter) {
+			$entry = is_array($posted_chapters[$index] ?? null) ? $posted_chapters[$index] : [];
+			$template['chapters'][$index] = $chapter;
+			$template['chapters'][$index]['title'] = self::settingText($entry['title'] ?? $chapter['title'], 180) ?: $chapter['title'];
+			$template['chapters'][$index]['content'] = self::settingText($entry['content'] ?? $chapter['content'], 5000);
+			$template['chapters'][$index]['enabled'] = ($entry['enabled'] ?? '0') === '1';
+		}
+		return PluginProtocolsmanagerPvtemplate::save($type, $template);
+	}
+
+	public static function saveBranding(): bool
+	{
+		$branding = PluginProtocolsmanagerPvtemplate::load('branding');
+		$color = $_POST['accent_color'] ?? '';
+		if (!is_string($color) || !preg_match('/^#[0-9a-f]{6}$/i', $color)) {
+			Session::addMessageAfterRedirect(__('La couleur indiquée est invalide.', 'protocolsmanager'), false, ERROR);
+			return false;
+		}
+		$branding['accent_color'] = $color;
+		if (($_POST['remove_logo'] ?? '0') === '1') {
+			$branding['logo'] = '';
+		}
+		$file = $_FILES['global_logo'] ?? null;
+		if (is_array($file) && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+			if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || (int)($file['size'] ?? 0) > 2097152) {
+				Session::addMessageAfterRedirect(__('Le logo dépasse 2 Mo ou le téléversement a échoué.', 'protocolsmanager'), false, ERROR);
+				return false;
+			}
+			$image = @getimagesize($file['tmp_name']);
+			$mime = is_array($image) ? ($image['mime'] ?? '') : '';
+			$extensions = ['image/png' => 'png', 'image/jpeg' => 'jpg'];
+			if (!isset($extensions[$mime])) {
+				Session::addMessageAfterRedirect(__('Le logo doit être une image PNG ou JPEG valide.', 'protocolsmanager'), false, ERROR);
+				return false;
+			}
+			$name = 'protocolsmanager-global-' . bin2hex(random_bytes(8)) . '.' . $extensions[$mime];
+			$destination = GLPI_PICTURE_DIR . '/' . $name;
+			if (!move_uploaded_file($file['tmp_name'], $destination)) {
+				Session::addMessageAfterRedirect(__('Le logo n’a pas pu être enregistré.', 'protocolsmanager'), false, ERROR);
+				return false;
+			}
+			$branding['logo'] = $name;
+		}
+		return PluginProtocolsmanagerPvtemplate::save('branding', $branding);
+	}
+
+	private static function settingText($value, int $limit): string
+	{
+		if (!is_string($value)) {
+			return '';
+		}
+		return mb_substr(trim(strip_tags($value)), 0, $limit);
 	}
 	
 	static function displayContentConfig() {
@@ -146,20 +382,8 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		}
 		
 		echo "<div class='center'>";
-		echo "<form action='config.form.php' method='post'>";
-		echo "<input type='hidden' name='menu_mode' value='t'>";
-		echo "<table class='tab_cadre_fixe' style='width:90%;'>";
-		echo "<tr><td style='text-align:center'><input type='submit' class='submit' name='template_settings' value='Templates settings'></td>";
-		Html::closeForm();
-		echo "<form action='config.form.php' method='post'>";
-		echo "<input type='hidden' name='menu_mode' value='e'>";
-		echo "<td style='text-align:center'><input type='submit' class='submit' name='email_settings' value='Email settings'></td></tr>";
-		echo "</table>";
-		Html::closeForm();
-		echo "</div>";
-	
-		echo "<div class='center'>";
-		echo "<form name='form' action='config.form.php' method='post'  enctype='multipart/form-data'>";
+		echo "<form name='form' action='config.form.php' method='post' enctype='multipart/form-data' class='protocolsmanager-settings-form'>";
+		echo Html::hidden('section', ['value' => 'inventory']);
 		echo "<input type='hidden' name='MAX_FILE_SIZE' value=1948000>";
 		// Added htmlescape for XSS protection
 		echo "<input type='hidden' name='mode' value='" . htmlescape($mode) . "'>";
@@ -197,8 +421,7 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		if ($breakword == 0)
 			echo "checked='checked'";
 		echo "> Off</label></td></tr>";
-		echo "<tr><td>".__('Color')."</td><td colspan='2'><input type='color' name='theme_color' value='" . htmlescape($theme_color) . "'></td></tr>";
-		echo "<tr><td>".__('Text color')."</td><td colspan='2'><input type='color' name='header_text_color' value='" . htmlescape($header_text_color) . "'></td></tr>";
+		echo "<tr><td colspan='3'><div class='alert alert-info mb-0'>" . htmlescape(__('Le logo et la couleur sont désormais réglés globalement dans Identité visuelle.', 'protocolsmanager')) . " <a href='config.form.php?section=branding'>" . htmlescape(__('Ouvrir ces réglages', 'protocolsmanager')) . '</a></div></td></tr>';
 		
 		// Added htmlescape for XSS protection
 		echo "<tr><td>".__('City')."</td><td colspan='2'><input type='text' name='city' style='width:80%;' value='" . htmlescape($city) . "'></td></tr>";
@@ -224,49 +447,6 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		if ($serial_mode == 2)
 			echo "checked='checked'";
 		echo "> serial or inventory number if serial doesn't exists</label></td></tr>";
-		echo "<tr><td>".__('Logo')."</td><td colspan='2'><input type='file' name='logo' accept='image/png, image/jpeg'>";
-		if (isset($logo) && $logo != '') {
-			$full_img_name = GLPI_PICTURE_DIR . '/' . $logo;
-			if (file_exists($full_img_name)) {
-				$img_type = pathinfo($full_img_name, PATHINFO_EXTENSION);
-				$img_data = file_get_contents($full_img_name);
-				$base64 = 'data:image/'.$img_type.';base64,'.base64_encode($img_data);
-				$img_delete = true;
-	
-				// Construire la balise img avec les dimensions si définies
-				$width_attr = $logo_width != '' ? "width='".intval($logo_width)."'": "style='height:50px; width:auto;'";
-				$height_attr = $logo_height != '' ? "height='".intval($logo_height)."'" : "";
-	
-				// Prioriser l'attribut width et height s'ils existent, sinon style par défaut
-				if ($logo_width != '' || $logo_height != '') {
-					// Si au moins un est défini, on utilise width et height
-					$img_tag = "<img src='".$base64."' ";
-					if ($logo_width != '') {
-						$img_tag .= "width='".intval($logo_width)."' ";
-					}
-					if ($logo_height != '') {
-						$img_tag .= "height='".intval($logo_height)."' ";
-					}
-					$img_tag .= "/>";
-				} else {
-					$img_tag = "<img src='".$base64."' style='height:50px; width:auto;'/>";
-				}
-	
-				echo "&nbsp;&nbsp;".$img_tag;
-				// Added htmlescape for XSS protection
-				echo "&nbsp;&nbsp;<input type='checkbox' name='img_delete' value='" . htmlescape($img_delete) . "'>&nbsp ".__('Delete')." ".__('File');
-			}
-		}
-		echo "</td></tr>";
-	
-		// Nouveau champ largeur logo
-		// Added htmlescape for XSS protection
-		echo "<tr><td>".__('Logo width (px)')."</td><td colspan='2'><input type='number' min='0' name='logo_width' value='" . htmlescape($logo_width) . "' style='width:80px;'></td></tr>";
-	
-		// Nouveau champ hauteur logo
-		// Added htmlescape for XSS protection
-		echo "<tr><td>".__('Logo height (px)')."</td><td colspan='2'><input type='number' min='0' name='logo_height' value='" . htmlescape($logo_height) . "' style='width:80px;'></td></tr>";
-	
 		// ... suite du formulaire ...
 		echo "<tr><td>".__('Enable email autosending')."</td><td><label><input type='radio' name='email_mode' value='1'";
 		if ($email_mode == 1)
@@ -329,19 +509,6 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 	static function DisplayContentEmail() {
 		global $DB, $CFG_GLPI;
 		
-		echo "<div class='center'>";
-		echo "<form action='config.form.php' method='post'>";
-		echo "<input type='hidden' name='menu_mode' value='t'>";
-		echo "<table class='tab_cadre_fixe' style='width:90%;'>";
-		echo "<tr><td style='text-align:center'><input type='submit' class='submit' name='template_settings' value='Templates settings'></td>";
-		Html::closeForm();
-		echo "<form action='config.form.php' method='post'>";
-		echo "<input type='hidden' name='menu_mode' value='e'>";
-		echo "<td style='text-align:center'><input type='submit' class='submit' name='email_settings' value='Email settings'></td></tr>";
-		echo "</table>";
-		Html::closeForm();
-		echo "</div>";
-		
 		if (isset($_POST["email_edit_id"])) {
 			
 			$email_edit_id = $_POST['email_edit_id'];
@@ -370,7 +537,8 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		
 		//email template edit
 		echo "<div class='center'>";
-		echo "<form name ='email_template_edit' action='config.form.php' method='post' enctype='multipart/form-data'>";
+		echo "<form name ='email_template_edit' action='config.form.php' method='post' enctype='multipart/form-data' class='protocolsmanager-settings-form'>";
+		echo Html::hidden('section', ['value' => 'email']);
 		
 		echo "<table class='tab_cadre_fixe'>";
 		echo "<tr><th colspan='3'>".__('Create')." ".__('email template')."<a href='https://github.com/mateusznitka/protocolsmanager/wiki/Email-sending-configuration' target='_blank'><img src='../img/help.png' width='20px' height='20px' align='right'></a></th></tr>";
@@ -477,12 +645,8 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			}
 
 
-			if (isset($_POST["logo_width"])) {
-				$logo_width = intval($_POST["logo_width"]);
-			}
-			if (isset($_POST["logo_height"])) {
-				$logo_height = intval($_POST["logo_height"]);
-			}
+			$logo_width = isset($_POST["logo_width"]) ? max(0, (int)$_POST["logo_width"]) : null;
+			$logo_height = isset($_POST["logo_height"]) ? max(0, (int)$_POST["logo_height"]) : null;
 
 
 			// TODO : concaténé quand les champs sont vides
@@ -745,7 +909,9 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 	
 	static function uploadImage() {
 		global $DB, $CFG_GLPI;
-		
+		if (!isset($_FILES['logo']) || !is_array($_FILES['logo']) || empty($_FILES['logo']['name'])) {
+			return null;
+		}
 		if($_FILES['logo']['name']) {
 			
 			if($_FILES['logo']['error'] != UPLOAD_ERR_FORM_SIZE) {

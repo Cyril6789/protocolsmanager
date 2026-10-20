@@ -36,13 +36,13 @@ class PluginProtocolsmanagerPvtemplate
                 ],
                 'chapters' => [
                     ['key' => 'identification', 'title' => 'Identification de l’immobilisation', 'enabled' => true,
-                        'content' => 'Données d’identification des matériels sélectionnés.'],
+                        'content' => ''],
                     ['key' => 'commissioning', 'title' => 'Mise en service', 'enabled' => true,
-                        'content' => 'Déclaration et états de mise en service.'],
+                        'content' => ''],
                     ['key' => 'observations', 'title' => 'Observations éventuelles', 'enabled' => true,
-                        'content' => '{observations}'],
+                        'content' => ''],
                     ['key' => 'validation', 'title' => 'Validations', 'enabled' => true,
-                        'content' => 'Tableau des validations et signatures.'],
+                        'content' => ''],
                 ],
             ];
         }
@@ -64,15 +64,15 @@ class PluginProtocolsmanagerPvtemplate
                 ],
                 'chapters' => [
                     ['key' => 'general', 'title' => 'Informations générales', 'enabled' => true,
-                        'content' => 'Informations sur le demandeur et le service concerné.'],
+                        'content' => ''],
                     ['key' => 'asset', 'title' => 'Détails de l’immobilisation', 'enabled' => true,
-                        'content' => 'Données d’identification des matériels sélectionnés.'],
+                        'content' => ''],
                     ['key' => 'reason', 'title' => 'Motif de la mise au rebut', 'enabled' => true,
-                        'content' => '{reason}'],
+                        'content' => ''],
                     ['key' => 'method', 'title' => 'Mode de mise au rebut', 'enabled' => true,
-                        'content' => '{method}'],
+                        'content' => ''],
                     ['key' => 'signature', 'title' => 'Signature', 'enabled' => true,
-                        'content' => 'Zone de signature du demandeur.'],
+                        'content' => ''],
                 ],
             ];
         }
@@ -154,6 +154,7 @@ class PluginProtocolsmanagerPvtemplate
         if (!self::hasSetting(self::BRANDING_KEY)) {
             $branding = ['logo' => '', 'accent_color' => '#8A6428'];
             if ($DB->tableExists('glpi_plugin_protocolsmanager_config')) {
+                $color_found = false;
                 $templates = $DB->request([
                     'SELECT' => ['logo', 'theme_color'],
                     'FROM' => 'glpi_plugin_protocolsmanager_config',
@@ -163,10 +164,11 @@ class PluginProtocolsmanagerPvtemplate
                     if ($branding['logo'] === '' && !empty($template['logo'])) {
                         $branding['logo'] = basename((string)$template['logo']);
                     }
-                    if (preg_match('/^#[0-9a-f]{6}$/i', (string)($template['theme_color'] ?? ''))) {
+                    if (!$color_found && preg_match('/^#[0-9a-f]{6}$/i', (string)($template['theme_color'] ?? ''))) {
                         $branding['accent_color'] = (string)$template['theme_color'];
+                        $color_found = true;
                     }
-                    if ($branding['logo'] !== '' && !empty($template['theme_color'])) {
+                    if ($branding['logo'] !== '' && $color_found) {
                         break;
                     }
                 }

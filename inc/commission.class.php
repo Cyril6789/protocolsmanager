@@ -127,12 +127,8 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 
 	private static function renderGenerationForm(array $group, string $immo_number, string $root_doc, $DB, string $source_itemtype = '', int $source_item_id = 0): void
 	{
-		$states = [
-			'installation' => __('Installée', 'protocolsmanager'),
-			'tested' => __('Testée', 'protocolsmanager'),
-			'accepted' => __('Réceptionnée conforme', 'protocolsmanager'),
-			'operational' => __('Mise en exploitation', 'protocolsmanager'),
-		];
+		$pv_template = PluginProtocolsmanagerPvtemplate::load('commission');
+		$form = $pv_template['form'] ?? [];
 		echo "<form method='post' action='" . htmlescape($root_doc . '/plugins/protocolsmanager/front/commission.form.php') . "' class='commission-form'>";
 		if (method_exists(Session::class, 'getNewCSRFToken')) {
 			echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
@@ -163,36 +159,62 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 				: __('Ce PV sera rattaché au matériel courant, sans numéro immo.', 'protocolsmanager');
 			echo "<div class='alert alert-secondary'>" . htmlescape($notice) . '</div>';
 		}
-		echo "<div class='row g-3 align-items-end'><div class='col-md-8'><label class='form-label' for='commission-config'>" . htmlescape(__('Modèle PDF (logo et couleurs)', 'protocolsmanager')) . '</label><select class="form-select" id="commission-config" name="config_id">';
-		$configs = $DB->request(['SELECT' => ['id', 'name'], 'FROM' => 'glpi_plugin_protocolsmanager_config', 'ORDER' => ['id ASC']]);
-		foreach ($configs as $config) {
-			echo '<option value="' . htmlescape($config['id']) . '">' . htmlescape($config['name'] ?? '') . '</option>';
+		$branding = PluginProtocolsmanagerPvtemplate::load('branding');
+		echo "<div class='row g-3 align-items-end'>";
+		if (!empty($form['effective_date']['enabled'])) {
+			echo '<div class="col-md-8"><label class="form-label" for="effective-date">' . htmlescape($form['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) . '</label><input class="form-control" type="date" id="effective-date" name="effective_date" value="' . htmlescape(self::commonPurchaseDate($group)) . '"></div>';
 		}
-		echo '</select></div><div class="col-md-4"><label class="form-label" for="effective-date">' . htmlescape(__('Date effective de mise en service', 'protocolsmanager')) . '</label><input class="form-control" type="date" id="effective-date" name="effective_date" value="' . htmlescape(self::commonPurchaseDate($group)) . '"></div></div>';
+		echo '<div class="col-md-4"><div class="form-text">' . htmlescape(__('Identité visuelle globale appliquée au PDF.', 'protocolsmanager')) . '</div>';
+		if (!empty($branding['accent_color'])) {
+			echo '<span class="badge" style="background-color:' . htmlescape($branding['accent_color']) . '">' . htmlescape(__('Couleur PDF', 'protocolsmanager')) . '</span>';
+		}
+		echo '</div></div>';
 		if ($group !== []) {
 			echo '</div></section>';
 		}
 
-		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Mise en service', 'protocolsmanager')) . '</strong></div><div class="card-body">';
+		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($pv_template['title'] ?? __('Mise en service', 'protocolsmanager')) . '</strong></div><div class="card-body">';
 		echo "<p class='mb-3'>" . htmlescape(__('Je soussigné(e) certifie que l’immobilisation décrite ci-dessous a été :', 'protocolsmanager')) . '</p><div class="d-flex flex-wrap gap-3 mb-4">';
-		foreach ($states as $key => $label) {
-			echo '<label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" name="states[]" value="' . htmlescape($key) . '" checked><span class="form-check-label">' . htmlescape($label) . '</span></label>';
+		foreach (($form['states'] ?? []) as $state) {
+			if (empty($state['enabled'])) {
+				continue;
+			}
+			$key = (string)($state['key'] ?? '');
+			$checked = !empty($state['checked']) ? ' checked' : '';
+			echo '<label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" name="states[]" value="' . htmlescape($key) . '"' . $checked . '><span class="form-check-label">' . htmlescape($state['label'] ?? '') . '</span></label>';
 		}
-		echo '</div><div class="row g-3"><div class="col-12"><label class="form-label" for="planned-use">' . htmlescape(__('Description de l’utilisation prévue', 'protocolsmanager')) . '</label><textarea class="form-control" id="planned-use" name="planned_use" rows="3"></textarea></div></div>';
-		echo "<fieldset class='mt-3'><legend class='fs-6'>" . htmlescape(__('Lieu d’établissement du document', 'protocolsmanager')) . '</legend><div class="d-flex gap-4">';
-		foreach (['Eichhoffen', 'Barr'] as $city) {
-			$checked = $city === 'Eichhoffen' ? ' checked' : '';
-			echo '<label class="form-check"><input class="form-check-input" type="radio" name="city" value="' . htmlescape($city) . '"' . $checked . '> <span class="form-check-label">' . htmlescape($city) . '</span></label>';
+		echo '</div><div class="row g-3">';
+		if (!empty($form['planned_use']['enabled'])) {
+			echo '<div class="col-12"><label class="form-label" for="planned-use">' . htmlescape($form['planned_use']['label'] ?? __('Description de l’utilisation prévue', 'protocolsmanager')) . '</label><textarea class="form-control" id="planned-use" name="planned_use" rows="3"></textarea></div>';
 		}
-		echo '</div></fieldset></div></section>';
+		echo '</div>';
+		if (!empty($form['city']['enabled'])) {
+			echo "<fieldset class='mt-3'><legend class='fs-6'>" . htmlescape($form['city']['label'] ?? __('Lieu d’établissement du document', 'protocolsmanager')) . '</legend><div class="d-flex gap-4">';
+			$default_city_selected = false;
+			foreach (($form['cities'] ?? []) as $city) {
+				if (empty($city['enabled'])) {
+					continue;
+				}
+				$value = (string)($city['key'] ?? '');
+				$checked = !$default_city_selected ? ' checked' : '';
+				$default_city_selected = true;
+				echo '<label class="form-check"><input class="form-check-input" type="radio" name="city" value="' . htmlescape($value) . '"' . $checked . '> <span class="form-check-label">' . htmlescape($city['label'] ?? $value) . '</span></label>';
+			}
+			echo '</div></fieldset>';
+		}
+		echo '</div></section>';
 
-		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Observations éventuelles', 'protocolsmanager')) . '</strong></div><div class="card-body"><label class="form-label" for="commission-observations">' . htmlescape(__('Informations complémentaires', 'protocolsmanager')) . '</label><textarea class="form-control" id="commission-observations" name="observations" rows="4"></textarea></div></section>';
+		if (!empty($form['observations']['enabled'])) {
+			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($form['observations']['label'] ?? __('Observations éventuelles', 'protocolsmanager')) . '</strong></div><div class="card-body"><textarea class="form-control" id="commission-observations" name="observations" rows="4" aria-label="' . htmlescape($form['observations']['label'] ?? '') . '"></textarea></div></section>';
+		}
 		echo "<div class='d-flex justify-content-end mb-4'><button class='btn btn-primary' type='submit' name='generate_commission' value='1'><i class='ti ti-file-type-pdf me-1'></i>" . htmlescape(__('Générer le PV PDF', 'protocolsmanager')) . '</button></div>';
 		echo '</form>';
 	}
 
 	private static function renderDisposalForm(array $group, string $immo_number, string $root_doc, $DB, string $source_itemtype = '', int $source_item_id = 0): void
 	{
+		$pv_template = PluginProtocolsmanagerPvtemplate::load('disposal');
+		$form = $pv_template['form'] ?? [];
 		if (!Session::haveRight('document', CREATE)) {
 			echo "<div class='alert alert-info'>" . htmlescape(__('Votre profil ne permet pas de créer des documents GLPI.', 'protocolsmanager')) . '</div>';
 			return;
@@ -228,7 +250,9 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			echo "<div class='alert alert-secondary'>" . htmlescape($notice) . '</div>';
 		}
 		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Informations générales', 'protocolsmanager')) . '</strong></div><div class="card-body"><div class="row g-3">';
-		echo '<div class="col-md-6"><label class="form-label" for="disposal-date">' . htmlescape(__('Date de mise au rebut', 'protocolsmanager')) . '</label><input class="form-control" type="date" id="disposal-date" name="disposal_date" value="' . htmlescape(date('Y-m-d')) . '" required></div>';
+		if (!empty($form['disposal_date']['enabled'])) {
+			echo '<div class="col-md-6"><label class="form-label" for="disposal-date">' . htmlescape($form['disposal_date']['label'] ?? __('Date de mise au rebut', 'protocolsmanager')) . '</label><input class="form-control" type="date" id="disposal-date" name="disposal_date" value="' . htmlescape(date('Y-m-d')) . '" required></div>';
+		}
 		echo '<div class="col-md-6"><label class="form-label">' . htmlescape(__('Service concerné', 'protocolsmanager')) . '</label><input class="form-control" type="text" value="Informatique" readonly></div>';
 		$user = new User();
 		$user_id = (int)Session::getLoginUserID();
@@ -274,18 +298,17 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		}
 		echo '</div></section>';
 
-		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Motif de la mise au rebut', 'protocolsmanager')) . '</strong></div><div class="card-body"><textarea class="form-control" name="disposal_reason" rows="4" required></textarea></div></section>';
-		echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape(__('Mode de mise au rebut', 'protocolsmanager')) . '</strong></div><div class="card-body">';
+		if (!empty($form['reason']['enabled'])) {
+			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($form['reason']['label'] ?? __('Motif de la mise au rebut', 'protocolsmanager')) . '</strong></div><div class="card-body"><textarea class="form-control" name="disposal_reason" rows="4" aria-label="' . htmlescape($form['reason']['label'] ?? '') . '" required></textarea></div></section>';
+		}
+		if (!empty($form['method']['enabled'])) {
+			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($form['method']['label'] ?? __('Mode de mise au rebut', 'protocolsmanager')) . '</strong></div><div class="card-body">';
 		foreach (self::disposalMethodOptions() as $value => $label) {
 			echo '<div class="form-check mb-1"><input class="form-check-input" type="radio" name="disposal_method" id="disposal-method-' . htmlescape($value) . '" value="' . htmlescape($value) . '" required><label class="form-check-label" for="disposal-method-' . htmlescape($value) . '">' . htmlescape($label) . '</label></div>';
 		}
 		echo '<label class="form-label mt-2" for="disposal-method-other">' . htmlescape(__('Préciser si autre', 'protocolsmanager')) . '</label><textarea class="form-control" id="disposal-method-other" name="disposal_method_other" rows="2"></textarea></div></section>';
-		echo "<div class='row g-3 align-items-end mb-3'><div class='col-md-8'><label class='form-label' for='disposal-config'>" . htmlescape(__('Modèle PDF (logo et couleurs)', 'protocolsmanager')) . '</label><select class="form-select" id="disposal-config" name="config_id">';
-		$configs = $DB->request(['SELECT' => ['id', 'name'], 'FROM' => 'glpi_plugin_protocolsmanager_config', 'ORDER' => ['id ASC']]);
-		foreach ($configs as $config) {
-			echo '<option value="' . htmlescape($config['id']) . '">' . htmlescape($config['name'] ?? '') . '</option>';
 		}
-		echo '</select></div></div>';
+		echo "<p class='form-text mb-3'>" . htmlescape(__('Le logo et la couleur d’accentuation globaux seront appliqués à ce PDF.', 'protocolsmanager')) . '</p>';
 		echo "<div class='d-flex justify-content-end mb-4'><button class='btn btn-primary' type='submit' name='generate_disposal' value='1'><i class='ti ti-file-type-pdf me-1'></i>" . htmlescape(__('Générer le PV de mise au rebut', 'protocolsmanager')) . '</button></div></form>';
 	}
 
@@ -539,15 +562,28 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			&& checkdate((int)$date_parts[2], (int)$date_parts[3], (int)$date_parts[1])) {
 			$effective_date = $submitted_date;
 		}
-		$states = array_intersect(['installation', 'tested', 'accepted', 'operational'], (array)($_POST['states'] ?? []));
-		$city = in_array($_POST['city'] ?? '', ['Eichhoffen', 'Barr'], true) ? $_POST['city'] : 'Eichhoffen';
+		$template = PluginProtocolsmanagerPvtemplate::load('commission');
+		$active_states = [];
+		foreach (($template['form']['states'] ?? []) as $state) {
+			if (!empty($state['enabled']) && isset($state['key'])) {
+				$active_states[] = (string)$state['key'];
+			}
+		}
+		$states = array_values(array_intersect($active_states, (array)($_POST['states'] ?? [])));
+		$active_cities = [];
+		foreach (($template['form']['cities'] ?? []) as $city_option) {
+			if (!empty($city_option['enabled']) && isset($city_option['key'])) {
+				$active_cities[] = (string)$city_option['key'];
+			}
+		}
+		$submitted_city = is_string($_POST['city'] ?? null) ? $_POST['city'] : '';
+		$city = in_array($submitted_city, $active_cities, true) ? $submitted_city : ($active_cities[0] ?? '');
 		$planned_use = self::cleanText($_POST['planned_use'] ?? '', 5000);
 		$observations = self::cleanText($_POST['observations'] ?? '', 10000);
 		if ($observations === '') {
 			$observations = 'RAS';
 		}
-		$config_id = max(0, (int)($_POST['config_id'] ?? 0));
-		return self::createPdf(array_values($assets), $immo, $effective_date, $states, $city, $planned_use, $observations, $config_id);
+		return self::createPdf(array_values($assets), $immo, $effective_date, $states, $city, $planned_use, $observations);
 	}
 
 	public static function generateDisposalFromRequest(): bool
@@ -600,28 +636,31 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			&& checkdate((int)$date_parts[2], (int)$date_parts[3], (int)$date_parts[1])) {
 			$disposal_date = $submitted_date;
 		}
+		$template = PluginProtocolsmanagerPvtemplate::load('disposal');
 		$reason = self::cleanText($_POST['disposal_reason'] ?? '', 10000);
 		$method_key = is_string($_POST['disposal_method'] ?? null) ? $_POST['disposal_method'] : '';
 		$method_options = self::disposalMethodOptions();
 		$method_other = self::cleanText($_POST['disposal_method_other'] ?? '', 10000);
-		if ($reason === '' || !isset($method_options[$method_key]) || ($method_key === 'autre' && $method_other === '')) {
+		$reason_required = !empty($template['form']['reason']['enabled']);
+		$method_required = !empty($template['form']['method']['enabled']);
+		if (($reason_required && $reason === '') || ($method_required && !isset($method_options[$method_key])) || ($method_required && $method_key === 'autre' && $method_other === '')) {
 			Session::addMessageAfterRedirect(__('Le motif et le mode de mise au rebut sont obligatoires. Précisez le mode si « Autre » est sélectionné.', 'protocolsmanager'), false, ERROR);
 			return false;
 		}
-		$method = $method_options[$method_key] . ($method_key === 'autre' ? ' : ' . $method_other : '');
-		$config_id = max(0, (int)($_POST['config_id'] ?? 0));
-		return self::createDisposalPdf(array_values($assets), $immo, $disposal_date, $reason, $method, $config_id);
+		$method = isset($method_options[$method_key]) ? $method_options[$method_key] . ($method_key === 'autre' ? ' : ' . $method_other : '') : '';
+		return self::createDisposalPdf(array_values($assets), $immo, $disposal_date, $reason, $method);
 	}
 
 	private static function disposalMethodOptions(): array
 	{
-		return [
-			'destruction' => __('Destruction', 'protocolsmanager'),
-			'don' => __('Don', 'protocolsmanager'),
-			'vente_symbolique' => __('Vente symbolique', 'protocolsmanager'),
-			'recyclage_deee' => __('Recyclage DEEE après dépose du disque dur', 'protocolsmanager'),
-			'autre' => __('Autre', 'protocolsmanager'),
-		];
+		$template = PluginProtocolsmanagerPvtemplate::load('disposal');
+		$options = [];
+		foreach (($template['form']['methods'] ?? []) as $entry) {
+			if (!empty($entry['enabled']) && !empty($entry['key']) && !empty($entry['label'])) {
+				$options[(string)$entry['key']] = (string)$entry['label'];
+			}
+		}
+		return $options;
 	}
 
 	private static function cleanText($value, int $limit): string
@@ -633,15 +672,12 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		return mb_substr(trim($value), 0, $limit);
 	}
 
-	private static function createDisposalPdf(array $assets, string $immo, string $disposal_date, string $reason, string $method, int $config_id): bool
+	private static function createDisposalPdf(array $assets, string $immo, string $disposal_date, string $reason, string $method): bool
 	{
 		global $DB;
-		$config_query = $config_id > 0
-			? $DB->request(['FROM' => 'glpi_plugin_protocolsmanager_config', 'WHERE' => ['id' => $config_id]])
-			: $DB->request(['FROM' => 'glpi_plugin_protocolsmanager_config', 'ORDER' => ['id ASC'], 'LIMIT' => 1]);
-		$config = $config_query->current() ?: [];
-		$accent = $config['theme_color'] ?? '#8A6428';
-		$header_text_color = $config['header_text_color'] ?? '#FFFFFF';
+		$config = PluginProtocolsmanagerPvtemplate::load('branding');
+		$accent = $config['accent_color'] ?? '#8A6428';
+		$header_text_color = '#FFFFFF';
 		if (!is_string($accent) || !preg_match('/^#[0-9a-f]{6}$/i', $accent)) {
 			$accent = '#8A6428';
 		}
@@ -650,8 +686,8 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		}
 		$logo_path = !empty($config['logo']) ? GLPI_PICTURE_DIR . '/' . basename($config['logo']) : '';
 		$logo_html = '';
-		$logo_width = min(120, isset($config['logo_width']) && (int)$config['logo_width'] > 0 ? (int)$config['logo_width'] : 120);
-		$logo_height = min(120, isset($config['logo_height']) && (int)$config['logo_height'] > 0 ? (int)$config['logo_height'] : 120);
+		$logo_width = 120;
+		$logo_height = 120;
 		if ($logo_path !== '' && is_file($logo_path) && is_readable($logo_path)) {
 			$mime = function_exists('mime_content_type') ? mime_content_type($logo_path) : 'image/png';
 			if (!is_string($mime) || !in_array($mime, ['image/png', 'image/jpeg'], true)) {
@@ -684,6 +720,16 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		if ($title !== '') {
 			$requester_with_title .= ' - ' . $title;
 		}
+		$pv_template = PluginProtocolsmanagerPvtemplate::load('disposal');
+		$chapters = [];
+		foreach (($pv_template['chapters'] ?? []) as $chapter) {
+			if (isset($chapter['key'])) {
+				$chapters[$chapter['key']] = $chapter;
+			}
+		}
+		$chapter_title = static fn($key, $fallback) => (string)($chapters[$key]['title'] ?? $fallback);
+		$chapter_enabled = static fn($key) => !isset($chapters[$key]) || !empty($chapters[$key]['enabled']);
+		$chapter_intro = static fn($key) => trim((string)($chapters[$key]['content'] ?? ''));
 		$escape = static fn($value) => htmlescape((string)$value);
 		ob_start();
 ?>
@@ -714,12 +760,13 @@ th { background:#f1f1f1; text-align:left; }
 .signature td { height:18mm; }
 </style></head><body>
 <table class="pdf-header"><tr><td class="immo-cell"><span class="header-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape($immo) ?></span></td><td class="logo-cell"><?= $logo_html ?></td><td class="date-cell"><span class="header-label"><?= $escape(__('Date de mise au rebut', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape(self::displayDate($disposal_date)) ?></span></td></tr></table>
-<h1><?= $escape(__('Procès-verbal de mise au rebut', 'protocolsmanager')) ?></h1>
-<h2>1. <?= $escape(__('Informations générales', 'protocolsmanager')) ?></h2>
+<h1><?= $escape($pv_template['title'] ?? __('Procès-verbal de mise au rebut', 'protocolsmanager')) ?></h1>
+<?php if ($chapter_enabled('general')): ?><h2>1. <?= $escape($chapter_title('general', __('Informations générales', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('general') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('general'))) ?></p><?php endif; ?>
 <table class="general-table"><tbody>
 <tr><td class="field service-label"><?= $escape(__('Service concerné', 'protocolsmanager')) ?></td><td class="service-value">Informatique</td><td class="field requester-label"><?= $escape(__('Demandeur', 'protocolsmanager')) ?></td><td><?= $escape($requester_with_title) ?></td></tr>
 </tbody></table>
-<h2>2. <?= $escape(__('Détails de l’immobilisation', 'protocolsmanager')) ?></h2>
+<?php endif; ?>
+<?php if ($chapter_enabled('asset')): ?><h2>2. <?= $escape($chapter_title('asset', __('Détails de l’immobilisation', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('asset') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('asset'))) ?></p><?php endif; ?>
 <?php foreach ($assets as $asset): ?><div class="asset"><table class="asset-table"><colgroup><col class="label" style="width:30%"><col class="value" style="width:20%"><col class="label" style="width:24%"><col class="value" style="width:26%"></colgroup><tbody>
 <?php
 $make_model = implode(' — ', array_filter([$asset['manufacturer'], $asset['model']], static fn($value) => $value !== ''));
@@ -735,11 +782,12 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 <tr><td class="field" style="width:30%"><?= $escape(__('Date de mise en service', 'protocolsmanager')) ?></td><td><?= $escape(self::displayDate($asset['service_date'])) ?></td><td class="field"><?= $escape(__('Montant', 'protocolsmanager')) ?></td><td><?= $escape($amount) ?></td></tr>
 <tr><td class="field" style="width:30%"><?= $escape(__('Marque / Modèle', 'protocolsmanager')) ?></td><td colspan="3"><?= $escape($make_model) ?></td></tr>
 </tbody></table></div><?php endforeach; ?>
-<?php if (count($assets) > 1 && $all_amounts_present): ?><p><strong><?= $escape(__('Montant total', 'protocolsmanager')) ?> : <?= $escape(number_format($total, 2, ',', ' ')) ?> €</strong></p><?php endif; ?>
-<h2>3. <?= $escape(__('Motif de la mise au rebut', 'protocolsmanager')) ?></h2><div class="free"><?= $escape($reason) ?></div>
-<h2>4. <?= $escape(__('Mode de mise au rebut', 'protocolsmanager')) ?></h2><div class="free"><?= $escape($method) ?></div>
-<h2>5. <?= $escape(__('Signature', 'protocolsmanager')) ?></h2>
+<?php if (count($assets) > 1 && $all_amounts_present): ?><p><strong><?= $escape(__('Montant total', 'protocolsmanager')) ?> : <?= $escape(number_format($total, 2, ',', ' ')) ?> €</strong></p><?php endif; ?><?php endif; ?>
+<?php if ($chapter_enabled('reason')): ?><h2>3. <?= $escape($chapter_title('reason', __('Motif de la mise au rebut', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('reason') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('reason'))) ?></p><?php endif; ?><div class="free"><?= $escape($reason) ?></div><?php endif; ?>
+<?php if ($chapter_enabled('method')): ?><h2>4. <?= $escape($chapter_title('method', __('Mode de mise au rebut', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('method') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('method'))) ?></p><?php endif; ?><div class="free"><?= $escape($method) ?></div><?php endif; ?>
+<?php if ($chapter_enabled('signature')): ?><h2>5. <?= $escape($chapter_title('signature', __('Signature', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('signature') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('signature'))) ?></p><?php endif; ?>
 <table class="signature"><tr><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th></tr><tr><td><?= $escape($requester) ?></td><td></td><td></td></tr></table>
+<?php endif; ?>
 </body></html>
 <?php
 		$html = ob_get_clean();
@@ -793,15 +841,12 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 		return true;
 	}
 
-	private static function createPdf(array $assets, string $immo, string $effective_date, array $states, string $city, string $planned_use, string $observations, int $config_id): bool
+	private static function createPdf(array $assets, string $immo, string $effective_date, array $states, string $city, string $planned_use, string $observations): bool
 	{
 		global $DB;
-		$config_query = $config_id > 0
-			? $DB->request(['FROM' => 'glpi_plugin_protocolsmanager_config', 'WHERE' => ['id' => $config_id]])
-			: $DB->request(['FROM' => 'glpi_plugin_protocolsmanager_config', 'ORDER' => ['id ASC'], 'LIMIT' => 1]);
-		$config = $config_query->current() ?: [];
-		$accent = $config['theme_color'] ?? '#8A6428';
-		$header_text_color = $config['header_text_color'] ?? '#FFFFFF';
+		$config = PluginProtocolsmanagerPvtemplate::load('branding');
+		$accent = $config['accent_color'] ?? '#8A6428';
+		$header_text_color = '#FFFFFF';
 		if (!is_string($accent) || !preg_match('/^#[0-9a-f]{6}$/i', $accent)) {
 			$accent = '#8A6428';
 		}
@@ -810,8 +855,8 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 		}
 		$logo_path = !empty($config['logo']) ? GLPI_PICTURE_DIR . '/' . basename($config['logo']) : '';
 		$logo_html = '';
-		$logo_width = min(120, isset($config['logo_width']) && (int)$config['logo_width'] > 0 ? (int)$config['logo_width'] : 120);
-		$logo_height = min(120, isset($config['logo_height']) && (int)$config['logo_height'] > 0 ? (int)$config['logo_height'] : 120);
+		$logo_width = 120;
+		$logo_height = 120;
 		if ($logo_path !== '' && is_file($logo_path) && is_readable($logo_path)) {
 			$mime = function_exists('mime_content_type') ? mime_content_type($logo_path) : 'image/png';
 			if (!is_string($mime) || !in_array($mime, ['image/png', 'image/jpeg'], true)) {
@@ -833,12 +878,22 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 				$purchase_total += (float)$asset['value'];
 			}
 		}
-		$state_labels = [
-			'installation' => __('Installée', 'protocolsmanager'),
-			'tested' => __('Testée', 'protocolsmanager'),
-			'accepted' => __('Réceptionnée conforme', 'protocolsmanager'),
-			'operational' => __('Mise en exploitation', 'protocolsmanager'),
-		];
+		$pv_template = PluginProtocolsmanagerPvtemplate::load('commission');
+		$state_labels = [];
+		foreach (($pv_template['form']['states'] ?? []) as $state) {
+			if (!empty($state['enabled']) && isset($state['key'])) {
+				$state_labels[(string)$state['key']] = (string)($state['label'] ?? '');
+			}
+		}
+		$chapters = [];
+		foreach (($pv_template['chapters'] ?? []) as $chapter) {
+			if (isset($chapter['key'])) {
+				$chapters[$chapter['key']] = $chapter;
+			}
+		}
+		$chapter_title = static fn($key, $fallback) => (string)($chapters[$key]['title'] ?? $fallback);
+		$chapter_enabled = static fn($key) => !isset($chapters[$key]) || !empty($chapters[$key]['enabled']);
+		$chapter_intro = static fn($key) => trim((string)($chapters[$key]['content'] ?? ''));
 		$escape = static fn($value) => htmlescape((string)$value);
 		ob_start();
 ?>
@@ -877,8 +932,8 @@ th { background:#f1f1f1; text-align:left; }
 <td class="immo-cell"><span class="immo-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="immo-value"><?= $escape($immo) ?></span></td>
 <td class="logo-cell"><?= $logo_html ?></td><td class="spacer-cell"></td>
 </tr></table>
-<h1><?= $escape(__('Procès-verbal de mise en service d’une immobilisation', 'protocolsmanager')) ?></h1>
-<h2>1. <?= $escape(__('Identification de l’immobilisation', 'protocolsmanager')) ?></h2>
+<h1><?= $escape($pv_template['title'] ?? __('Procès-verbal de mise en service d’une immobilisation', 'protocolsmanager')) ?></h1>
+<?php if ($chapter_enabled('identification')): ?><h2>1. <?= $escape($chapter_title('identification', __('Identification de l’immobilisation', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('identification') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('identification'))) ?></p><?php endif; ?>
 <?php foreach ($assets as $asset): ?>
 <div class="asset"><table class="asset-table"><colgroup><col class="label"><col class="value"><col class="label"><col class="value"></colgroup>
 <?php
@@ -899,17 +954,19 @@ $rows = [
 <tr><td class="field"><?= $escape($label) ?></td><td colspan="3"><?= $escape($value) ?></td></tr>
 <?php endforeach; ?></table></div>
 <?php endforeach; ?>
-<?php if (count($assets) > 1 && $all_amounts_present): ?><p><strong><?= $escape(__('Montant total d’acquisition HT', 'protocolsmanager')) ?> : <?= $escape(number_format($purchase_total, 2, ',', ' ')) ?> €</strong></p><?php endif; ?>
-<h2>2. <?= $escape(__('Mise en service', 'protocolsmanager')) ?></h2>
+<?php if (count($assets) > 1 && $all_amounts_present): ?><p><strong><?= $escape(__('Montant total d’acquisition HT', 'protocolsmanager')) ?> : <?= $escape(number_format($purchase_total, 2, ',', ' ')) ?> €</strong></p><?php endif; ?><?php endif; ?>
+<?php if ($chapter_enabled('commissioning')): ?><h2>2. <?= $escape($chapter_title('commissioning', __('Mise en service', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('commissioning') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('commissioning'))) ?></p><?php endif; ?>
 <p><?= $escape(__('Je soussigné(e)', 'protocolsmanager')) ?> <strong><?= $escape($signer) ?></strong>, <?= $escape(__('certifie que l’immobilisation décrite ci-dessous a été :', 'protocolsmanager')) ?></p>
 <p><?php foreach ($state_labels as $key => $label): ?><?= in_array($key, $states, true) ? '☒' : '☐' ?> <?= $escape($label) ?>&nbsp;&nbsp;<?php endforeach; ?></p>
 <p><strong><?= $escape(__('Date effective de mise en service', 'protocolsmanager')) ?> :</strong> <?= $escape(self::displayDate($effective_date)) ?></p>
 <p><strong><?= $escape(__('Description de l’utilisation prévue', 'protocolsmanager')) ?> :</strong></p><div class="free"><?= $escape($planned_use) ?></div>
-<h2>3. <?= $escape(__('Observations éventuelles', 'protocolsmanager')) ?></h2><div class="free"><?= $escape($observations) ?></div>
-<h2 class="chapter-four">4. <?= $escape(__('Validations', 'protocolsmanager')) ?></h2>
+<?php endif; ?>
+<?php if ($chapter_enabled('observations')): ?><h2>3. <?= $escape($chapter_title('observations', __('Observations éventuelles', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('observations') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('observations'))) ?></p><?php endif; ?><div class="free"><?= $escape($observations) ?></div><?php endif; ?>
+<?php if ($chapter_enabled('validation')): ?><h2 class="chapter-four">4. <?= $escape($chapter_title('validation', __('Validations', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('validation') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('validation'))) ?></p><?php endif; ?>
 <table class="signature"><colgroup><col class="role-col"><col class="name-col"><col class="sign-col"><col class="date-col"></colgroup><tr><th><?= $escape(__('Fonction', 'protocolsmanager')) ?></th><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th></tr>
 <?php foreach ([__('Responsable utilisateur', 'protocolsmanager'), __('Responsable technique (si applicable)', 'protocolsmanager'), __('Comptabilité', 'protocolsmanager'), __('Direction / Responsable hiérarchique', 'protocolsmanager')] as $role): ?><tr><td><?= $escape($role) ?></td><td></td><td></td><td></td></tr><?php endforeach; ?></table>
 <p><?= $escape(__('Document établi le', 'protocolsmanager')) ?> : <?= $escape(date('d/m/Y')) ?>, <?= $escape(__('lieu', 'protocolsmanager')) ?> <?= $escape($city) ?></p>
+<?php endif; ?>
 </body></html>
 <?php
 		$html = ob_get_clean();

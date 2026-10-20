@@ -512,7 +512,8 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 						: $title;
 					$title_owner = $title_has_owner ? $owner : '';
 					$title_template = $row["name"];
-					$full_img_name = $row["logo"];
+					$branding = PluginProtocolsmanagerPvtemplate::load('branding');
+					$full_img_name = $branding['logo'] ?? '';
 					$font = $row["font"];
 					$fontsize = $row["fontsize"];
 					$city = $row["city"];
@@ -523,11 +524,11 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 					$email_template = $row["email_template"];
 					$author_name = $row["author_name"];
 					$author_state = $row["author_state"];
-					$theme_color = $row["theme_color"] ?? '#8A6428';
-					$header_text_color = $row["header_text_color"] ?? '#FFFFFF';
+					$theme_color = $branding['accent_color'] ?? '#8A6428';
+					$header_text_color = '#FFFFFF';
 
-					$logo_width = isset($row["logo_width"]) ? $row["logo_width"] : null;
-					$logo_height = isset($row["logo_height"]) ? $row["logo_height"] : null;
+					$logo_width = 160;
+					$logo_height = 160;
 				}
 
 				// Updated DB->request syntax
