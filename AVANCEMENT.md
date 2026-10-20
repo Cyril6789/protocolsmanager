@@ -295,6 +295,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `138cc81` — version `1.6.0.21` pour déclencher la migration des réglages sur les installations existantes.
 - `8786680` — ajout/suppression d’options cochables pour les deux PV, validation et sauvegarde des listes personnalisées, et rendu de l’état complet des cases dans les PDFs.
 - `cf16ef6` — refonte des éditeurs et des listes de modèles d’inventaire et d’e-mail en composants carte/formulaire GLPI; correction des formulaires imbriqués et du sélecteur de taille de police.
-- En cours — ajouter/supprimer aussi les modes de mise au rebut; les chapitres personnalisés et leurs textes sont déjà repris par les deux PDFs. Fichiers prévus : `inc/config.class.php`, `AVANCEMENT.md`.
+- En cours — rendre les modes de mise au rebut ajoutables/supprimables et valider qu’un mode actif existe lorsque le champ est obligatoire; les chapitres libres et leurs textes sont déjà repris par les deux PDFs.
 - À renseigner après chaque commit de code ciblé.
 
