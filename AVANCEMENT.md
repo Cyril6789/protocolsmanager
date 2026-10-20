@@ -173,7 +173,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 ## Cadre validé
 
 - Branche de travail créée depuis l’état courant : `feature/pv-templates-1.60.20`.
-- Version conservée pendant ce chantier : `1.6.0.20` (pas de changement de version vers `2.0.0.0` ici).
+- Version de départ : `1.6.0.20`; portée à `1.6.0.21` une seule fois pour déclencher la migration du stockage dédié. Aucune hausse pour les modifications simples suivantes; pas de passage à `2.0.0.0` ici.
 - Aucun push et aucun merge vers `master` avant validation explicite de l’utilisateur, à la fin du chantier.
 - Conserver autant de modèles de fiches d’inventaire Protocols Manager que nécessaire.
 - Créer une zone de réglages dédiée aux procès-verbaux de mise en service et de mise au rebut.
@@ -194,7 +194,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Cartographier les points d’entrée : `front/config.form.php` et `PluginProtocolsmanagerConfig` pour les réglages; `PluginProtocolsmanagerGenerate::makeProtocol()` pour les fiches d’inventaire; `PluginProtocolsmanagerCommission::generateFromRequest()` / `generateDisposalFromRequest()` et `createPdf()` / `createDisposalPdf()` pour les PV.
 - [ ] Cartographier les chemins complets de génération des fiches d’inventaire, notamment substitution des champs, numérotation, création des documents GLPI et e-mails.
 - [ ] Définir et documenter les invariants de compatibilité avec les données et modèles déjà enregistrés.
-- [ ] Garder le code et les métadonnées sur la version `1.6.0.20` pendant le chantier.
+- [x] Ne pas incrémenter la version à chaque retouche; faire un incrément unique `1.6.0.21` pour que GLPI exécute l’ajout de la table de réglages sur les installations existantes.
 - [ ] Vérifier que l’installation neuve et la mise à jour d’une installation existante suivent les mêmes migrations idempotentes.
 - [x] Créer un stockage singleton séparé pour identité visuelle et modèles PV, sans toucher aux lignes des modèles d’inventaire ni aux réglages e-mail.
 - [x] Initialiser les deux modèles PV avec les libellés, choix et chapitres actuels; initialiser logo/couleur globaux en reprenant les valeurs historiques à titre de point de départ.
@@ -278,5 +278,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 
 - `9a245e7` — documentation initiale exhaustive et cases à cocher.
 - `044c0ad` — critères de finition GLPI et cartographie des réglages/PV.
+- `a68c9be` — stockage séparé des modèles de PV et réglages visuels, avec valeurs initiales de compatibilité.
 - À renseigner après chaque commit de code ciblé.
 
