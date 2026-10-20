@@ -336,5 +336,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `6225b91` — consigner le footer commun dans le journal d’avancement.
 - `ae6c264` — ajouter une case de sélection générale synchronisée pour chaque groupe de matériels PV et interpréter `{reason}` / `{method}` dans les textes introductifs sans doublonner les valeurs.
 - `7444d70` — consigner les corrections des PV et la sélection des matériels.
-- En cours — afficher la date de facture/acquisition à côté de la date effective, fiabiliser le chargement de la sélection générale, aligner la pagination du footer sur le numéro immo, et ajouter statut/personne affectée aux tableaux de sélection sans altérer les PDFs.
+- `55839e2` — afficher statut et personne affectée dans les tableaux de sélection, indiquer la date de facture/acquisition près de la date effective, corriger la synchronisation de la sélection générale et aligner la pagination du footer avec le numéro immo.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
