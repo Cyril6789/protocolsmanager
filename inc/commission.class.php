@@ -944,7 +944,9 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 		}
 		$chapter_title = static fn($key, $fallback) => (string)($chapters[$key]['title'] ?? $fallback);
 		$chapter_enabled = static fn($key) => !isset($chapters[$key]) || !empty($chapters[$key]['enabled']);
-		$chapter_intro = static fn($key) => trim((string)($chapters[$key]['content'] ?? ''));
+		$chapter_intro_source = static fn($key) => trim((string)($chapters[$key]['content'] ?? ''));
+		$observations_intro_has_token = str_contains($chapter_intro_source('observations'), '{observations}');
+		$chapter_intro = static fn($key) => strtr($chapter_intro_source($key), ['{observations}' => $observations]);
 		$escape = static fn($value) => htmlescape((string)$value);
 		ob_start();
 ?>
@@ -1015,7 +1017,7 @@ $rows = [
 <p><strong><?= $escape($form_labels['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) ?> :</strong> <?= $escape(self::displayDate($effective_date)) ?></p>
 <p><strong><?= $escape($form_labels['planned_use']['label'] ?? __('Description de l’utilisation prévue', 'protocolsmanager')) ?> :</strong></p><div class="free"><?= $escape($planned_use) ?></div>
 <?php endif; ?>
-<?php if ($chapter_enabled('observations')): ?><h2>3. <?= $escape($chapter_title('observations', __('Observations éventuelles', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('observations') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('observations'))) ?></p><?php endif; ?><div class="free"><?= $escape($observations) ?></div><?php endif; ?>
+<?php if ($chapter_enabled('observations')): ?><h2>3. <?= $escape($chapter_title('observations', __('Observations éventuelles', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('observations') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('observations'))) ?></p><?php endif; ?><?php if (!$observations_intro_has_token): ?><div class="free"><?= $escape($observations) ?></div><?php endif; ?><?php endif; ?>
 <?php if ($chapter_enabled('validation')): ?><h2 class="chapter-four">4. <?= $escape($chapter_title('validation', __('Validations', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('validation') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('validation'))) ?></p><?php endif; ?>
 <table class="signature"><colgroup><col class="role-col"><col class="name-col"><col class="sign-col"><col class="date-col"></colgroup><tr><th><?= $escape(__('Fonction', 'protocolsmanager')) ?></th><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th></tr>
 <?php foreach ($validator_roles as $validator): ?><tr><td><?= $escape($validator['label']) ?></td><td></td><td></td><td></td></tr><?php endforeach; ?></table>

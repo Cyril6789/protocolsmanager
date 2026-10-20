@@ -236,6 +236,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.
 - [x] Numéroter les annexes actives à la suite, sans saut lorsqu’une annexe est désactivée.
 - [x] Reprendre dans le PDF de mise en service les libellés configurés pour les champs de date et d’utilisation, ainsi que le libellé du lieu sélectionné.
+- [x] Remplacer le marqueur `{observations}` du texte d’introduction du chapitre Observations par la valeur saisie dans le formulaire, sans répéter cette valeur une seconde fois sous le texte lorsque le marqueur est utilisé.
 - [ ] Permettre de créer/supprimer des champs et chapitres, de configurer les champs structurés de chaque chapitre et de changer l’ordre de rendu.
 - [ ] Préserver les valeurs saisies et leur état lorsque le PV est généré ou réédité.
 - [x] Construire le formulaire matériel à partir des options du modèle de mise en service, en conservant le regroupement d’objets et les contrôles de droits existants.
