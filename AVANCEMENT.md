@@ -167,3 +167,105 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Vérifier `php -l` sur les fichiers PHP modifiés et `git diff --check`.
 - [ ] Vérifier dans le PDF imprimé que l’espacement est confortable et que le numéro immo vide dispose d’une zone manuscrite avant son trait.
 - [ ] Vérifier dans le PDF généré qu’un PV courant tient sur une page et que les textes longs ou les groupes de plusieurs objets restent lisibles.
+
+# Refonte des réglages et des modèles PDF — branche `feature/pv-templates-1.60.20`
+
+## Cadre validé
+
+- Branche de travail créée depuis l’état courant : `feature/pv-templates-1.60.20`.
+- Version conservée pendant ce chantier : `1.6.0.20` (pas de changement de version vers `2.0.0.0` ici).
+- Aucun push et aucun merge vers `master` avant validation explicite de l’utilisateur, à la fin du chantier.
+- Conserver autant de modèles de fiches d’inventaire Protocols Manager que nécessaire.
+- Créer une zone de réglages dédiée aux procès-verbaux de mise en service et de mise au rebut.
+- Logo et couleur d’accentuation sont des réglages globaux partagés par tous les modèles PDF.
+- Il existe un modèle de PV de mise en service et un modèle de PV de mise au rebut, chacun entièrement réglable.
+- Les champs proposés dans chaque formulaire de création de PV et les chapitres/contenus de chaque PDF doivent être pilotés par leur modèle.
+- Les cases à cocher proposées dans les formulaires de PV doivent pouvoir être éditées dans les réglages et leur état saisi doit être repris dans le PDF.
+- Ce journal est la source de suivi exhaustive : une case ne passe à `[x]` qu’une fois son implémentation achevée. Les validations dépendant d’une instance GLPI restent ouvertes tant qu’elles n’y ont pas été exécutées.
+- Les commits ne doivent contenir que les fichiers du chantier explicitement sélectionnés. Le répertoire de travail comportait déjà de nombreux changements locaux (notamment `dompdf/`, `docs/img/`, `locales/` et `screenshots/`) avant le début de ce chantier ; ils sont préservés et exclus.
+
+## Suivi détaillé du chantier
+
+### A. Cadrage, architecture et compatibilité
+
+- [x] Relever la branche, la version déclarée et les principaux composants existants de réglages, formulaire et génération des PV.
+- [x] Créer une branche de travail dédiée depuis l’état courant, sans toucher aux changements locaux préexistants.
+- [ ] Cartographier complètement le schéma SQL/migrations et les formulaires de configuration existants.
+- [ ] Cartographier les chemins de génération des fiches d’inventaire, du PV de mise en service et du PV de mise au rebut.
+- [ ] Définir et documenter les invariants de compatibilité avec les données et modèles déjà enregistrés.
+- [ ] Garder le code et les métadonnées sur la version `1.6.0.20` pendant le chantier.
+- [ ] Vérifier que l’installation neuve et la mise à jour d’une installation existante suivent les mêmes migrations idempotentes.
+
+### B. Navigation et gestion des réglages
+
+- [ ] Réorganiser l’écran de configuration en espaces distincts : modèles d’inventaire, PV de mise en service, PV de mise au rebut et réglages visuels globaux.
+- [ ] Conserver la création, modification, suppression et sélection d’un nombre illimité de modèles d’inventaire.
+- [ ] Conserver les réglages d’e-mail existants et leur comportement.
+- [ ] Ajouter un réglage global de logo utilisable par toutes les sorties PDF.
+- [ ] Ajouter une couleur d’accentuation globale utilisée par toutes les sorties PDF.
+- [ ] Migrer ou réconcilier proprement les anciens logos et couleurs stockés par modèle sans écraser des préférences sans nécessité.
+- [ ] Valider les fichiers de logo (type, taille, dimensions) et gérer leur remplacement/suppression sans fichier orphelin.
+- [ ] Vérifier les droits GLPI pour la consultation, création, modification et suppression des réglages.
+- [ ] Ajouter les libellés/traductions et l’aide nécessaires à la nouvelle organisation.
+
+### C. Modèle de PV de mise en service
+
+- [ ] Stocker un modèle unique de mise en service, distinct des modèles d’inventaire.
+- [ ] Permettre de régler le titre, les champs du formulaire, les valeurs par défaut et les libellés affichés.
+- [ ] Permettre d’activer, désactiver, ordonner et renommer les cases à cocher du formulaire.
+- [ ] Permettre d’éditer les chapitres du PDF : présence, ordre, titre, contenu et champs associés.
+- [ ] Préserver les valeurs saisies et leur état lorsque le PV est généré ou réédité.
+- [ ] Construire le formulaire matériel à partir du modèle de mise en service, sans perdre le choix des matériels groupés ni les contrôles de droits.
+- [ ] Construire le PDF depuis les chapitres du modèle, avec échappement/formatage sûr et champs GLPI facultatifs.
+- [ ] Employer le logo et l’accentuation globaux.
+- [ ] Définir les valeurs initiales de migration à partir du formulaire et PDF actuellement en service.
+
+### D. Modèle de PV de mise au rebut
+
+- [ ] Stocker un modèle unique de mise au rebut, distinct du modèle de mise en service et des modèles d’inventaire.
+- [ ] Permettre de régler le titre, les champs du formulaire, les valeurs par défaut et les libellés affichés.
+- [ ] Permettre d’activer, désactiver, ordonner et renommer les choix/cases/contrôles du formulaire.
+- [ ] Préserver les règles de validation métier (motif, mode, précision « Autre ») dans l’interface et côté serveur.
+- [ ] Permettre d’éditer les chapitres du PDF : présence, ordre, titre, contenu et champs associés.
+- [ ] Construire le formulaire et le PDF depuis le modèle de mise au rebut sans modifier les réglages de mise en service.
+- [ ] Employer le logo et l’accentuation globaux.
+- [ ] Définir les valeurs initiales de migration à partir du formulaire et PDF actuellement en service.
+
+### E. Formulaires sur les fiches matériel et licences
+
+- [ ] Garder les deux parcours de PV distincts et identifiables depuis l’onglet GLPI.
+- [ ] Afficher uniquement les champs actifs du modèle choisi, avec validation cohérente côté serveur.
+- [ ] Permettre à l’utilisateur d’éditer les cases à cocher et choix prévus par chacun des modèles.
+- [ ] Conserver les valeurs par défaut et préremplissages actuels lorsque le modèle correspondant le prévoit.
+- [ ] Préserver le regroupement par numéro immo, la sélection d’objets, les PV sans numéro immo et les associations GLPI actuelles.
+- [ ] Préserver les contrôles d’accès et la validation serveur des identifiants d’objets soumis.
+- [ ] Vérifier l’usage depuis les objets matériel, les licences et les PV sans données de gestion.
+
+### F. Génération et structure des PDF
+
+- [ ] Mettre en place un rendu commun qui reçoit le type de document, le modèle, les données GLPI et les valeurs du formulaire.
+- [ ] Conserver le moteur Dompdf et éviter toute modification non nécessaire de `dompdf/`.
+- [ ] Rendre les chapitres configurés dans le bon ordre et respecter leur activation/désactivation.
+- [ ] Appliquer le logo et la couleur globale à toutes les catégories de PDF.
+- [ ] Conserver les réglages propres aux modèles d’inventaire (police, taille, orientation, contenu, pied de page, numéros).
+- [ ] Préserver les retours à la ligne, caractères accentués, tableaux, sauts de page et contenu long.
+- [ ] Échapper les données d’objets et de formulaire pour éviter l’injection HTML dans les PDF.
+- [ ] Préserver la création et l’association des documents GLPI, les notes et les erreurs compréhensibles.
+
+### G. Migration, sécurité, documentation et livraison
+
+- [ ] Ajouter les colonnes/tables nécessaires avec migrations compatibles et répétables.
+- [ ] Fournir des valeurs par défaut complètes pour les anciennes installations et pour une installation neuve.
+- [ ] Vérifier les limites de taille, la validation des couleurs et la validation de la structure des champs/chapitres.
+- [ ] Mettre à jour le README et les instructions d’administration.
+- [ ] Mettre à jour les traductions sources nécessaires sans inclure de changements de compilation préexistants.
+- [ ] Vérifier statiquement les fichiers modifiés et la cohérence du diff ciblé.
+- [ ] Documenter ici chaque étape terminée, ses fichiers touchés, sa migration et ses validations.
+- [ ] Faire un commit ciblé à chaque étape importante, après revue de son contenu.
+- [ ] Tester les migrations, formulaires et trois catégories de PDF sur une instance GLPI de test avant de considérer le chantier terminé.
+- [ ] Confirmer explicitement avec l’utilisateur avant tout merge vers `master` ou tout push.
+
+## Journal des commits du chantier
+
+- À renseigner après chaque commit ciblé. Aucun commit de code n’a encore été créé.
+
