@@ -165,11 +165,11 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		echo "<div class='row g-3 align-items-end'>";
 		if (!empty($form['effective_date']['enabled'])) {
 			$fallback_date = self::commonPurchaseDate($group);
-			echo '<div class="col-md-8"><label class="form-label" for="effective-date">' . htmlescape($form['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) . '</label><input class="form-control" type="date" id="effective-date" name="effective_date" value="' . htmlescape($fallback_date) . '">';
+			echo '<div class="col-md-8"><div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1"><label class="form-label mb-1" for="effective-date">' . htmlescape($form['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) . '</label>';
 			if ($fallback_date !== '') {
-				echo '<div class="form-text">' . htmlescape(__('Date de la facture si non remplie :', 'protocolsmanager') . ' ' . self::displayDate($fallback_date)) . '</div>';
+				echo '<span class="form-text mt-0">' . htmlescape(__('Si non remplie, la date de facture sera utilisée, à savoir :', 'protocolsmanager') . ' ' . self::displayDate($fallback_date)) . '</span>';
 			}
-			echo '</div>';
+			echo '</div><input class="form-control" type="date" id="effective-date" name="effective_date" value="' . htmlescape($fallback_date) . '"></div>';
 		}
 		echo '<div class="col-md-4"><div class="form-text">' . htmlescape(__('Identité visuelle globale appliquée au PDF.', 'protocolsmanager')) . '</div>';
 		if (!empty($branding['accent_color'])) {
@@ -494,8 +494,11 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 
 	private static function commonPurchaseDate(array $assets): string
 	{
-		$dates = array_map(static fn($asset) => $asset['buy_date'], $assets);
-		if ($dates === [] || in_array('', $dates, true) || count(array_unique($dates)) !== 1) {
+		$dates = array_values(array_unique(array_filter(
+			array_map(static fn($asset) => trim((string)($asset['buy_date'] ?? '')), $assets),
+			static fn($date) => $date !== ''
+		)));
+		if (count($dates) !== 1) {
 			return '';
 		}
 		return $dates[0];
