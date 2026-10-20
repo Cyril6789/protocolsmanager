@@ -288,7 +288,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [ ] Vérifier les limites de taille, la validation des couleurs et la validation de la structure des champs/chapitres.
 - [x] Mettre à jour le README pour décrire les trois familles de documents, la configuration globale, les listes de cases/choix et les annexes configurables.
 - [ ] Mettre à jour les traductions sources nécessaires sans inclure de changements de compilation préexistants.
-- [ ] Vérifier statiquement les fichiers modifiés et la cohérence du diff ciblé.
+- [x] Vérifier le diff commité depuis la branche de base et l’absence d’erreurs d’espacement avec `git diff --check master..HEAD`; les modifications locales préexistantes restent hors commits.
 - [ ] Documenter ici chaque étape terminée, ses fichiers touchés, sa migration et ses validations.
 - [ ] Faire un commit ciblé à chaque étape importante, après revue de son contenu.
 - [ ] Tester les migrations, formulaires et trois catégories de PDF sur une instance GLPI de test avant de considérer le chantier terminé.
@@ -319,4 +319,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `0eb6a2b` — consigner le comportement de suppression totale des listes PV.
 - `a452da7` — préserver les préférences historiques de couleurs et dimensions par modèle lors de leur édition.
 - `fb31f52` — numéroter à la suite uniquement les annexes activées dans les PDFs.
+- `125822c` — retirer l’espace final superflu du journal et vérifier le diff commité depuis `master`.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
