@@ -343,4 +343,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `231eaab` — afficher près du champ date effective la mention complète « Si non remplie, la date de facture sera utilisée, à savoir : jj/mm/aaaa » quand une date est disponible; conserver ce repli même si certains matériels groupés n’ont pas de date, dès lors qu’une date unique est trouvée.
 - `fd8d626` — compléter les tableaux de sélection des matériels avec des colonnes Type, Modèle et Prix d’achat; reprendre le prix de gestion GLPI lorsqu’il est renseigné, sans modifier les PDFs.
 - `ac995a6` — retirer du formulaire de mise au rebut le tableau « Détails de l’immobilisation » redondant, tout en gardant les détails du document généré.
+- `a2e02e6` — remplacer le marqueur `{observations}` de l’introduction du chapitre Observations par la valeur saisie, sans doublon avec le texte affiché sous l’introduction.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
