@@ -147,12 +147,15 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($group_title) . '</strong>';
 			echo "<span class='badge bg-secondary ms-2'>" . htmlescape(__('Numéro immo', 'protocolsmanager')) . ': ' . htmlescape($immo_number) . "</span></div><div class='card-body'>";
 			echo "<div class='form-check mb-2'><input class='form-check-input' type='checkbox' id='commission-select-all' data-pv-select-all checked><label class='form-check-label' for='commission-select-all'>" . htmlescape(__('Tout sélectionner / tout décocher', 'protocolsmanager')) . '</label></div>';
-			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-3'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape($item_title) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Statut', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Personne affectée', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
+			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-3'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape($item_title) . '</th><th>' . htmlescape(__('Type', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Modèle', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Statut', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Personne affectée', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Prix d’achat', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
 			foreach ($group as $asset) {
 				$key = $asset['itemtype'] . ':' . $asset['id'];
 				echo '<tr><td><input class="form-check-input protocolsmanager-pv-item" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape($include_label) . '"></td>';
-				echo '<td><strong>' . htmlescape($asset['name'] !== '' ? $asset['name'] : '#' . $asset['id']) . '</strong><div class="text-muted small">' . htmlescape($asset['type']) . '</div></td>';
-				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['status'] !== '' ? htmlescape($asset['status']) : '—') . '</td><td>' . ($asset['assigned_to'] !== '' ? htmlescape($asset['assigned_to']) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
+				echo '<td><strong>' . htmlescape($asset['name'] !== '' ? $asset['name'] : '#' . $asset['id']) . '</strong></td>';
+				echo '<td>' . ($asset['type'] !== '' ? htmlescape($asset['type']) : '—') . '</td><td>' . ($asset['model'] !== '' ? htmlescape($asset['model']) : '—') . '</td>';
+				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['status'] !== '' ? htmlescape($asset['status']) : '—') . '</td><td>' . ($asset['assigned_to'] !== '' ? htmlescape($asset['assigned_to']) : '—') . '</td>';
+				$purchase_price = $asset['value'] === null || $asset['value'] === '' ? '' : number_format((float)$asset['value'], 2, ',', ' ') . ' €';
+				echo '<td>' . ($purchase_price !== '' ? htmlescape($purchase_price) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
 			}
 			echo '</tbody></table></div>';
 		} else {
@@ -243,13 +246,16 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			echo "<section class='card mb-3'><div class='card-header'><strong>" . htmlescape($group_title) . '</strong>';
 			echo "<span class='badge bg-secondary ms-2'>" . htmlescape(__('Numéro immo', 'protocolsmanager')) . ': ' . htmlescape($immo_number) . "</span></div><div class='card-body'>";
 			echo "<div class='form-check mb-2'><input class='form-check-input' type='checkbox' id='disposal-select-all' data-pv-select-all checked><label class='form-check-label' for='disposal-select-all'>" . htmlescape(__('Tout sélectionner / tout décocher', 'protocolsmanager')) . '</label></div>';
-			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-0'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape($item_title) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Statut', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Personne affectée', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
+			echo "<div class='table-responsive'><table class='table table-sm table-hover align-middle mb-0'><thead><tr><th>" . htmlescape(__('Inclure', 'protocolsmanager')) . '</th><th>' . htmlescape($item_title) . '</th><th>' . htmlescape(__('Type', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Modèle', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro d’inventaire', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Statut', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Personne affectée', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Prix d’achat', 'protocolsmanager')) . '</th><th>' . htmlescape(__('Numéro de série', 'protocolsmanager')) . '</th></tr></thead><tbody>';
 			foreach ($group as $asset) {
 				$key = $asset['itemtype'] . ':' . $asset['id'];
 				$include_label = $is_license_group ? __('Inclure cette licence', 'protocolsmanager') : __('Inclure ce matériel', 'protocolsmanager');
 				echo '<tr><td><input class="form-check-input protocolsmanager-pv-item" type="checkbox" name="items[]" value="' . htmlescape($key) . '" checked aria-label="' . htmlescape($include_label) . '"></td>';
-				echo '<td><strong>' . htmlescape($asset['name'] !== '' ? $asset['name'] : '#' . $asset['id']) . '</strong><div class="text-muted small">' . htmlescape($asset['type']) . '</div></td>';
-				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['status'] !== '' ? htmlescape($asset['status']) : '—') . '</td><td>' . ($asset['assigned_to'] !== '' ? htmlescape($asset['assigned_to']) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
+				echo '<td><strong>' . htmlescape($asset['name'] !== '' ? $asset['name'] : '#' . $asset['id']) . '</strong></td>';
+				echo '<td>' . ($asset['type'] !== '' ? htmlescape($asset['type']) : '—') . '</td><td>' . ($asset['model'] !== '' ? htmlescape($asset['model']) : '—') . '</td>';
+				echo '<td>' . ($asset['inventory_number'] !== '' ? htmlescape($asset['inventory_number']) : '—') . '</td><td>' . ($asset['status'] !== '' ? htmlescape($asset['status']) : '—') . '</td><td>' . ($asset['assigned_to'] !== '' ? htmlescape($asset['assigned_to']) : '—') . '</td>';
+				$purchase_price = $asset['value'] === null || $asset['value'] === '' ? '' : number_format((float)$asset['value'], 2, ',', ' ') . ' €';
+				echo '<td>' . ($purchase_price !== '' ? htmlescape($purchase_price) : '—') . '</td><td>' . ($asset['serial'] !== '' ? htmlescape($asset['serial']) : '—') . '</td></tr>';
 			}
 			echo '</tbody></table></div></div></section>';
 		} else {

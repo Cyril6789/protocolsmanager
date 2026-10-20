@@ -120,6 +120,7 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 			$header .= "<th>".__('Inventory number')."</th>";
 			$header .= "<th>".__('Status')."</th>";
 			$header .= "<th>".__('Assigned to')."</th>";
+			$header .= "<th>".__('Purchase price')."</th>";
 			$header .= "<th>".__('Comments')."</th></tr>";
 			echo $header;
 			
@@ -279,6 +280,16 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 								}
 								echo $assigned_name !== '' ? htmlescape($assigned_name) : '&nbsp;';
 								echo "</td>";
+								$info_result = $DB->request([
+									'SELECT' => ['value'],
+									'FROM' => 'glpi_infocoms',
+									'WHERE' => ['itemtype' => $itemtype, 'items_id' => (int)$data['id']],
+								]);
+								$info_row = $info_result->current();
+								$purchase_price = !isset($info_row['value']) || $info_row['value'] === ''
+									? ''
+									: number_format((float)$info_row['value'], 2, ',', ' ') . ' €';
+								echo "<td class='center'>" . ($purchase_price !== '' ? htmlescape($purchase_price) : '&nbsp;') . "</td>";
 								
 								if (isset($data["name"]) && !empty($data["name"])) {
 									$item_name = $data["name"];
