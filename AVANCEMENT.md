@@ -337,4 +337,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `ae6c264` — ajouter une case de sélection générale synchronisée pour chaque groupe de matériels PV et interpréter `{reason}` / `{method}` dans les textes introductifs sans doublonner les valeurs.
 - `7444d70` — consigner les corrections des PV et la sélection des matériels.
 - `55839e2` — afficher statut et personne affectée dans les tableaux de sélection, indiquer la date de facture/acquisition près de la date effective, corriger la synchronisation de la sélection générale et aligner la pagination du footer avec le numéro immo.
+- `231eaab` — afficher près du champ date effective la mention complète « Si non remplie, la date de facture sera utilisée, à savoir : jj/mm/aaaa » quand une date est disponible; conserver ce repli même si certains matériels groupés n’ont pas de date, dès lors qu’une date unique est trouvée.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
