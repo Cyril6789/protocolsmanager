@@ -29,6 +29,12 @@ class PluginProtocolsmanagerPvtemplate
                         ['key' => 'accepted', 'label' => 'Réceptionnée conforme', 'enabled' => true, 'checked' => true],
                         ['key' => 'operational', 'label' => 'Mise en exploitation', 'enabled' => true, 'checked' => true],
                     ],
+                    'validators' => [
+                        ['key' => 'user_manager', 'label' => 'Responsable utilisateur', 'enabled' => true],
+                        ['key' => 'technical_manager', 'label' => 'Responsable technique (si applicable)', 'enabled' => true],
+                        ['key' => 'accounting', 'label' => 'Comptabilité', 'enabled' => true],
+                        ['key' => 'management', 'label' => 'Direction / Responsable hiérarchique', 'enabled' => true],
+                    ],
                     'cities' => [
                         ['key' => 'Eichhoffen', 'label' => 'Eichhoffen', 'enabled' => true],
                         ['key' => 'Barr', 'label' => 'Barr', 'enabled' => true],

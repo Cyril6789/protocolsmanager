@@ -919,6 +919,11 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 				$state_labels[(string)$state['key']] = (string)($state['label'] ?? '');
 			}
 		}
+		$configured_validators = $pv_template['form']['validators'] ?? [];
+		$validator_roles = array_values(array_filter(
+			is_array($configured_validators) ? $configured_validators : [],
+			static fn($validator) => is_array($validator) && !empty($validator['enabled']) && trim((string)($validator['label'] ?? '')) !== ''
+		));
 		$chapters = [];
 		foreach (($pv_template['chapters'] ?? []) as $chapter) {
 			if (isset($chapter['key'])) {
@@ -998,7 +1003,7 @@ $rows = [
 <?php if ($chapter_enabled('observations')): ?><h2>3. <?= $escape($chapter_title('observations', __('Observations éventuelles', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('observations') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('observations'))) ?></p><?php endif; ?><div class="free"><?= $escape($observations) ?></div><?php endif; ?>
 <?php if ($chapter_enabled('validation')): ?><h2 class="chapter-four">4. <?= $escape($chapter_title('validation', __('Validations', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('validation') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('validation'))) ?></p><?php endif; ?>
 <table class="signature"><colgroup><col class="role-col"><col class="name-col"><col class="sign-col"><col class="date-col"></colgroup><tr><th><?= $escape(__('Fonction', 'protocolsmanager')) ?></th><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th></tr>
-<?php foreach ([__('Responsable utilisateur', 'protocolsmanager'), __('Responsable technique (si applicable)', 'protocolsmanager'), __('Comptabilité', 'protocolsmanager'), __('Direction / Responsable hiérarchique', 'protocolsmanager')] as $role): ?><tr><td><?= $escape($role) ?></td><td></td><td></td><td></td></tr><?php endforeach; ?></table>
+<?php foreach ($validator_roles as $validator): ?><tr><td><?= $escape($validator['label']) ?></td><td></td><td></td><td></td></tr><?php endforeach; ?></table>
 <p><?= $escape(__('Document établi le', 'protocolsmanager')) ?> : <?= $escape(date('d/m/Y')) ?><?php if ($city_label !== ''): ?>, <?= $escape(__('lieu', 'protocolsmanager')) ?> <?= $escape($city_label) ?><?php endif; ?></p>
 <?php endif; ?>
 <?php $custom_annex_number = 0; foreach (($pv_template['custom_chapters'] ?? []) as $custom_chapter): ?><?php if (!empty($custom_chapter['enabled']) && !empty($custom_chapter['title'])): ?><?php $custom_annex_number++; ?><h2><?= $escape(__('Annexe', 'protocolsmanager')) ?> <?= $custom_annex_number ?>. <?= $escape($custom_chapter['title']) ?></h2><?php if (trim((string)($custom_chapter['content'] ?? '')) !== ''): ?><div class="free"><?= nl2br($escape($custom_chapter['content'])) ?></div><?php endif; ?><?php endif; ?><?php endforeach; ?>

@@ -87,7 +87,7 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		$defaults = PluginProtocolsmanagerPvtemplate::defaults($type);
 		$stored_template = PluginProtocolsmanagerPvtemplate::load($type);
 		$template = array_replace_recursive($defaults, $stored_template);
-		foreach (['states', 'cities', 'methods', 'checks'] as $list_key) {
+		foreach (['states', 'cities', 'methods', 'checks', 'validators'] as $list_key) {
 			if (is_array($stored_template['form'] ?? null) && array_key_exists($list_key, $stored_template['form']) && is_array($stored_template['form'][$list_key])) {
 				$template['form'][$list_key] = $stored_template['form'][$list_key];
 			}
@@ -122,6 +122,7 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 
 		if ($type === 'commission') {
 			self::displayCheckboxListEditor($type, 'states', $form_fields['states'] ?? []);
+			self::displayChoiceListEditor('validators', $form_fields['validators'] ?? [], __('Validateurs du PV', 'protocolsmanager'), __('Ajouter un validateur', 'protocolsmanager'), __('Rôle du validateur', 'protocolsmanager'));
 			self::displayChoiceListEditor('cities', $form_fields['cities'] ?? [], __('Lieux proposés', 'protocolsmanager'), __('Ajouter un lieu', 'protocolsmanager'), __('Lieu', 'protocolsmanager'));
 		} else {
 			self::displayChoiceListEditor('methods', $form_fields['methods'] ?? [], __('Modes proposés', 'protocolsmanager'), __('Ajouter un mode', 'protocolsmanager'), __('Libellé du mode', 'protocolsmanager'));
@@ -211,7 +212,7 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		$path = htmlescape($path);
 		echo '<tr data-pv-config-row><td><input type="hidden" name="' . $path . '[key]" value="' . htmlescape($key) . '"><input class="form-control" maxlength="160" required name="' . $path . '[label]" value="' . htmlescape($label) . '" aria-label="' . htmlescape($entry_label) . '"></td>';
 		echo '<td><input type="hidden" name="' . $path . '[enabled]" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="' . $path . '[enabled]" value="1"' . ($enabled ? ' checked' : '') . '> <span class="visually-hidden">' . htmlescape(__('Actif', 'protocolsmanager')) . '</span></label></td>';
-		echo '<td><button class="btn btn-sm btn-outline-danger" type="button" data-pv-remove-row aria-label="' . htmlescape(__('Supprimer ce mode', 'protocolsmanager')) . '"><i class="ti ti-trash" aria-hidden="true"></i></button></td></tr>';
+		echo '<td><button class="btn btn-sm btn-outline-danger" type="button" data-pv-remove-row aria-label="' . htmlescape(__('Supprimer cette entrée', 'protocolsmanager')) . '"><i class="ti ti-trash" aria-hidden="true"></i></button></td></tr>';
 	}
 
 	private static function displayCheckboxRow(string $path, string $key, string $label, bool $enabled, bool $checked): void
@@ -289,7 +290,7 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 				$template['form'][$key] = self::sanitizeCheckboxEntries($posted_form[$key] ?? []);
 				continue;
 			}
-			if ($key === 'methods' || $key === 'cities') {
+			if ($key === 'methods' || $key === 'cities' || $key === 'validators') {
 				$template['form'][$key] = self::sanitizeChoiceEntries($posted_form[$key] ?? []);
 				continue;
 			}
