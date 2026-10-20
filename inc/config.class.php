@@ -84,9 +84,17 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 
 	private static function displayPvTemplateSettings(string $type): void
 	{
-		$template = PluginProtocolsmanagerPvtemplate::load($type);
 		$defaults = PluginProtocolsmanagerPvtemplate::defaults($type);
-		$template = array_replace_recursive($defaults, $template);
+		$stored_template = PluginProtocolsmanagerPvtemplate::load($type);
+		$template = array_replace_recursive($defaults, $stored_template);
+		foreach (['states', 'cities', 'methods', 'checks'] as $list_key) {
+			if (is_array($stored_template['form'] ?? null) && array_key_exists($list_key, $stored_template['form']) && is_array($stored_template['form'][$list_key])) {
+				$template['form'][$list_key] = $stored_template['form'][$list_key];
+			}
+		}
+		if (array_key_exists('custom_chapters', $stored_template) && is_array($stored_template['custom_chapters'])) {
+			$template['custom_chapters'] = $stored_template['custom_chapters'];
+		}
 		$title = $type === 'commission' ? __('Mise en service', 'protocolsmanager') : __('Mise au rebut', 'protocolsmanager');
 		$help = __('Ces réglages déterminent les champs proposés à la création et les chapitres du PDF généré.', 'protocolsmanager');
 		echo "<div class='mb-3'><h2 class='h3 mb-1'>" . htmlescape($title) . "</h2><p class='text-muted'>" . htmlescape($help) . '</p></div>';

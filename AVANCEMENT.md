@@ -224,6 +224,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Permettre de régler le titre du PV, les champs actuellement prévus, leurs libellés et leur affichage.
 - [x] Permettre d’activer, désactiver, renommer et définir l’état par défaut des cases à cocher existantes du formulaire.
 - [x] Permettre d’ajouter et supprimer sans plafond applicatif des cases de mise en service; enregistrer libellé, visibilité et valeur par défaut.
+- [x] Préserver une liste volontairement vide après suppression de toutes ses entrées, sans réinjecter les valeurs initiales lors du prochain affichage des réglages.
 - [x] Permettre d’ajouter et supprimer les lieux proposés comme choix radio, puis afficher dans le PDF le libellé du lieu sélectionné.
 - [x] Afficher les options configurées dans le formulaire de création et reprendre les options actives, cochées ou non, dans le chapitre de mise en service du PDF.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
@@ -310,6 +311,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `c47b3d2` — afficher les erreurs de sauvegarde de l’identité visuelle sans masquer les messages détaillés de validation.
 - `6177423` — maintenir la validation « Autre » si son option est recréée et reçoit une clé technique différente.
 - `c306b69` — afficher le titre paramétré du PV de mise au rebut dans son formulaire.
-- En cours — éviter les doubles messages après échec de sauvegarde d’un modèle PV; revue et vérifications en instance GLPI restent ouvertes.
+- `6059f0a` — supprimer les messages génériques redondants après les erreurs détaillées de sauvegarde PV.
+- En cours — préserver à l’écran les listes PV volontairement vidées; revue et vérifications en instance GLPI restent ouvertes.
 - En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
 
