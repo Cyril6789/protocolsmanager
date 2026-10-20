@@ -442,6 +442,9 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		if (!$saved && $new_logo_path !== '' && is_file($new_logo_path)) {
 			@unlink($new_logo_path);
 		}
+		if (!$saved) {
+			Session::addMessageAfterRedirect(__('L’identité visuelle n’a pas pu être enregistrée.', 'protocolsmanager'), false, ERROR);
+		}
 		if ($saved && $previous_logo !== '' && $previous_logo !== ($branding['logo'] ?? '') && str_starts_with($previous_logo, 'protocolsmanager-global-')) {
 			$previous_path = GLPI_PICTURE_DIR . '/' . $previous_logo;
 			if (is_file($previous_path) && is_writable($previous_path)) {

@@ -305,6 +305,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `8b4361d` — aperçu de logo limité aux fichiers globaux PNG/JPEG lisibles de 2 Mo maximum.
 - `d69f49b` — reprise du logo d’un ancien modèle limitée aux images PNG/JPEG locales valides et conformes aux limites; les réglages historiques restent inchangés.
 - `e36620a` — rendre la reprise des préférences historiques compatible avec l’absence de colonnes avant les migrations de schéma.
-- En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
+- `5f38fbb` — documenter les réglages globaux, les cases et choix configurables, les annexes PDF et les parcours PV sans sélection de modèle à la génération.
+- En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité, avec retours d’erreur visibles pour l’identité globale. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
 - En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
 
