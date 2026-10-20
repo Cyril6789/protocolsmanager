@@ -905,6 +905,13 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 			}
 		}
 		$pv_template = PluginProtocolsmanagerPvtemplate::load('commission');
+		// Existing installations may predate the configurable validator list.
+		// Use the original roles only when that setting is absent; an explicit empty list is intentional.
+		$commission_form = is_array($pv_template['form'] ?? null) ? $pv_template['form'] : [];
+		if (!array_key_exists('validators', $commission_form)) {
+			$commission_form['validators'] = PluginProtocolsmanagerPvtemplate::defaults('commission')['form']['validators'];
+		}
+		$pv_template['form'] = $commission_form;
 		$form_labels = $pv_template['form'] ?? [];
 		$city_label = $city;
 		foreach (($form_labels['cities'] ?? []) as $city_option) {
