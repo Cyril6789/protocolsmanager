@@ -813,7 +813,7 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 <?php if ($chapter_enabled('signature')): ?><h2>6. <?= $escape($chapter_title('signature', __('Signature', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('signature') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('signature'))) ?></p><?php endif; ?>
 <table class="signature"><tr><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th></tr><tr><td><?= $escape($requester) ?></td><td></td><td></td></tr></table>
 <?php endif; ?>
-<?php foreach (($pv_template['custom_chapters'] ?? []) as $custom_index => $custom_chapter): ?><?php if (!empty($custom_chapter['enabled']) && !empty($custom_chapter['title'])): ?><h2><?= $escape(__('Annexe', 'protocolsmanager')) ?> <?= (int)$custom_index + 1 ?>. <?= $escape($custom_chapter['title']) ?></h2><?php if (trim((string)($custom_chapter['content'] ?? '')) !== ''): ?><div class="free"><?= nl2br($escape($custom_chapter['content'])) ?></div><?php endif; ?><?php endif; ?><?php endforeach; ?>
+<?php $custom_annex_number = 0; foreach (($pv_template['custom_chapters'] ?? []) as $custom_chapter): ?><?php if (!empty($custom_chapter['enabled']) && !empty($custom_chapter['title'])): ?><?php $custom_annex_number++; ?><h2><?= $escape(__('Annexe', 'protocolsmanager')) ?> <?= $custom_annex_number ?>. <?= $escape($custom_chapter['title']) ?></h2><?php if (trim((string)($custom_chapter['content'] ?? '')) !== ''): ?><div class="free"><?= nl2br($escape($custom_chapter['content'])) ?></div><?php endif; ?><?php endif; ?><?php endforeach; ?>
 </body></html>
 <?php
 		$html = ob_get_clean();
@@ -1001,7 +1001,7 @@ $rows = [
 <?php foreach ([__('Responsable utilisateur', 'protocolsmanager'), __('Responsable technique (si applicable)', 'protocolsmanager'), __('Comptabilité', 'protocolsmanager'), __('Direction / Responsable hiérarchique', 'protocolsmanager')] as $role): ?><tr><td><?= $escape($role) ?></td><td></td><td></td><td></td></tr><?php endforeach; ?></table>
 <p><?= $escape(__('Document établi le', 'protocolsmanager')) ?> : <?= $escape(date('d/m/Y')) ?><?php if ($city_label !== ''): ?>, <?= $escape(__('lieu', 'protocolsmanager')) ?> <?= $escape($city_label) ?><?php endif; ?></p>
 <?php endif; ?>
-<?php foreach (($pv_template['custom_chapters'] ?? []) as $custom_index => $custom_chapter): ?><?php if (!empty($custom_chapter['enabled']) && !empty($custom_chapter['title'])): ?><h2><?= $escape(__('Annexe', 'protocolsmanager')) ?> <?= (int)$custom_index + 1 ?>. <?= $escape($custom_chapter['title']) ?></h2><?php if (trim((string)($custom_chapter['content'] ?? '')) !== ''): ?><div class="free"><?= nl2br($escape($custom_chapter['content'])) ?></div><?php endif; ?><?php endif; ?><?php endforeach; ?>
+<?php $custom_annex_number = 0; foreach (($pv_template['custom_chapters'] ?? []) as $custom_chapter): ?><?php if (!empty($custom_chapter['enabled']) && !empty($custom_chapter['title'])): ?><?php $custom_annex_number++; ?><h2><?= $escape(__('Annexe', 'protocolsmanager')) ?> <?= $custom_annex_number ?>. <?= $escape($custom_chapter['title']) ?></h2><?php if (trim((string)($custom_chapter['content'] ?? '')) !== ''): ?><div class="free"><?= nl2br($escape($custom_chapter['content'])) ?></div><?php endif; ?><?php endif; ?><?php endforeach; ?>
 </body></html>
 <?php
 		$html = ob_get_clean();

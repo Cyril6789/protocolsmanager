@@ -230,6 +230,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Afficher les options configurées dans le formulaire de création et reprendre les options actives, cochées ou non, dans le chapitre de mise en service du PDF.
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
 - [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.
+- [x] Numéroter les annexes actives à la suite, sans saut lorsqu’une annexe est désactivée.
 - [x] Reprendre dans le PDF de mise en service les libellés configurés pour les champs de date et d’utilisation, ainsi que le libellé du lieu sélectionné.
 - [ ] Permettre de créer/supprimer des champs et chapitres, de configurer les champs structurés de chaque chapitre et de changer l’ordre de rendu.
 - [ ] Préserver les valeurs saisies et leur état lorsque le PV est généré ou réédité.
@@ -249,6 +250,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - [x] Préserver la validation serveur du motif et du mode actif sélectionné; exiger une précision si le choix actif porte la clé `autre` ou le libellé « Autre ».
 - [x] Permettre d’éditer la présence, le titre et le texte introductif des chapitres actuellement définis dans le PDF.
 - [x] Ajouter et supprimer des chapitres libres dans chaque modèle, avec titre, contenu multi-ligne et activation; les rendre après les chapitres standard dans le PDF sous forme d’annexes.
+- [x] Numéroter les annexes actives à la suite, sans saut lorsqu’une annexe est désactivée.
 - [x] Reprendre dans le PDF de mise au rebut le libellé configuré du champ date.
 - [ ] Permettre de créer/supprimer des chapitres, configurer les champs structurés et changer l’ordre de rendu.
 - [x] Construire le formulaire et les titres/activations/textes introductifs du PDF depuis le modèle de mise au rebut sans modifier les réglages de mise en service.
@@ -315,6 +317,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `6059f0a` — supprimer les messages génériques redondants après les erreurs détaillées de sauvegarde PV.
 - `ab28963` — conserver dans les réglages la suppression de toutes les lignes d’une liste sans restaurer les options par défaut.
 - `0eb6a2b` — consigner le comportement de suppression totale des listes PV.
-- En cours — préserver également les couleurs/dimensions historiques par modèle lors des sauvegardes d’inventaire; revue visuelle et vérifications en instance GLPI restent ouvertes.
-- En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
+- `a452da7` — préserver les préférences historiques de couleurs et dimensions par modèle lors de leur édition.
+- En cours — numéroter sans trou les annexes actives des PDFs; revue visuelle et vérifications en instance GLPI restent ouvertes.
 
