@@ -318,7 +318,11 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			}
 		}
 		$template['custom_chapters'] = self::sanitizeCustomChapters($posted['custom_chapters'] ?? []);
-		return PluginProtocolsmanagerPvtemplate::save($type, $template);
+		$saved = PluginProtocolsmanagerPvtemplate::save($type, $template);
+		if (!$saved) {
+			Session::addMessageAfterRedirect(__('Le modèle de procès-verbal n’a pas pu être enregistré.', 'protocolsmanager'), false, ERROR);
+		}
+		return $saved;
 	}
 
 	private static function sanitizeCustomChapters($source): array

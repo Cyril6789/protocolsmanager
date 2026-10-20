@@ -10,8 +10,6 @@
 		$saved = PluginProtocolsmanagerConfig::savePvTemplate();
 		if ($saved) {
 			Session::addMessageAfterRedirect(__('Modèle de procès-verbal enregistré.', 'protocolsmanager'));
-		} else {
-			Session::addMessageAfterRedirect(__('Le modèle de procès-verbal n’a pas pu être enregistré.', 'protocolsmanager'), false, ERROR);
 		}
 		Html::back();
 	}

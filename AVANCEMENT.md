@@ -309,6 +309,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `5f38fbb` — documenter les réglages globaux, les cases et choix configurables, les annexes PDF et les parcours PV sans sélection de modèle à la génération.
 - `c47b3d2` — afficher les erreurs de sauvegarde de l’identité visuelle sans masquer les messages détaillés de validation.
 - `6177423` — maintenir la validation « Autre » si son option est recréée et reçoit une clé technique différente.
-- En cours — afficher le titre paramétré du PV de mise au rebut dans son formulaire; revue et vérifications en instance GLPI restent ouvertes.
+- `c306b69` — afficher le titre paramétré du PV de mise au rebut dans son formulaire.
+- En cours — éviter les doubles messages après échec de sauvegarde d’un modèle PV; revue et vérifications en instance GLPI restent ouvertes.
 - En cours — revue ciblée des générateurs PDF, migrations et contrôles de sécurité. Les vérifications en instance GLPI, le rendu visuel et les essais de génération restent ouverts.
 
