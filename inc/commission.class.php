@@ -965,7 +965,9 @@ h2 { color:<?= $escape($header_text_color) ?>; background:<?= $escape($accent) ?
 .immo-label { color:#111; font-size:9pt; font-weight:normal; }
 .immo-value { display:inline-block; color:<?= $escape($accent) ?>; font-size:13pt; font-weight:bold; border-bottom:2px solid <?= $escape($accent) ?>; padding:0 5mm 1mm; }
 .date-label { color:#111; font-size:9pt; font-weight:normal; }
-.date-value { display:inline-block; box-sizing:border-box; width:40mm; min-height:6mm; border-bottom:1px solid #555; text-align:center; }
+.date-value { display:inline-block; color:<?= $escape($accent) ?>; text-align:center; text-decoration:underline; }
+.date-value.is-empty { box-sizing:border-box; width:40mm; min-height:6mm; border-bottom:1px solid #555; color:#222; text-decoration:none; }
+.effective-date { color:<?= $escape($accent) ?>; text-decoration:underline; }
 table { width:100%; border-collapse:collapse; margin:2mm 0 4mm; }
 th,td { border:1px solid #999; padding:5px; vertical-align:top; }
 th { background:#f1f1f1; text-align:left; }
@@ -986,7 +988,7 @@ th { background:#f1f1f1; text-align:left; }
 <table class="pdf-header"><tr>
 <td class="immo-cell"><span class="immo-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="immo-value"><?= $escape($immo) ?></span></td>
 <td class="logo-cell"><?= $logo_html ?></td>
-<td class="date-cell"><span class="date-label"><?= $escape($form_labels['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) ?> :</span><br><span class="date-value"><?= $escape(self::displayDate($effective_date)) ?></span></td>
+<td class="date-cell"><span class="date-label"><?= $escape($form_labels['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) ?> :</span><br><span class="date-value<?= $effective_date === '' ? ' is-empty' : '' ?>"><?= $escape(self::displayDate($effective_date)) ?></span></td>
 </tr></table>
 <h1><?= $escape($pv_template['title'] ?? __('Procès-verbal de mise en service d’une immobilisation', 'protocolsmanager')) ?></h1>
 <?php if ($chapter_enabled('identification')): ?><h2>1. <?= $escape($chapter_title('identification', __('Identification de l’immobilisation', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('identification') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('identification'))) ?></p><?php endif; ?>
@@ -1014,7 +1016,7 @@ $rows = [
 <?php if ($chapter_enabled('commissioning')): ?><h2>2. <?= $escape($chapter_title('commissioning', __('Mise en service', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('commissioning') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('commissioning'))) ?></p><?php endif; ?>
 <p><?= $escape(__('Je soussigné(e)', 'protocolsmanager')) ?> <strong><?= $escape($signer) ?></strong>, <?= $escape(__('certifie que l’immobilisation décrite ci-dessous a été :', 'protocolsmanager')) ?></p>
 <p><?php foreach ($state_labels as $key => $label): ?><?= in_array($key, $states, true) ? '☒' : '☐' ?> <?= $escape($label) ?>&nbsp;&nbsp;<?php endforeach; ?></p>
-<p><strong><?= $escape($form_labels['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) ?> :</strong> <?= $escape(self::displayDate($effective_date)) ?></p>
+<p><strong><?= $escape($form_labels['effective_date']['label'] ?? __('Date effective de mise en service', 'protocolsmanager')) ?> :</strong> <span class="effective-date"><?= $escape(self::displayDate($effective_date)) ?></span></p>
 <p><strong><?= $escape($form_labels['planned_use']['label'] ?? __('Description de l’utilisation prévue', 'protocolsmanager')) ?> :</strong></p><div class="free"><?= $escape($planned_use) ?></div>
 <?php endif; ?>
 <?php if ($chapter_enabled('observations')): ?><h2>3. <?= $escape($chapter_title('observations', __('Observations éventuelles', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('observations') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('observations'))) ?></p><?php endif; ?><?php if (!$observations_intro_has_token): ?><div class="free"><?= $escape($observations) ?></div><?php endif; ?><?php endif; ?>
