@@ -275,6 +275,7 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 ### F. Génération et structure des PDF
 
 - [ ] Mettre en place un rendu commun qui reçoit le type de document, le modèle, les données GLPI et les valeurs du formulaire.
+- [x] Afficher sur chaque page des trois familles de PDF un pied de page commun avec logo global réduit à gauche, type et nom au centre, pagination « Page x sur y » à droite; conserver le texte de pied configuré sur les modèles d’inventaire.
 - [ ] Conserver le moteur Dompdf et éviter toute modification non nécessaire de `dompdf/`.
 - [ ] Rendre les chapitres configurés dans le bon ordre et respecter leur activation/désactivation.
 - [x] Appliquer le logo et la couleur globale aux PDFs d’inventaire, de mise en service et de mise au rebut.
@@ -325,4 +326,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `125822c` — retirer l’espace final superflu du journal et vérifier le diff commité depuis `master`.
 - `4d4d35c` — rendre les rôles du tableau de validation de mise en service modifiables, activables, ajoutables et supprimables dans les réglages; générer une ligne PDF par rôle actif.
 - `99a7537` — rétablir les quatre rôles initiaux à la génération PDF quand une configuration préexistante ne possède pas encore la clé `validators`, sans migration et sans réinitialiser une liste explicitement vide.
+- `209a8d5` — afficher également la date effective dans l’en-tête du PV, à droite du logo, tout en la conservant dans le chapitre 2 et en laissant une ligne manuscrite si aucune date n’est disponible.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.

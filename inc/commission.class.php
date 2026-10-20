@@ -4,6 +4,7 @@ if (!defined('GLPI_ROOT')) {
 }
 
 require_once dirname(__DIR__) . '/dompdf/vendor/autoload.php';
+require_once __DIR__ . '/pdf.class.php';
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -758,7 +759,7 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		ob_start();
 ?>
 <!doctype html><html><head><meta charset="utf-8"><style>
-@page { margin: 17mm 16mm 16mm; }
+@page { margin: 17mm 16mm 24mm; }
 body { font-family: DejaVu Sans, sans-serif; font-size: 9pt; color: #222; }
 h1 { color: <?= $escape($accent) ?>; text-align:center; font-size:16pt; margin: 0 0 4mm; }
 h2 { color:<?= $escape($header_text_color) ?>; background:<?= $escape($accent) ?>; padding:5px 7px; font-size:10.5pt; margin:5mm 0 2mm; }
@@ -824,6 +825,7 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 			$pdf->loadHtml($html, 'UTF-8');
 			$pdf->setPaper('A4', 'portrait');
 			$pdf->render();
+			PluginProtocolsmanagerPdf::addFooter($pdf, $logo_path, __('Procès-verbal de mise au rebut', 'protocolsmanager'), (string)($pv_template['title'] ?? __('Procès-verbal de mise au rebut', 'protocolsmanager')));
 			$pdf_content = $pdf->output();
 		} catch (\Throwable $exception) {
 			error_log('ProtocolsManager disposal PDF rendering failed: ' . $exception->getMessage());
@@ -944,7 +946,7 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 		ob_start();
 ?>
 <!doctype html><html><head><meta charset="utf-8"><style>
-@page { margin: 20mm 16mm 18mm; }
+@page { margin: 20mm 16mm 24mm; }
 body { font-family: DejaVu Sans, sans-serif; font-size: 9pt; color: #222; }
 h1 { color: <?= $escape($accent) ?>; text-align:center; font-size:17pt; margin: 0 0 5mm; }
 h2 { color:<?= $escape($header_text_color) ?>; background:<?= $escape($accent) ?>; padding:6px 8px; font-size:11pt; margin:7mm 0 3mm; }
@@ -1027,6 +1029,7 @@ $rows = [
 			$pdf->loadHtml($html, 'UTF-8');
 			$pdf->setPaper('A4', 'portrait');
 			$pdf->render();
+			PluginProtocolsmanagerPdf::addFooter($pdf, $logo_path, __('Procès-verbal de mise en service', 'protocolsmanager'), (string)($pv_template['title'] ?? __('Procès-verbal de mise en service', 'protocolsmanager')));
 			$pdf_content = $pdf->output();
 		} catch (\Throwable $exception) {
 			error_log('ProtocolsManager commissioning PDF rendering failed: ' . $exception->getMessage());

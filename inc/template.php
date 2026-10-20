@@ -14,21 +14,6 @@ $header_text_color = isset($header_text_color) && is_string($header_text_color) 
         body {
             font-size: <?= htmlspecialchars($fontsize) ?>;
         }
-        footer {
-            position: fixed;
-            bottom: 0;
-            left: 0; right: 0;
-            height: 25px;
-            text-align: center;
-            font-size: 8pt;
-            color: gray;
-        }
-        #footer-separator {
-            position: fixed;
-            left: 0; right: 0;
-            bottom: 32px;
-            border-top: 1px solid <?= $theme_color ?>;
-        }
         #document-header {
             width: 100%;
             table-layout: fixed;
@@ -261,9 +246,6 @@ if (!empty($number)) {
         </td>
     </tr>
 </table>
-
-<div id="footer-separator"></div>
-<footer><?= nl2br(htmlspecialchars($footer)) // Sécurisé + nl2br pour les sauts de ligne ?></footer>
 
 </body>
 </html>

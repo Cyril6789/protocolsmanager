@@ -4,6 +4,7 @@ if (!defined('GLPI_ROOT')) {
  }
 
 require_once dirname(__DIR__) . '/dompdf/vendor/autoload.php';
+require_once __DIR__ . '/pdf.class.php';
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
@@ -623,6 +624,8 @@ class PluginProtocolsmanagerGenerate extends CommonDBTM {
 				$html2pdf->render();
 
 				$doc_name = str_replace(' ', '_', $title)."-".date('dmY').'.pdf';
+				$inventory_logo_path = $full_img_name !== '' ? GLPI_PICTURE_DIR . '/' . basename($full_img_name) : '';
+				PluginProtocolsmanagerPdf::addFooter($html2pdf, $inventory_logo_path, __('Inventaire', 'protocolsmanager'), (string)$title_template, (string)$footer);
 				$output = $html2pdf->output();
 
 				file_put_contents(GLPI_UPLOAD_DIR .'/'.$doc_name, $output);
