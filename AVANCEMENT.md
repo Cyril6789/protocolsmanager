@@ -347,4 +347,5 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `fd8d626` — compléter les tableaux de sélection des matériels avec des colonnes Type, Modèle et Prix d’achat; reprendre le prix de gestion GLPI lorsqu’il est renseigné, sans modifier les PDFs.
 - `ac995a6` — retirer du formulaire de mise au rebut le tableau « Détails de l’immobilisation » redondant, tout en gardant les détails du document généré.
 - `a2e02e6` — remplacer le marqueur `{observations}` de l’introduction du chapitre Observations par la valeur saisie, sans doublon avec le texte affiché sous l’introduction.
+- `177684c` — réécrire le README sans captures obsolètes, actualiser les métadonnées du plugin, et porter sa version déclarée à `2.0.0.0`.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
