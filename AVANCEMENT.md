@@ -349,3 +349,11 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `a2e02e6` — remplacer le marqueur `{observations}` de l’introduction du chapitre Observations par la valeur saisie, sans doublon avec le texte affiché sous l’introduction.
 - `177684c` — réécrire le README sans captures obsolètes, actualiser les métadonnées du plugin, et porter sa version déclarée à `2.0.0.0`.
 - En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
+
+### Livraison 2.0.0.0
+
+- [x] Mettre à jour le README et les métadonnées sans publier de captures d’écran obsolètes.
+- [x] Déclarer la version `2.0.0.0` dans `setup.php` et `plugin.xml`.
+- [x] Faire avancer `master` de `eb6a17f` à `b04c19b` par fast-forward depuis `feature/pv-templates-1.60.20`.
+- [x] Pousser `master` vers `origin` le 2026-10-20; le push a confirmé `eb6a17f..b04c19b`.
+- [ ] Effectuer une vérification visuelle et fonctionnelle de la release dans une instance GLPI avant annonce aux utilisateurs.
