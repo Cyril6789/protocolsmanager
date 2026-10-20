@@ -318,5 +318,6 @@ Ajouter au plugin un parcours distinct de génération d’un procès-verbal de 
 - `ab28963` — conserver dans les réglages la suppression de toutes les lignes d’une liste sans restaurer les options par défaut.
 - `0eb6a2b` — consigner le comportement de suppression totale des listes PV.
 - `a452da7` — préserver les préférences historiques de couleurs et dimensions par modèle lors de leur édition.
-- En cours — numéroter sans trou les annexes actives des PDFs; revue visuelle et vérifications en instance GLPI restent ouvertes.
+- `fb31f52` — numéroter à la suite uniquement les annexes activées dans les PDFs.
+- En cours — revue de cohérence des rendus PDF; revue visuelle et vérifications en instance GLPI restent ouvertes.
 
