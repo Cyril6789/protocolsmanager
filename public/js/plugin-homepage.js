@@ -31,8 +31,21 @@
 		ensureRepositoryLink();
 		new MutationObserver(ensureRepositoryLink).observe(document.body, { childList: true, subtree: true });
 		document.addEventListener('click', (event) => {
-			const addButton = event.target.closest('[data-pv-add-row]');
+			// GLPI renders icon markup inside the buttons, so resolve the actual
+			// button from the clicked node before handling either action.
+			const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+			if (!target) {
+				return;
+			}
+			const removeButton = target.closest('[data-pv-remove-row]');
+			if (removeButton) {
+				event.preventDefault();
+				removeButton.closest('tr[data-pv-config-row]')?.remove();
+				return;
+			}
+			const addButton = target.closest('[data-pv-add-row]');
 			if (addButton) {
+				event.preventDefault();
 				const listId = addButton.dataset.pvAddRow;
 				const list = document.getElementById(listId);
 				const template = document.getElementById(`template-${listId}`);
@@ -42,11 +55,6 @@
 				const index = Number.parseInt(list.dataset.nextIndex || '0', 10);
 				list.insertAdjacentHTML('beforeend', template.innerHTML.replaceAll('__INDEX__', String(index)));
 				list.dataset.nextIndex = String(index + 1);
-				return;
-			}
-			const removeButton = event.target.closest('[data-pv-remove-row]');
-			if (removeButton) {
-				removeButton.closest('[data-pv-config-row]')?.remove();
 			}
 		});
 	};

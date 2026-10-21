@@ -396,7 +396,9 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			'service_date' => (string)($info['buy_date'] ?? ''),
 			'bill' => (string)($info['bill'] ?? ''),
 			'value' => $info['value'] ?? null,
+			'amortization_duration' => (int)($info['sink_time'] ?? 0),
 			'location' => $location,
+			'model_photo' => self::modelPictureDataUri($itemtype, $fields),
 		];
 	}
 
@@ -415,6 +417,80 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 		}
 		[$field, $table] = $model_fields[$itemtype];
 		return self::dropdownName($table, (int)($fields[$field] ?? 0));
+	}
+
+	private static function modelPictureDataUri(string $itemtype, array $fields): string
+	{
+		global $DB;
+		$model_fields = [
+			'Computer' => ['computermodels_id', 'glpi_computermodels'],
+			'Monitor' => ['monitormodels_id', 'glpi_monitormodels'],
+			'Printer' => ['printermodels_id', 'glpi_printermodels'],
+			'Peripheral' => ['peripheralmodels_id', 'glpi_peripheralmodels'],
+			'Phone' => ['phonemodels_id', 'glpi_phonemodels'],
+			'NetworkEquipment' => ['networkequipmentmodels_id', 'glpi_networkequipmentmodels'],
+		];
+		if (!isset($model_fields[$itemtype])) {
+			return '';
+		}
+		[$model_field, $model_table] = $model_fields[$itemtype];
+		$model_id = (int)($fields[$model_field] ?? 0);
+		if ($model_id <= 0) {
+			return '';
+		}
+		$picture_fields = [];
+		foreach (['picture_front', 'pictures', 'picture'] as $field) {
+			if ($DB->fieldExists($model_table, $field)) {
+				$picture_fields[] = $field;
+			}
+		}
+		if ($picture_fields === []) {
+			return '';
+		}
+		$result = $DB->request([
+			'SELECT' => $picture_fields,
+			'FROM' => $model_table,
+			'WHERE' => ['id' => $model_id],
+		]);
+		$model = $result->current();
+		$candidates = [];
+		foreach (['picture_front', 'picture'] as $field) {
+			if (!empty($model[$field])) {
+				$candidates[] = (string)$model[$field];
+			}
+		}
+		if (!empty($model['pictures'])) {
+			$gallery = importArrayFromDB((string)$model['pictures']);
+			if (is_array($gallery)) {
+				foreach ($gallery as $picture) {
+					if (is_string($picture) && $picture !== '') {
+						$candidates[] = $picture;
+					}
+				}
+			}
+		}
+		$picture_directory = realpath(GLPI_PICTURE_DIR);
+		if ($picture_directory === false) {
+			return '';
+		}
+		foreach ($candidates as $candidate) {
+			$relative_path = str_replace('\\', '/', trim($candidate));
+			if ($relative_path === '' || str_starts_with($relative_path, '/') || preg_match('#(^|/)\.\.?(/|$)#', $relative_path)) {
+				continue;
+			}
+			$path = realpath($picture_directory . '/' . $relative_path);
+			if ($path === false || !str_starts_with($path, $picture_directory . DIRECTORY_SEPARATOR)
+				|| !is_file($path) || !is_readable($path) || (int)filesize($path) > 5242880) {
+				continue;
+			}
+			$image_info = @getimagesize($path);
+			$mime = is_array($image_info) ? (string)($image_info['mime'] ?? '') : '';
+			if (!in_array($mime, ['image/png', 'image/jpeg', 'image/gif'], true)) {
+				continue;
+			}
+			return 'data:' . $mime . ';base64,' . base64_encode((string)file_get_contents($path));
+		}
+		return '';
 	}
 
 	private static function dropdownName(string $table, int $id): string
@@ -785,6 +861,8 @@ th { background:#f1f1f1; text-align:left; }
 .asset { page-break-inside:avoid; margin-bottom:3mm; }
 .asset-table { table-layout:fixed; }
 .free { white-space:pre-wrap; min-height:9mm; }
+.model-photo-item { page-break-inside:avoid; margin:3mm 0 6mm; text-align:center; }
+.model-photo-item img { max-width:150mm; max-height:105mm; }
 .signature td { height:18mm; }
 </style></head><body>
 <table class="pdf-header"><tr><td class="immo-cell"><span class="header-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape($immo) ?></span></td><td class="logo-cell"><?= $logo_html ?></td><td class="date-cell"><span class="header-label"><?= $escape($form_labels['disposal_date']['label'] ?? __('Date de mise au rebut', 'protocolsmanager')) ?> :</span><br><span class="header-value"><?= $escape(self::displayDate($disposal_date)) ?></span></td></tr></table>
@@ -814,10 +892,33 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 <?php if ($chapter_enabled('reason')): ?><h2>3. <?= $escape($chapter_title('reason', __('Motif de la mise au rebut', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('reason') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('reason'))) ?></p><?php endif; ?><?php if (!$reason_intro_has_token): ?><div class="free"><?= $escape($reason) ?></div><?php endif; ?><?php endif; ?>
 <?php if ($chapter_enabled('method')): ?><h2>4. <?= $escape($chapter_title('method', __('Mode de mise au rebut', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('method') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('method'))) ?></p><?php endif; ?><?php if (!$method_intro_has_token): ?><div class="free"><?= $escape($method) ?></div><?php endif; ?><?php endif; ?>
 <?php if ($chapter_enabled('checks') && $check_labels !== []): ?><h2>5. <?= $escape($chapter_title('checks', __('Liste de contrôle', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('checks') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('checks'))) ?></p><?php endif; ?><ul><?php foreach ($check_labels as $key => $label): ?><li><?= in_array($key, $checks, true) ? '☒' : '☐' ?> <?= $escape($label) ?></li><?php endforeach; ?></ul><?php endif; ?>
-<?php if ($chapter_enabled('signature')): ?><h2>6. <?= $escape($chapter_title('signature', __('Signature', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('signature') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('signature'))) ?></p><?php endif; ?>
+<?php
+$disposal_custom_annexes = [];
+$disposal_photo_markup = '';
+foreach ($assets as $asset) {
+	if ($asset['model_photo'] !== '') {
+		$disposal_photo_markup .= '<div class="model-photo-item"><strong>' . $escape($asset['name']) . '</strong><br><img src="' . $escape($asset['model_photo']) . '" alt="' . $escape($asset['name']) . '"></div>';
+	}
+}
+$render_disposal_content = static fn(string $content): string => str_replace('{photo}', $disposal_photo_markup, nl2br($escape($content)));
+foreach (($pv_template['custom_chapters'] ?? []) as $custom_chapter) {
+	$title = trim((string)($custom_chapter['title'] ?? ''));
+	if (empty($custom_chapter['enabled']) || $title === '' || in_array(strtolower($title), ['photo', 'photos', 'signature', 'signatures'], true)) {
+		continue;
+	}
+	$disposal_custom_annexes[] = $custom_chapter;
+}
+$has_disposal_annexes = $chapter_enabled('model_photo') || $disposal_custom_annexes !== [];
+?>
+<?php if ($has_disposal_annexes): ?><h2>6. <?= $escape(__('Annexes', 'protocolsmanager')) ?></h2>
+<?php if ($chapter_enabled('model_photo')): ?><?php $photo_intro_source = $chapter_intro_source('model_photo'); if ($photo_intro_source === '') { $photo_intro_source = '{photo}'; } $rendered_photo_intro = $render_disposal_content($photo_intro_source); ?><?php if (trim($rendered_photo_intro) !== ''): ?><p class="free"><?= $rendered_photo_intro ?></p><?php endif; ?>
+<?php if (!str_contains($photo_intro_source, '{photo}')): ?><?php foreach ($assets as $asset): ?><div class="model-photo-item"><strong><?= $escape($asset['name']) ?></strong><br><?php if ($asset['model_photo'] !== ''): ?><img src="<?= $escape($asset['model_photo']) ?>" alt="<?= $escape($asset['name']) ?>"><?php else: ?><p><?= $escape(__('Aucune photo principale enregistrée pour ce modèle.', 'protocolsmanager')) ?></p><?php endif; ?></div><?php endforeach; ?><?php endif; ?>
+<?php endif; ?>
+<?php foreach ($disposal_custom_annexes as $custom_chapter): ?><?php if (!preg_match('/^annexes?(?:\s+\d+)?\b/i', trim((string)$custom_chapter['title']))): ?><h3><?= $escape($custom_chapter['title']) ?></h3><?php endif; ?><?php $rendered_custom_content = $render_disposal_content((string)($custom_chapter['content'] ?? '')); ?><?php if (trim($rendered_custom_content) !== ''): ?><div class="free"><?= $rendered_custom_content ?></div><?php endif; ?><?php endforeach; ?>
+<?php endif; ?>
+<?php if ($chapter_enabled('signature')): ?><h2>7. <?= $escape(__('Signatures', 'protocolsmanager')) ?></h2>
 <table class="signature"><tr><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th></tr><tr><td><?= $escape($requester) ?></td><td></td><td></td></tr></table>
 <?php endif; ?>
-<?php $custom_annex_number = 0; foreach (($pv_template['custom_chapters'] ?? []) as $custom_chapter): ?><?php if (!empty($custom_chapter['enabled']) && !empty($custom_chapter['title'])): ?><?php $custom_annex_number++; ?><h2><?= $escape(__('Annexe', 'protocolsmanager')) ?> <?= $custom_annex_number ?>. <?= $escape($custom_chapter['title']) ?></h2><?php if (trim((string)($custom_chapter['content'] ?? '')) !== ''): ?><div class="free"><?= nl2br($escape($custom_chapter['content'])) ?></div><?php endif; ?><?php endif; ?><?php endforeach; ?>
 </body></html>
 <?php
 		$html = ob_get_clean();
@@ -948,6 +1049,13 @@ $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_forma
 		$observations_intro_has_token = str_contains($chapter_intro_source('observations'), '{observations}');
 		$chapter_intro = static fn($key) => strtr($chapter_intro_source($key), ['{observations}' => $observations]);
 		$escape = static fn($value) => htmlescape((string)$value);
+		$model_photo_markup = '';
+		foreach ($assets as $asset) {
+			if ($asset['model_photo'] !== '') {
+				$model_photo_markup .= '<div class="model-photo-item"><strong>' . $escape($asset['name']) . '</strong><br><img src="' . $escape($asset['model_photo']) . '" alt="' . $escape($asset['name']) . '"></div>';
+			}
+		}
+		$render_commission_content = static fn(string $content): string => str_replace('{photo}', $model_photo_markup, nl2br($escape($content)));
 		ob_start();
 ?>
 <!doctype html><html><head><meta charset="utf-8"><style>
@@ -982,6 +1090,8 @@ th { background:#f1f1f1; text-align:left; }
 .signature .date-col { width:20%; }
 .signature td { height:18mm; }
 .free { white-space:pre-wrap; min-height:9mm; }
+.model-photo-item { page-break-inside:avoid; margin:3mm 0 6mm; text-align:center; }
+.model-photo-item img { max-width:150mm; max-height:105mm; }
 .chapter-four { page-break-before:always; break-before:page; }
 </style></head><body>
 <table class="pdf-header"><tr>
@@ -1000,7 +1110,9 @@ $rows = [
 	__('Date d’acquisition', 'protocolsmanager') => self::displayDate($asset['buy_date']),
 	__('Numéro de facture', 'protocolsmanager') => $asset['bill'],
 	__('Valeur d’acquisition HT', 'protocolsmanager') => $asset['value'] === null || $asset['value'] === '' ? '' : number_format((float)$asset['value'], 2, ',', ' ') . ' €',
-	__('Site d’affectation', 'protocolsmanager') => $asset['location'],
+	__('Durée d’amortissement', 'protocolsmanager') => $asset['amortization_duration'] > 0
+		? sprintf(_n('%d year', '%d years', $asset['amortization_duration']), $asset['amortization_duration'])
+		: '',
 ];
 ?>
 <tr>
@@ -1009,7 +1121,9 @@ $rows = [
 </tr>
 <?php foreach ($rows as $label => $value): ?>
 <tr><td class="field"><?= $escape($label) ?></td><td colspan="3"><?= $escape($value) ?></td></tr>
-<?php endforeach; ?></table></div>
+<?php endforeach; ?>
+<tr><td class="field"><?= $escape(__('Site d’affectation', 'protocolsmanager')) ?></td><td><?= $escape($asset['location']) ?></td><td class="field"><?= $escape(__('Atelier', 'protocolsmanager')) ?></td><td><?= $escape(__('Informatique', 'protocolsmanager')) ?></td></tr>
+</table></div>
 <?php endforeach; ?>
 <?php if (count($assets) > 1 && $all_amounts_present): ?><p><strong><?= $escape(__('Montant total d’acquisition HT', 'protocolsmanager')) ?> : <?= $escape(number_format($purchase_total, 2, ',', ' ')) ?> €</strong></p><?php endif; ?><?php endif; ?>
 <?php if ($chapter_enabled('commissioning')): ?><h2>2. <?= $escape($chapter_title('commissioning', __('Mise en service', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('commissioning') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('commissioning'))) ?></p><?php endif; ?>
@@ -1019,12 +1133,15 @@ $rows = [
 <p><strong><?= $escape($form_labels['planned_use']['label'] ?? __('Description de l’utilisation prévue', 'protocolsmanager')) ?> :</strong></p><div class="free"><?= $escape($planned_use) ?></div>
 <?php endif; ?>
 <?php if ($chapter_enabled('observations')): ?><h2>3. <?= $escape($chapter_title('observations', __('Observations éventuelles', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('observations') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('observations'))) ?></p><?php endif; ?><?php if (!$observations_intro_has_token): ?><div class="free"><?= $escape($observations) ?></div><?php endif; ?><?php endif; ?>
-<?php if ($chapter_enabled('validation')): ?><h2 class="chapter-four">4. <?= $escape($chapter_title('validation', __('Validations', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('validation') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('validation'))) ?></p><?php endif; ?>
+<?php if ($chapter_enabled('model_photo')): ?><h2>4. <?= $escape(__('Annexes', 'protocolsmanager')) ?></h2><?php $photo_intro_source = $chapter_intro_source('model_photo'); if ($photo_intro_source === '') { $photo_intro_source = '{photo}'; } $rendered_photo_intro = $render_commission_content($photo_intro_source); ?><?php if (trim($rendered_photo_intro) !== ''): ?><p class="free"><?= $rendered_photo_intro ?></p><?php endif; ?>
+<?php if (!str_contains($photo_intro_source, '{photo}')): ?><?php foreach ($assets as $asset): ?><div class="model-photo-item"><strong><?= $escape($asset['name']) ?></strong><br><?php if ($asset['model_photo'] !== ''): ?><img src="<?= $escape($asset['model_photo']) ?>" alt="<?= $escape($asset['name']) ?>"><?php else: ?><p><?= $escape(__('Aucune photo principale enregistrée pour ce modèle.', 'protocolsmanager')) ?></p><?php endif; ?></div><?php endforeach; ?><?php endif; ?>
+<?php endif; ?>
+<?php if ($chapter_enabled('validation')): ?><h2 class="chapter-four">5. <?= $escape($chapter_title('validation', __('Validations', 'protocolsmanager'))) ?></h2><?php if ($chapter_intro('validation') !== ''): ?><p class="free"><?= nl2br($escape($chapter_intro('validation'))) ?></p><?php endif; ?>
 <table class="signature"><colgroup><col class="role-col"><col class="name-col"><col class="sign-col"><col class="date-col"></colgroup><tr><th><?= $escape(__('Fonction', 'protocolsmanager')) ?></th><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th></tr>
 <?php foreach ($validator_roles as $validator): ?><tr><td><?= $escape($validator['label']) ?></td><td></td><td></td><td></td></tr><?php endforeach; ?></table>
 <p><?= $escape(__('Document établi le', 'protocolsmanager')) ?> : <?= $escape(date('d/m/Y')) ?><?php if ($city_label !== ''): ?>, <?= $escape(__('lieu', 'protocolsmanager')) ?> <?= $escape($city_label) ?><?php endif; ?></p>
 <?php endif; ?>
-<?php $custom_annex_number = 0; foreach (($pv_template['custom_chapters'] ?? []) as $custom_chapter): ?><?php if (!empty($custom_chapter['enabled']) && !empty($custom_chapter['title'])): ?><?php $custom_annex_number++; ?><h2><?= $escape(__('Annexe', 'protocolsmanager')) ?> <?= $custom_annex_number ?>. <?= $escape($custom_chapter['title']) ?></h2><?php if (trim((string)($custom_chapter['content'] ?? '')) !== ''): ?><div class="free"><?= nl2br($escape($custom_chapter['content'])) ?></div><?php endif; ?><?php endif; ?><?php endforeach; ?>
+<?php foreach (($pv_template['custom_chapters'] ?? []) as $custom_chapter): ?><?php $custom_title = trim((string)($custom_chapter['title'] ?? '')); ?><?php if (!empty($custom_chapter['enabled']) && $custom_title !== '' && !preg_match('/^annexe\s*1\b/i', $custom_title)): ?><h2><?= $escape($custom_title) ?></h2><?php if (trim((string)($custom_chapter['content'] ?? '')) !== ''): ?><div class="free"><?= $render_commission_content((string)$custom_chapter['content']) ?></div><?php endif; ?><?php endif; ?><?php endforeach; ?>
 </body></html>
 <?php
 		$html = ob_get_clean();
