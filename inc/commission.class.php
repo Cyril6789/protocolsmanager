@@ -396,10 +396,76 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			'service_date' => (string)($info['buy_date'] ?? ''),
 			'bill' => (string)($info['bill'] ?? ''),
 			'value' => $info['value'] ?? null,
+			'amortization_type' => (int)($info['sink_type'] ?? 0),
+			'amortization_coefficient' => (float)($info['sink_coeff'] ?? 0),
 			'amortization_duration' => (int)($info['sink_time'] ?? 0),
+			'use_date' => (string)($info['use_date'] ?? ''),
 			'location' => $location,
 			'model_photo' => self::modelPictureDataUri($itemtype, $fields),
 		];
+	}
+
+	private static function calculateNetBookValue(array $asset, string $as_of_date): ?float
+	{
+		global $CFG_GLPI;
+		$type = (int)($asset['amortization_type'] ?? 0);
+		$value = (float)($asset['value'] ?? 0);
+		$duration = (int)($asset['amortization_duration'] ?? 0);
+		$coefficient = (float)($asset['amortization_coefficient'] ?? 0);
+		$buy_date = (string)($asset['buy_date'] ?? '');
+		$use_date = (string)($asset['use_date'] ?? '');
+		$fiscal_date = (string)($CFG_GLPI['date_tax'] ?? '');
+		$target_date = DateTimeImmutable::createFromFormat('!Y-m-d', $as_of_date);
+
+		if (!class_exists('Infocom') || !method_exists('Infocom', 'Amort')
+			|| $type === 0 || $value <= 0 || $duration <= 0
+			|| $fiscal_date === '' || ($buy_date === '' && $use_date === '')
+			|| !$target_date || $target_date->format('Y-m-d') !== $as_of_date) {
+			return null;
+		}
+
+		try {
+			$schedule = Infocom::Amort($type, $value, $duration, $coefficient, $buy_date, $use_date, $fiscal_date, 'all');
+		} catch (Throwable $exception) {
+			error_log('ProtocolsManager net book value calculation failed: ' . $exception->getMessage());
+			return null;
+		}
+
+		if (!is_array($schedule)
+			|| !is_array($schedule['annee'] ?? null)
+			|| !is_array($schedule['vcnetdeb'] ?? null)
+			|| !is_array($schedule['vcnetfin'] ?? null)
+			|| $schedule['annee'] === []) {
+			return null;
+		}
+
+		$target_year = (int)$target_date->format('Y');
+		$schedule_index = null;
+		$first_year = null;
+		foreach ($schedule['annee'] as $index => $year) {
+			$year = (int)$year;
+			$first_year = $first_year === null ? $year : min($first_year, $year);
+			if ($year === $target_year) {
+				$schedule_index = $index;
+				break;
+			}
+		}
+		if ($schedule_index === null) {
+			return $target_year < $first_year ? $value : 0.0;
+		}
+
+		$fiscal_timestamp = strtotime($fiscal_date);
+		if ($fiscal_timestamp === false) {
+			return null;
+		}
+		$fiscal_month_day = date('m-d', $fiscal_timestamp);
+		$target_month_day = $target_date->format('m-d');
+		// GLPI's linear amortization returns the ending value for the requested year.
+		// Its declining-balance calculation switches between start/end at the fiscal date.
+		$balance_key = $type === 2 || $target_month_day > $fiscal_month_day ? 'vcnetfin' : 'vcnetdeb';
+		$net_value = $schedule[$balance_key][$schedule_index] ?? null;
+
+		return is_numeric($net_value) ? (float)$net_value : null;
 	}
 
 	private static function modelName(string $itemtype, array $fields): string
@@ -821,6 +887,15 @@ class PluginProtocolsmanagerCommission extends CommonDBTM
 			$requester_with_title .= ' - ' . $title;
 		}
 		$pv_template = PluginProtocolsmanagerPvtemplate::load('disposal');
+		$disposal_form = is_array($pv_template['form'] ?? null) ? $pv_template['form'] : [];
+		if (!array_key_exists('validators', $disposal_form)) {
+			$disposal_form['validators'] = PluginProtocolsmanagerPvtemplate::defaults('disposal')['form']['validators'];
+		}
+		$configured_validators = $disposal_form['validators'];
+		$validator_roles = array_values(array_filter(
+			is_array($configured_validators) ? $configured_validators : [],
+			static fn($validator) => is_array($validator) && !empty($validator['enabled']) && trim((string)($validator['label'] ?? '')) !== ''
+		));
 		$form_labels = $pv_template['form'] ?? [];
 		$chapters = [];
 		foreach (($pv_template['chapters'] ?? []) as $chapter) {
@@ -864,6 +939,11 @@ th { background:#f1f1f1; text-align:left; }
 .free { white-space:pre-wrap; min-height:9mm; }
 .model-photo-item { page-break-inside:avoid; margin:3mm 0 6mm; text-align:center; }
 .model-photo-item img { max-width:150mm; max-height:105mm; }
+.signature { table-layout:fixed; }
+.signature .role-col { width:20%; }
+.signature .name-col { width:27%; }
+.signature .sign-col { width:33%; }
+.signature .date-col { width:20%; }
 .signature td { height:18mm; }
 </style></head><body>
 <table class="pdf-header"><tr><td class="immo-cell"><span class="immo-label"><?= $escape(__('Numéro immo', 'protocolsmanager')) ?> :</span><br><span class="immo-value"><?= $escape($immo) ?></span></td><td class="logo-cell"><?= $logo_html ?></td><td class="date-cell"><span class="date-label"><?= $escape($form_labels['disposal_date']['label'] ?? __('Date de mise au rebut', 'protocolsmanager')) ?> :</span><br><span class="date-value<?= $disposal_date === '' ? ' is-empty' : '' ?>"><?= $escape(self::displayDate($disposal_date)) ?></span></td></tr></table>
@@ -883,10 +963,15 @@ if ($make_model !== '' && $asset['type'] !== '') {
 	$make_model = $asset['type'];
 }
 $amount = $asset['value'] === null || $asset['value'] === '' ? '' : number_format((float)$asset['value'], 2, ',', ' ') . ' €';
+$calculated_net_book_value = self::calculateNetBookValue($asset, $disposal_date);
+$net_book_value = $calculated_net_book_value === null
+	? ''
+	: number_format($calculated_net_book_value, 2, ',', ' ') . ' €';
 ?>
 <tr><td class="field" style="width:30%"><?= $escape(__('Désignation', 'protocolsmanager')) ?></td><td colspan="3"><?= $escape($asset['name']) ?></td></tr>
 <tr><td class="field" style="width:30%"><?= $escape(__('Numéro d’inventaire', 'protocolsmanager')) ?></td><td><?= $escape($asset['inventory_number']) ?></td><td class="field"><?= $escape(__('Numéro de série', 'protocolsmanager')) ?></td><td><?= $escape($asset['serial']) ?></td></tr>
 <tr><td class="field" style="width:30%"><?= $escape(__('Date de mise en service', 'protocolsmanager')) ?></td><td><?= $escape(self::displayDate($asset['service_date'])) ?></td><td class="field"><?= $escape(__('Montant', 'protocolsmanager')) ?></td><td><?= $escape($amount) ?></td></tr>
+<tr><td class="field" style="width:30%"><?= $escape(__('Valeur nette comptable', 'protocolsmanager')) ?></td><td colspan="3"><?= $escape($net_book_value) ?></td></tr>
 <tr><td class="field" style="width:30%"><?= $escape(__('Marque / Modèle', 'protocolsmanager')) ?></td><td colspan="3"><?= $escape($make_model) ?></td></tr>
 </tbody></table></div><?php endforeach; ?>
 <?php if (count($assets) > 1 && $all_amounts_present): ?><p><strong><?= $escape(__('Montant total', 'protocolsmanager')) ?> : <?= $escape(number_format($total, 2, ',', ' ')) ?> €</strong></p><?php endif; ?><?php endif; ?>
@@ -918,7 +1003,8 @@ $has_disposal_annexes = $chapter_enabled('model_photo') || $disposal_custom_anne
 <?php foreach ($disposal_custom_annexes as $custom_chapter): ?><?php if (!preg_match('/^annexes?(?:\s+\d+)?\b/i', trim((string)$custom_chapter['title']))): ?><h3><?= $escape($custom_chapter['title']) ?></h3><?php endif; ?><?php $rendered_custom_content = $render_disposal_content((string)($custom_chapter['content'] ?? '')); ?><?php if (trim($rendered_custom_content) !== ''): ?><div class="free"><?= $rendered_custom_content ?></div><?php endif; ?><?php endforeach; ?>
 <?php endif; ?>
 <?php if ($chapter_enabled('signature')): ?><h2>7. <?= $escape(__('Signatures', 'protocolsmanager')) ?></h2>
-<table class="signature"><tr><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th></tr><tr><td><?= $escape($requester) ?></td><td></td><td></td></tr></table>
+<table class="signature"><colgroup><col class="role-col"><col class="name-col"><col class="sign-col"><col class="date-col"></colgroup><tr><th><?= $escape(__('Fonction', 'protocolsmanager')) ?></th><th><?= $escape(__('Nom', 'protocolsmanager')) ?></th><th><?= $escape(__('Signature', 'protocolsmanager')) ?></th><th><?= $escape(__('Date', 'protocolsmanager')) ?></th></tr>
+<?php foreach ($validator_roles as $validator): ?><tr><td><?= $escape($validator['label']) ?></td><td><?= ($validator['key'] ?? '') === 'applicants' ? $escape($requester) : '' ?></td><td></td><td></td></tr><?php endforeach; ?></table>
 <?php endif; ?>
 </body></html>
 <?php
@@ -1107,7 +1193,7 @@ th { background:#f1f1f1; text-align:left; }
 $rows = [
 	__('Désignation', 'protocolsmanager') => trim($asset['name'] . ($asset['type'] !== '' ? ' (' . $asset['type'] . ')' : '')),
 	__('Fournisseur', 'protocolsmanager') => $asset['supplier'],
-	__('Date d’acquisition', 'protocolsmanager') => self::displayDate($asset['buy_date']),
+	__('Date de facture', 'protocolsmanager') => self::displayDate($asset['buy_date']),
 	__('Numéro de facture', 'protocolsmanager') => $asset['bill'],
 	__('Valeur d’acquisition HT', 'protocolsmanager') => $asset['value'] === null || $asset['value'] === '' ? '' : number_format((float)$asset['value'], 2, ',', ' ') . ' €',
 	__('Durée d’amortissement', 'protocolsmanager') => $asset['amortization_duration'] > 0

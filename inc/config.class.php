@@ -175,6 +175,7 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 			self::displayChoiceListEditor('cities', $form_fields['cities'] ?? [], __('Lieux proposés', 'protocolsmanager'), __('Ajouter un lieu', 'protocolsmanager'), __('Lieu', 'protocolsmanager'));
 		} else {
 			self::displayChoiceListEditor('methods', $form_fields['methods'] ?? [], __('Modes proposés', 'protocolsmanager'), __('Ajouter un mode', 'protocolsmanager'), __('Libellé du mode', 'protocolsmanager'));
+			self::displayChoiceListEditor('validators', $form_fields['validators'] ?? [], __('Signataires du PV', 'protocolsmanager'), __('Ajouter un signataire', 'protocolsmanager'), __('Rôle du signataire', 'protocolsmanager'));
 			echo '<p class="form-text">' . htmlescape(__('Le choix libellé « Autre » demande une précision dans le formulaire de génération.', 'protocolsmanager')) . '</p>';
 			self::displayCheckboxListEditor($type, 'checks', $form_fields['checks'] ?? []);
 		}
@@ -466,7 +467,7 @@ class PluginProtocolsmanagerConfig extends CommonDBTM {
 		$type = (string)($_POST['section'] ?? '');
 		$allowed_lists = [
 			'commission' => ['states' => 'checkbox', 'validators' => 'choice', 'cities' => 'choice'],
-			'disposal' => ['checks' => 'checkbox', 'methods' => 'choice'],
+			'disposal' => ['checks' => 'checkbox', 'methods' => 'choice', 'validators' => 'choice'],
 		];
 		if (($allowed_lists[$type][$list_key] ?? null) !== $entry_type) {
 			Session::addMessageAfterRedirect(__('L’entrée à ajouter est invalide.', 'protocolsmanager'), false, ERROR);

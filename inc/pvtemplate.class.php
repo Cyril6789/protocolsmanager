@@ -71,6 +71,13 @@ class PluginProtocolsmanagerPvtemplate
                         ['key' => 'autre', 'label' => 'Autre', 'enabled' => true],
                     ],
                     'checks' => [],
+                    'validators' => [
+                        ['key' => 'applicants', 'label' => 'Demandeurs', 'enabled' => true],
+                        ['key' => 'manager', 'label' => 'Manageur', 'enabled' => true],
+                        ['key' => 'daf', 'label' => 'DAF', 'enabled' => true],
+                        ['key' => 'direction', 'label' => 'Direction', 'enabled' => true],
+                        ['key' => 'accounting', 'label' => 'Comptabilité', 'enabled' => true],
+                    ],
                 ],
                 'chapters' => [
                     ['key' => 'general', 'title' => 'Informations générales', 'enabled' => true,
